@@ -9,5 +9,32 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+dashboard:
+  - getStats:
+  - seedDemoData:
 greeting:
   - hello:
+match:
+  - getMatchesForReport:
+  - getUserMatches:
+  - getMatchDetails:
+  - runMatchingForReport:
+notification:
+  - getUserNotifications:
+  - markAsRead:
+  - markAllAsRead:
+  - watchNotifications:
+report:
+  - createReport:
+  - getReport:
+  - listReports:
+  - listUserReports:
+  - updateReportStatus:
+  - uploadPhoto:
+user:
+  - getOrCreateUser:
+  - getUser:
+verification:
+  - getVerificationQuestion:
+  - submitVerificationAnswer:
+  - markItemReturned:

@@ -1,0 +1,8 @@
+class: MatchDetailsDto
+fields:
+  match: ItemMatch
+  lostReport: ItemReport
+  foundReport: ItemReport
+  verificationQuestion: String?
+  isClaimPending: bool
+  isVerified: bool

@@ -1,0 +1,6 @@
+class: VerificationAttemptResult
+fields:
+  success: bool
+  message: String
+  attemptsRemaining: int
+  isLocked: bool

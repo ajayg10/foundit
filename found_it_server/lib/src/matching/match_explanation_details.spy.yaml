@@ -1,0 +1,9 @@
+class: MatchExplanationDetails
+fields:
+  title: String
+  confidencePercentage: int
+  textSimilaritySummary: String
+  distanceSummary: String
+  timeSummary: String
+  categorySummary: String
+  overallVerdict: String

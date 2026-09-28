@@ -1,0 +1,6 @@
+class: DashboardStats
+fields:
+  totalLost: int
+  totalFound: int
+  totalMatched: int
+  totalReturned: int

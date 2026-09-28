@@ -1,0 +1,27 @@
+class: ItemReport
+table: item_report
+fields:
+  userId: String
+  userName: String
+  userEmail: String
+  reportType: String # 'lost' or 'found'
+  title: String
+  description: String
+  category: String
+  latitude: double
+  longitude: double
+  locationLabel: String
+  eventTime: DateTime
+  imageUrl: String?
+  status: String # 'open', 'matched', 'claimPending', 'verified', 'returned'
+  createdAt: DateTime
+  updatedAt: DateTime
+indexes:
+  item_report_type_idx:
+    fields: reportType
+  item_report_status_idx:
+    fields: status
+  item_report_category_idx:
+    fields: category
+  item_report_user_id_idx:
+    fields: userId

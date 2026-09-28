@@ -1,0 +1,15 @@
+class: AppUser
+table: app_user
+fields:
+  userId: String
+  name: String
+  email: String
+  phoneNumber: String?
+  createdAt: DateTime
+indexes:
+  app_user_email_idx:
+    fields: email
+    unique: true
+  app_user_user_id_idx:
+    fields: userId
+    unique: true

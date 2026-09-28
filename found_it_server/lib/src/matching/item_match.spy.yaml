@@ -1,0 +1,19 @@
+class: ItemMatch
+table: item_match
+fields:
+  lostReportId: int
+  foundReportId: int
+  confidenceScore: double
+  textScore: double
+  distanceScore: double
+  timeScore: double
+  categoryScore: double
+  explanation: String
+  distanceKm: double
+  timeDiffHours: double
+  status: String # 'potential', 'accepted', 'rejected', 'verified'
+  createdAt: DateTime
+indexes:
+  item_match_lost_found_idx:
+    fields: lostReportId, foundReportId
+    unique: true

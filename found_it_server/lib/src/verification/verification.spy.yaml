@@ -1,0 +1,16 @@
+class: Verification
+table: item_verification
+fields:
+  reportId: int
+  question: String
+  answerHash: String
+  attemptCount: int
+  maxAttempts: int
+  isVerified: bool
+  verifiedByUserId: String?
+  verifiedAt: DateTime?
+  createdAt: DateTime
+indexes:
+  verification_report_idx:
+    fields: reportId
+    unique: true

@@ -11,8 +11,21 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
+import 'package:found_it_client/src/protocol/dashboard/dashboard_stats.dart'
+    as _ila16efb;
 import 'package:found_it_client/src/protocol/greetings/greeting.dart'
     as _i2mcst3r;
+import 'package:found_it_client/src/protocol/matching/item_match.dart'
+    as _ik1j6p4l;
+import 'package:found_it_client/src/protocol/matching/match_details_dto.dart'
+    as _ipha0ngu;
+import 'package:found_it_client/src/protocol/notifications/app_notification.dart'
+    as _i0k0rxep;
+import 'package:found_it_client/src/protocol/reports/item_report.dart'
+    as _ii8kv2u4;
+import 'package:found_it_client/src/protocol/users/app_user.dart' as _i14gzzqr;
+import 'package:found_it_client/src/protocol/verification/verification_attempt_result.dart'
+    as _iabg45g9;
 import 'package:http/http.dart' as _i85jenna;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
@@ -246,6 +259,30 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Endpoint providing platform-level analytics and demo seeding.
+/// {@category Endpoint}
+class EndpointDashboard extends _isc.EndpointRef {
+  EndpointDashboard(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'dashboard';
+
+  /// Fetches platform statistics for the home screen and metrics counter.
+  _ida.Future<_ila16efb.DashboardStats> getStats() =>
+      caller.callServerEndpoint<_ila16efb.DashboardStats>(
+        'dashboard',
+        'getStats',
+        {},
+      );
+
+  /// One-click reset and initialization of realistic hackathon demo data.
+  _ida.Future<bool> seedDemoData() => caller.callServerEndpoint<bool>(
+    'dashboard',
+    'seedDemoData',
+    {},
+  );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -262,6 +299,264 @@ class EndpointGreeting extends _isc.EndpointRef {
         'hello',
         {'name': name},
       );
+}
+
+/// Endpoint for querying matches, explanations, and triggering match recalculations.
+/// {@category Endpoint}
+class EndpointMatch extends _isc.EndpointRef {
+  EndpointMatch(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'match';
+
+  /// Fetches all matches for a specific report, populated with full report details.
+  _ida.Future<List<_ipha0ngu.MatchDetailsDto>> getMatchesForReport(
+    int reportId,
+  ) => caller.callServerEndpoint<List<_ipha0ngu.MatchDetailsDto>>(
+    'match',
+    'getMatchesForReport',
+    {'reportId': reportId},
+  );
+
+  /// Fetches all matches involving any reports created by a user.
+  _ida.Future<List<_ipha0ngu.MatchDetailsDto>> getUserMatches(String userId) =>
+      caller.callServerEndpoint<List<_ipha0ngu.MatchDetailsDto>>(
+        'match',
+        'getUserMatches',
+        {'userId': userId},
+      );
+
+  /// Fetches details for a single match.
+  _ida.Future<_ipha0ngu.MatchDetailsDto?> getMatchDetails(int matchId) =>
+      caller.callServerEndpoint<_ipha0ngu.MatchDetailsDto?>(
+        'match',
+        'getMatchDetails',
+        {'matchId': matchId},
+      );
+
+  /// Triggers or recalculates matches for a specific report.
+  _ida.Future<List<_ik1j6p4l.ItemMatch>> runMatchingForReport(int reportId) =>
+      caller.callServerEndpoint<List<_ik1j6p4l.ItemMatch>>(
+        'match',
+        'runMatchingForReport',
+        {'reportId': reportId},
+      );
+}
+
+/// Endpoint providing real-time notification streaming and query management.
+/// {@category Endpoint}
+class EndpointNotification extends _isc.EndpointRef {
+  EndpointNotification(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'notification';
+
+  /// Fetches recent notifications for a user.
+  _ida.Future<List<_i0k0rxep.AppNotification>> getUserNotifications(
+    String userId,
+  ) => caller.callServerEndpoint<List<_i0k0rxep.AppNotification>>(
+    'notification',
+    'getUserNotifications',
+    {'userId': userId},
+  );
+
+  /// Marks a notification as read.
+  _ida.Future<bool> markAsRead(int notificationId) =>
+      caller.callServerEndpoint<bool>(
+        'notification',
+        'markAsRead',
+        {'notificationId': notificationId},
+      );
+
+  /// Marks all notifications for a user as read.
+  _ida.Future<bool> markAllAsRead(String userId) =>
+      caller.callServerEndpoint<bool>(
+        'notification',
+        'markAllAsRead',
+        {'userId': userId},
+      );
+
+  /// Idiomatic Serverpod 4 real-time streaming method.
+  /// Clients subscribe to this stream to receive instant live alerts.
+  _ida.Stream<_i0k0rxep.AppNotification> watchNotifications(String userId) =>
+      caller.callStreamingServerEndpoint<
+        _ida.Stream<_i0k0rxep.AppNotification>,
+        _i0k0rxep.AppNotification
+      >(
+        'notification',
+        'watchNotifications',
+        {'userId': userId},
+        {},
+      );
+}
+
+/// Endpoint handling Lost & Found item reporting, browsing, and image uploads.
+/// {@category Endpoint}
+class EndpointReport extends _isc.EndpointRef {
+  EndpointReport(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'report';
+
+  /// Creates a lost or found report, stores optional verification questions,
+  /// and automatically triggers Serverpod matching engine.
+  _ida.Future<_ii8kv2u4.ItemReport> createReport({
+    required _ii8kv2u4.ItemReport report,
+    String? verificationQuestion,
+    String? verificationAnswer,
+  }) => caller.callServerEndpoint<_ii8kv2u4.ItemReport>(
+    'report',
+    'createReport',
+    {
+      'report': report,
+      'verificationQuestion': verificationQuestion,
+      'verificationAnswer': verificationAnswer,
+    },
+  );
+
+  /// Fetches a single report by ID.
+  _ida.Future<_ii8kv2u4.ItemReport?> getReport(int reportId) =>
+      caller.callServerEndpoint<_ii8kv2u4.ItemReport?>(
+        'report',
+        'getReport',
+        {'reportId': reportId},
+      );
+
+  /// Lists reports with optional filters for the public board and exploration.
+  _ida.Future<List<_ii8kv2u4.ItemReport>> listReports({
+    String? reportType,
+    String? category,
+    String? status,
+    String? searchQuery,
+    required int limit,
+  }) => caller.callServerEndpoint<List<_ii8kv2u4.ItemReport>>(
+    'report',
+    'listReports',
+    {
+      'reportType': reportType,
+      'category': category,
+      'status': status,
+      'searchQuery': searchQuery,
+      'limit': limit,
+    },
+  );
+
+  /// Fetches all reports submitted by a specific user.
+  _ida.Future<List<_ii8kv2u4.ItemReport>> listUserReports(String userId) =>
+      caller.callServerEndpoint<List<_ii8kv2u4.ItemReport>>(
+        'report',
+        'listUserReports',
+        {'userId': userId},
+      );
+
+  /// Updates report status with authorization check.
+  _ida.Future<_ii8kv2u4.ItemReport> updateReportStatus({
+    required int reportId,
+    required String status,
+    required String userId,
+  }) => caller.callServerEndpoint<_ii8kv2u4.ItemReport>(
+    'report',
+    'updateReportStatus',
+    {
+      'reportId': reportId,
+      'status': status,
+      'userId': userId,
+    },
+  );
+
+  /// Direct photo upload handler using Serverpod database storage.
+  /// Converts base64 bytes and stores in Serverpod cloud storage.
+  _ida.Future<String> uploadPhoto({
+    required String filename,
+    required String base64Data,
+  }) => caller.callServerEndpoint<String>(
+    'report',
+    'uploadPhoto',
+    {
+      'filename': filename,
+      'base64Data': base64Data,
+    },
+  );
+}
+
+/// Endpoint for managing user profiles and sessions.
+/// {@category Endpoint}
+class EndpointUser extends _isc.EndpointRef {
+  EndpointUser(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'user';
+
+  /// Fetches an existing user or creates a new profile.
+  _ida.Future<_i14gzzqr.AppUser> getOrCreateUser({
+    required String userId,
+    required String name,
+    required String email,
+    String? phone,
+  }) => caller.callServerEndpoint<_i14gzzqr.AppUser>(
+    'user',
+    'getOrCreateUser',
+    {
+      'userId': userId,
+      'name': name,
+      'email': email,
+      'phone': phone,
+    },
+  );
+
+  /// Gets a user by unique ID.
+  _ida.Future<_i14gzzqr.AppUser?> getUser(String userId) =>
+      caller.callServerEndpoint<_i14gzzqr.AppUser?>(
+        'user',
+        'getUser',
+        {'userId': userId},
+      );
+}
+
+/// Endpoint managing verification challenges and final item returns.
+/// {@category Endpoint}
+class EndpointVerification extends _isc.EndpointRef {
+  EndpointVerification(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'verification';
+
+  /// Fetches ONLY the public question for verification.
+  /// IMPORTANT: The expected answer is NEVER sent to the client.
+  _ida.Future<String?> getVerificationQuestion(int reportId) =>
+      caller.callServerEndpoint<String?>(
+        'verification',
+        'getVerificationQuestion',
+        {'reportId': reportId},
+      );
+
+  /// Submits an answer attempt for server-side verification.
+  _ida.Future<_iabg45g9.VerificationAttemptResult> submitVerificationAnswer({
+    required int reportId,
+    required String claimantUserId,
+    required String answer,
+  }) => caller.callServerEndpoint<_iabg45g9.VerificationAttemptResult>(
+    'verification',
+    'submitVerificationAnswer',
+    {
+      'reportId': reportId,
+      'claimantUserId': claimantUserId,
+      'answer': answer,
+    },
+  );
+
+  /// Marks an item as handed over / returned, completing the full lifecycle.
+  _ida.Future<bool> markItemReturned({
+    required int reportId,
+    required String userId,
+  }) => caller.callServerEndpoint<bool>(
+    'verification',
+    'markItemReturned',
+    {
+      'reportId': reportId,
+      'userId': userId,
+    },
+  );
 }
 
 class Modules {
@@ -304,7 +599,13 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    dashboard = EndpointDashboard(this);
     greeting = EndpointGreeting(this);
+    match = EndpointMatch(this);
+    notification = EndpointNotification(this);
+    report = EndpointReport(this);
+    user = EndpointUser(this);
+    verification = EndpointVerification(this);
     modules = Modules(this);
   }
 
@@ -312,7 +613,19 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointDashboard dashboard;
+
   late final EndpointGreeting greeting;
+
+  late final EndpointMatch match;
+
+  late final EndpointNotification notification;
+
+  late final EndpointReport report;
+
+  late final EndpointUser user;
+
+  late final EndpointVerification verification;
 
   late final Modules modules;
 
@@ -320,7 +633,13 @@ class Client extends _isc.ServerpodClientShared {
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'dashboard': dashboard,
     'greeting': greeting,
+    'match': match,
+    'notification': notification,
+    'report': report,
+    'user': user,
+    'verification': verification,
   };
 
   @override
