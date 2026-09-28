@@ -32,21 +32,27 @@ class SimilarityService {
 
     final titleSim = trigramSimilarity(title1, title2);
     final descSim = trigramSimilarity(description1, description2);
-    final crossSim1 = trigramSimilarity(title1, description2);
-    final crossSim2 = trigramSimilarity(title2, description1);
-
     final titleTokenSim = tokenJaccardSimilarity(title1, title2);
     final descTokenSim = tokenJaccardSimilarity(
       '$title1 $description1',
       '$title2 $description2',
     );
 
+    // Title keyword containment (e.g. "Black Backpack" in "Black Wildcraft Backpack")
+    final t1Tokens = _tokenize(title1);
+    final t2Tokens = _tokenize(title2);
+    final isContained = t1Tokens.isNotEmpty &&
+        t2Tokens.isNotEmpty &&
+        (t1Tokens.every(t2Tokens.contains) || t2Tokens.every(t1Tokens.contains));
+
+    final effectiveTitleSim = isContained ? max(0.92, titleSim) : titleSim;
+    final effectiveTitleTokenSim = isContained ? 1.0 : titleTokenSim;
+
     // Combine with heavy weight on title and token overlap
-    final combined = (titleSim * 0.40) +
-        (descSim * 0.30) +
-        (max(crossSim1, crossSim2) * 0.10) +
-        (titleTokenSim * 0.10) +
-        (descTokenSim * 0.10);
+    final combined = (effectiveTitleSim * 0.45) +
+        (effectiveTitleTokenSim * 0.30) +
+        (descTokenSim * 0.15) +
+        (descSim * 0.10);
 
     return combined.clamp(0.0, 1.0);
   }
