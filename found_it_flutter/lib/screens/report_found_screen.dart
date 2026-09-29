@@ -6,6 +6,7 @@ import '../client.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/location_picker.dart';
+import '../widgets/photo_picker.dart';
 
 class ReportFoundScreen extends StatefulWidget {
   const ReportFoundScreen({super.key});
@@ -18,7 +19,6 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  final _imageUrlController = TextEditingController();
   final _questionController = TextEditingController();
   final _answerController = TextEditingController();
 
@@ -27,6 +27,7 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   double _latitude = 37.7810;
   double _longitude = -122.4120;
   DateTime _eventTime = DateTime.now().subtract(const Duration(hours: 1));
+  String? _imageUrl;
 
   bool _isSubmitting = false;
 
@@ -45,7 +46,6 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _imageUrlController.dispose();
     _questionController.dispose();
     _answerController.dispose();
     super.dispose();
@@ -60,7 +60,7 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
       _locationLabel = 'Engineering Block';
       _latitude = 37.7810;
       _longitude = -122.4120;
-      _imageUrlController.text =
+      _imageUrl =
           'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80';
       _eventTime = DateTime.now().subtract(const Duration(hours: 1));
       _questionController.text = "What is attached to the front zipper of the backpack?";
@@ -87,9 +87,7 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
         longitude: _longitude,
         locationLabel: _locationLabel,
         eventTime: _eventTime,
-        imageUrl: _imageUrlController.text.trim().isNotEmpty
-            ? _imageUrlController.text.trim()
-            : null,
+        imageUrl: _imageUrl,
         status: 'open',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -431,18 +429,12 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Photo URL
-                  Text(
-                    'Photo URL (Optional)',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: const InputDecoration(
-                      hintText: 'https://example.com/found_photo.jpg',
-                      prefixIcon: Icon(Icons.photo_camera_back_outlined, size: 18),
-                    ),
+                  // Photo Picker (Camera + Gallery)
+                  PhotoPickerWidget(
+                    initialImageUrl: _imageUrl,
+                    onImageChanged: (url) {
+                      setState(() => _imageUrl = url);
+                    },
                   ),
                   const SizedBox(height: 28),
 

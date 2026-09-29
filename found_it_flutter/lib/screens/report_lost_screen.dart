@@ -6,6 +6,7 @@ import '../client.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/location_picker.dart';
+import '../widgets/photo_picker.dart';
 
 class ReportLostScreen extends StatefulWidget {
   const ReportLostScreen({super.key});
@@ -18,13 +19,13 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
-  final _imageUrlController = TextEditingController();
 
   String _selectedCategory = 'Bags';
   String _locationLabel = 'Campus Library';
   double _latitude = 37.7749;
   double _longitude = -122.4194;
   DateTime _eventTime = DateTime.now().subtract(const Duration(hours: 2));
+  String? _imageUrl;
 
   bool _isSubmitting = false;
 
@@ -43,7 +44,6 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
   }
 
@@ -56,7 +56,7 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
       _locationLabel = 'Campus Library';
       _latitude = 37.7749;
       _longitude = -122.4194;
-      _imageUrlController.text =
+      _imageUrl =
           'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80';
       _eventTime = DateTime.now().subtract(const Duration(hours: 3));
     });
@@ -81,9 +81,7 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
         longitude: _longitude,
         locationLabel: _locationLabel,
         eventTime: _eventTime,
-        imageUrl: _imageUrlController.text.trim().isNotEmpty
-            ? _imageUrlController.text.trim()
-            : null,
+        imageUrl: _imageUrl,
         status: 'open',
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
@@ -336,18 +334,12 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Photo URL
-                  Text(
-                    'Photo URL (Optional)',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _imageUrlController,
-                    decoration: const InputDecoration(
-                      hintText: 'https://example.com/photo.jpg',
-                      prefixIcon: Icon(Icons.photo_camera_back_outlined, size: 18),
-                    ),
+                  // Photo Picker (Camera + Gallery)
+                  PhotoPickerWidget(
+                    initialImageUrl: _imageUrl,
+                    onImageChanged: (url) {
+                      setState(() => _imageUrl = url);
+                    },
                   ),
                   const SizedBox(height: 28),
 
