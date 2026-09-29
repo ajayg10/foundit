@@ -9,15 +9,26 @@ class AppConfigWidget extends JsonWidget {
 }
 
 class AppConfigRoute extends WidgetRoute {
-  AppConfigWidget widget;
+  final ServerConfig apiConfig;
 
   AppConfigRoute({
-    required final ServerConfig apiConfig,
-  }) : widget = AppConfigWidget(apiUrl: apiConfig.apiUrl.toString());
+    required this.apiConfig,
+  });
 
   @override
   Future<WebWidget> build(Session session, Request request) async {
-    return widget;
+    final reqHost = request.url.host;
+    final host = (reqHost.isNotEmpty && reqHost != 'localhost' && reqHost != '127.0.0.1')
+        ? reqHost
+        : apiConfig.publicHost;
+
+    final apiUrl = Uri(
+      scheme: apiConfig.publicScheme,
+      host: host,
+      port: apiConfig.publicPort,
+    );
+
+    return AppConfigWidget(apiUrl: apiUrl.toString());
   }
 }
 
