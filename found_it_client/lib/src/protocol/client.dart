@@ -15,6 +15,10 @@ import 'package:found_it_client/src/protocol/dashboard/dashboard_stats.dart'
     as _ila16efb;
 import 'package:found_it_client/src/protocol/greetings/greeting.dart'
     as _i2mcst3r;
+import 'package:found_it_client/src/protocol/locations/location.dart'
+    as _ikizyhu2;
+import 'package:found_it_client/src/protocol/locations/location_area.dart'
+    as _ia9iwpp5;
 import 'package:found_it_client/src/protocol/matching/item_match.dart'
     as _ik1j6p4l;
 import 'package:found_it_client/src/protocol/matching/match_details_dto.dart'
@@ -301,6 +305,61 @@ class EndpointGreeting extends _isc.EndpointRef {
       );
 }
 
+/// Endpoint handling Location and LocationArea management, lookup, and search.
+/// {@category Endpoint}
+class EndpointLocation extends _isc.EndpointRef {
+  EndpointLocation(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'location';
+
+  /// Fetches a location by ID.
+  _ida.Future<_ikizyhu2.Location?> getLocation(int id) =>
+      caller.callServerEndpoint<_ikizyhu2.Location?>(
+        'location',
+        'getLocation',
+        {'id': id},
+      );
+
+  /// Lists all active locations with optional search and type filtering.
+  _ida.Future<List<_ikizyhu2.Location>> listLocations({
+    String? query,
+    String? type,
+  }) => caller.callServerEndpoint<List<_ikizyhu2.Location>>(
+    'location',
+    'listLocations',
+    {
+      'query': query,
+      'type': type,
+    },
+  );
+
+  /// Creates a new location.
+  _ida.Future<_ikizyhu2.Location> createLocation(_ikizyhu2.Location location) =>
+      caller.callServerEndpoint<_ikizyhu2.Location>(
+        'location',
+        'createLocation',
+        {'location': location},
+      );
+
+  /// Fetches areas belonging to a specific location.
+  _ida.Future<List<_ia9iwpp5.LocationArea>> getLocationAreas(int locationId) =>
+      caller.callServerEndpoint<List<_ia9iwpp5.LocationArea>>(
+        'location',
+        'getLocationAreas',
+        {'locationId': locationId},
+      );
+
+  /// Creates an area within a location.
+  _ida.Future<_ia9iwpp5.LocationArea> createLocationArea(
+    _ia9iwpp5.LocationArea area,
+  ) => caller.callServerEndpoint<_ia9iwpp5.LocationArea>(
+    'location',
+    'createLocationArea',
+    {'area': area},
+  );
+}
+
 /// Endpoint for querying matches, explanations, and triggering match recalculations.
 /// {@category Endpoint}
 class EndpointMatch extends _isc.EndpointRef {
@@ -424,6 +483,7 @@ class EndpointReport extends _isc.EndpointRef {
 
   /// Lists reports with optional filters for the public board and exploration.
   _ida.Future<List<_ii8kv2u4.ItemReport>> listReports({
+    int? locationId,
     String? reportType,
     String? category,
     String? status,
@@ -433,6 +493,7 @@ class EndpointReport extends _isc.EndpointRef {
     'report',
     'listReports',
     {
+      'locationId': locationId,
       'reportType': reportType,
       'category': category,
       'status': status,
@@ -601,6 +662,7 @@ class Client extends _isc.ServerpodClientShared {
     jwtRefresh = EndpointJwtRefresh(this);
     dashboard = EndpointDashboard(this);
     greeting = EndpointGreeting(this);
+    location = EndpointLocation(this);
     match = EndpointMatch(this);
     notification = EndpointNotification(this);
     report = EndpointReport(this);
@@ -616,6 +678,8 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointDashboard dashboard;
 
   late final EndpointGreeting greeting;
+
+  late final EndpointLocation location;
 
   late final EndpointMatch match;
 
@@ -635,6 +699,7 @@ class Client extends _isc.ServerpodClientShared {
     'jwtRefresh': jwtRefresh,
     'dashboard': dashboard,
     'greeting': greeting,
+    'location': location,
     'match': match,
     'notification': notification,
     'report': report,

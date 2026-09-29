@@ -36,6 +36,13 @@ class MatchingService {
               t.status.equals('claimPending')),
     );
 
+    // Prefer same-location candidates first
+    candidates.sort((a, b) {
+      final aSameLoc = (report.locationId != null && a.locationId == report.locationId) ? 1 : 0;
+      final bSameLoc = (report.locationId != null && b.locationId == report.locationId) ? 1 : 0;
+      return bSameLoc.compareTo(aSameLoc);
+    });
+
     final generatedMatches = <ItemMatch>[];
 
     for (final candidate in candidates) {
@@ -81,6 +88,7 @@ class MatchingService {
             foundReportId: foundReport.id!,
             confidenceScore: evaluation.confidenceScore,
             textScore: evaluation.textScore,
+            locationScore: evaluation.locationScore,
             distanceScore: evaluation.distanceScore,
             timeScore: evaluation.timeScore,
             categoryScore: evaluation.categoryScore,
@@ -149,7 +157,7 @@ class MatchingService {
         foundReport.category.trim().toLowerCase();
     final categoryScore = isCategoryMatch ? 1.0 : 0.0;
 
-    // 2. Text similarity (Weight: 40%)
+    // 2. Text similarity (Weight: 35%)
     final textScore = _similarityService.calculateTextSimilarity(
       title1: lostReport.title,
       description1: lostReport.description,
@@ -157,7 +165,26 @@ class MatchingService {
       description2: foundReport.description,
     );
 
-    // 3. Geographic distance (Weight: 25%)
+    // 3. Location entity similarity (Weight: 10%)
+    double locationScore = 0.0;
+    if (lostReport.locationId != null && foundReport.locationId != null) {
+      if (lostReport.locationId == foundReport.locationId) {
+        locationScore = 1.0;
+      } else {
+        locationScore = 0.0;
+      }
+    } else {
+      // If locationId not set, infer based on geographic distance
+      final inferredDist = DistanceService.calculateDistanceKm(
+        lat1: lostReport.latitude,
+        lon1: lostReport.longitude,
+        lat2: foundReport.latitude,
+        lon2: foundReport.longitude,
+      );
+      locationScore = inferredDist <= 0.5 ? 0.8 : 0.0;
+    }
+
+    // 4. Geographic distance (Weight: 20%)
     final distanceKm = DistanceService.calculateDistanceKm(
       lat1: lostReport.latitude,
       lon1: lostReport.longitude,
@@ -166,7 +193,7 @@ class MatchingService {
     );
     final distanceScore = DistanceService.calculateDistanceScore(distanceKm);
 
-    // 4. Temporal similarity (Weight: 20%)
+    // 5. Temporal similarity (Weight: 20%)
     final timeDiffHours = TimeService.calculateDifferenceHours(
       lostReport.eventTime,
       foundReport.eventTime,
@@ -174,8 +201,9 @@ class MatchingService {
     final timeScore = TimeService.calculateTimeScore(timeDiffHours);
 
     // Overall weighted confidence score (0.0 to 1.0)
-    final overallConfidence = (textScore * 0.40) +
-        (distanceScore * 0.25) +
+    final overallConfidence = (textScore * 0.35) +
+        (locationScore * 0.10) +
+        (distanceScore * 0.20) +
         (timeScore * 0.20) +
         (categoryScore * 0.15);
 
@@ -185,6 +213,7 @@ class MatchingService {
       foundReport: foundReport,
       confidenceScore: overallConfidence,
       textScore: textScore,
+      locationScore: locationScore,
       distanceKm: distanceKm,
       timeDiffHours: timeDiffHours,
       isCategoryMatch: isCategoryMatch,
@@ -193,6 +222,7 @@ class MatchingService {
     return MatchEvaluationResult(
       confidenceScore: double.parse(overallConfidence.toStringAsFixed(3)),
       textScore: double.parse(textScore.toStringAsFixed(3)),
+      locationScore: double.parse(locationScore.toStringAsFixed(3)),
       distanceScore: double.parse(distanceScore.toStringAsFixed(3)),
       timeScore: double.parse(timeScore.toStringAsFixed(3)),
       categoryScore: double.parse(categoryScore.toStringAsFixed(3)),
@@ -208,6 +238,7 @@ class MatchingService {
     required ItemReport foundReport,
     required double confidenceScore,
     required double textScore,
+    required double locationScore,
     required double distanceKm,
     required double timeDiffHours,
     required bool isCategoryMatch,
@@ -225,6 +256,26 @@ class MatchingService {
       textSummary = 'Very strong semantic phrasing and item details match';
     } else {
       textSummary = 'Moderately similar item characteristics';
+    }
+
+    String locationSummary;
+    if (lostReport.locationId != null &&
+        foundReport.locationId != null &&
+        lostReport.locationId == foundReport.locationId) {
+      if (lostReport.locationAreaId != null &&
+          foundReport.locationAreaId != null &&
+          lostReport.locationAreaId == foundReport.locationAreaId) {
+        locationSummary =
+            'Both reported in the same location and area (${lostReport.locationLabel})';
+      } else {
+        locationSummary =
+            'Both reported at the same primary location (${lostReport.locationLabel})';
+      }
+    } else if (locationScore >= 0.7) {
+      locationSummary = 'Reported within the same campus or facility zone';
+    } else {
+      locationSummary =
+          'Different locations (${lostReport.locationLabel} vs ${foundReport.locationLabel})';
     }
 
     String distSummary;
@@ -264,6 +315,7 @@ class MatchingService {
     final map = {
       'percent': percent,
       'textSummary': textSummary,
+      'locationSummary': locationSummary,
       'distanceSummary': distSummary,
       'timeSummary': timeSummary,
       'categorySummary': categorySummary,
@@ -278,6 +330,7 @@ class MatchingService {
 class MatchEvaluationResult {
   final double confidenceScore;
   final double textScore;
+  final double locationScore;
   final double distanceScore;
   final double timeScore;
   final double categoryScore;
@@ -288,6 +341,7 @@ class MatchEvaluationResult {
   MatchEvaluationResult({
     required this.confidenceScore,
     required this.textScore,
+    required this.locationScore,
     required this.distanceScore,
     required this.timeScore,
     required this.categoryScore,

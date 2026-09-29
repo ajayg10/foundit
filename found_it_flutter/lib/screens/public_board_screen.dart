@@ -3,9 +3,11 @@ import 'package:found_it_client/found_it_client.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../client.dart';
+import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/item_card.dart';
 import '../widgets/verification_dialog.dart';
+import 'location_selector_screen.dart';
 
 class PublicBoardScreen extends StatefulWidget {
   const PublicBoardScreen({super.key});
@@ -48,6 +50,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
     setState(() => _isLoading = true);
     try {
       final items = await client.report.listReports(
+        locationId: AppState.instance.currentLocation?.id,
         reportType: 'found',
         category: _selectedCategory,
         searchQuery: _searchController.text.trim().isNotEmpty
@@ -226,10 +229,64 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Public Found Items Board',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Public Found Items',
+              style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            Text(
+              'at ${AppState.instance.currentLocation?.name ?? "All Locations"}',
+              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.textMuted),
+            ),
+          ],
         ),
+        actions: [
+          InkWell(
+            onTap: () async {
+              final changed = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => const LocationSelectorScreen(),
+                ),
+              );
+              if (changed == true || mounted) {
+                _fetchItems();
+              }
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEEF2FF),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFC7D2FE)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.place_rounded, size: 14, color: Color(0xFF4F46E5)),
+                  const SizedBox(width: 4),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 110),
+                    child: Text(
+                      AppState.instance.currentLocation?.name ?? 'Location',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF4338CA),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.arrow_drop_down, size: 16, color: Color(0xFF6366F1)),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [

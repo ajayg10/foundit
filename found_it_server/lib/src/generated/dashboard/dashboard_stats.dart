@@ -19,6 +19,7 @@ abstract class DashboardStats
     required this.totalFound,
     required this.totalMatched,
     required this.totalReturned,
+    required this.totalLocations,
   });
 
   factory DashboardStats({
@@ -26,6 +27,7 @@ abstract class DashboardStats
     required int totalFound,
     required int totalMatched,
     required int totalReturned,
+    required int totalLocations,
   }) = _DashboardStatsImpl;
 
   factory DashboardStats.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -34,6 +36,7 @@ abstract class DashboardStats
       totalFound: jsonSerialization['totalFound'] as int,
       totalMatched: jsonSerialization['totalMatched'] as int,
       totalReturned: jsonSerialization['totalReturned'] as int,
+      totalLocations: jsonSerialization['totalLocations'] as int,
     );
   }
 
@@ -45,6 +48,8 @@ abstract class DashboardStats
 
   int totalReturned;
 
+  int totalLocations;
+
   /// Returns a shallow copy of this [DashboardStats]
   /// with some or all fields replaced by the given arguments.
   @_is.useResult
@@ -53,6 +58,7 @@ abstract class DashboardStats
     int? totalFound,
     int? totalMatched,
     int? totalReturned,
+    int? totalLocations,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -62,6 +68,7 @@ abstract class DashboardStats
       'totalFound': totalFound,
       'totalMatched': totalMatched,
       'totalReturned': totalReturned,
+      'totalLocations': totalLocations,
     };
   }
 
@@ -73,6 +80,7 @@ abstract class DashboardStats
       'totalFound': totalFound,
       'totalMatched': totalMatched,
       'totalReturned': totalReturned,
+      'totalLocations': totalLocations,
     };
   }
 
@@ -88,11 +96,13 @@ class _DashboardStatsImpl extends DashboardStats {
     required int totalFound,
     required int totalMatched,
     required int totalReturned,
+    required int totalLocations,
   }) : super._(
          totalLost: totalLost,
          totalFound: totalFound,
          totalMatched: totalMatched,
          totalReturned: totalReturned,
+         totalLocations: totalLocations,
        );
 
   /// Returns a shallow copy of this [DashboardStats]
@@ -104,12 +114,14 @@ class _DashboardStatsImpl extends DashboardStats {
     int? totalFound,
     int? totalMatched,
     int? totalReturned,
+    int? totalLocations,
   }) {
     return DashboardStats(
       totalLost: totalLost ?? this.totalLost,
       totalFound: totalFound ?? this.totalFound,
       totalMatched: totalMatched ?? this.totalMatched,
       totalReturned: totalReturned ?? this.totalReturned,
+      totalLocations: totalLocations ?? this.totalLocations,
     );
   }
 }

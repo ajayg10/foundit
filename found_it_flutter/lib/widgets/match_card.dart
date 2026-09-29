@@ -258,7 +258,7 @@ class MatchCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                // 4 Explainable Signals
+                // 5 Explainable Signals
                 _SignalBullet(
                   icon: Icons.description_outlined,
                   color: AppTheme.primaryBlue,
@@ -268,10 +268,24 @@ class MatchCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
 
+                if (explanation['locationSummary'] != null || match.locationScore > 0) ...[
+                  _SignalBullet(
+                    icon: Icons.place_outlined,
+                    color: const Color(0xFF6366F1),
+                    title: 'Location / Campus Context',
+                    detail: explanation['locationSummary'] ??
+                        (match.locationScore >= 1.0
+                            ? 'Both reported at the same campus / location'
+                            : 'Nearby campus vicinity'),
+                    score: match.locationScore,
+                  ),
+                  const SizedBox(height: 8),
+                ],
+
                 _SignalBullet(
                   icon: Icons.near_me_outlined,
                   color: const Color(0xFF0D9488),
-                  title: 'Nearby Location',
+                  title: 'Geographic Distance',
                   detail: explanation['distanceSummary'] ?? '${match.distanceKm} km apart',
                   score: match.distanceScore,
                 ),

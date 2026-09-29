@@ -4,3 +4,4 @@ fields:
   totalFound: int
   totalMatched: int
   totalReturned: int
+  totalLocations: int

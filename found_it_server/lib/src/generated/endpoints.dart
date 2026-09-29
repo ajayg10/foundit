@@ -10,6 +10,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:found_it_server/src/generated/locations/location.dart'
+    as _id9j6dcf;
+import 'package:found_it_server/src/generated/locations/location_area.dart'
+    as _in7zv6r5;
 import 'package:found_it_server/src/generated/reports/item_report.dart'
     as _iy9iiki0;
 import 'package:serverpod/serverpod.dart' as _is;
@@ -21,6 +25,7 @@ import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
 import '../dashboard/dashboard_endpoint.dart' as _izwoh05q;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
+import '../locations/location_endpoint.dart' as _i1lhihy8;
 import '../matching/match_endpoint.dart' as _i6q1rn0s;
 import '../notifications/notification_endpoint.dart' as _ibyw8x7k;
 import '../reports/report_endpoint.dart' as _iqte9uvc;
@@ -53,6 +58,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'greeting',
+          null,
+        ),
+      'location': _i1lhihy8.LocationEndpoint()
+        ..initialize(
+          server,
+          'location',
           null,
         ),
       'match': _i6q1rn0s.MatchEndpoint()
@@ -343,6 +354,113 @@ class Endpoints extends _is.EndpointDispatch {
         ),
       },
     );
+    connectors['location'] = _is.EndpointConnector(
+      name: 'location',
+      endpoint: endpoints['location']!,
+      methodConnectors: {
+        'getLocation': _is.MethodConnector(
+          name: 'getLocation',
+          params: {
+            'id': _is.ParameterDescription(
+              name: 'id',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['location'] as _i1lhihy8.LocationEndpoint)
+                  .getLocation(
+                    session,
+                    params['id'],
+                  ),
+        ),
+        'listLocations': _is.MethodConnector(
+          name: 'listLocations',
+          params: {
+            'query': _is.ParameterDescription(
+              name: 'query',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+            'type': _is.ParameterDescription(
+              name: 'type',
+              type: _is.getType<String?>(),
+              nullable: true,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['location'] as _i1lhihy8.LocationEndpoint)
+                  .listLocations(
+                    session,
+                    query: params['query'],
+                    type: params['type'],
+                  ),
+        ),
+        'createLocation': _is.MethodConnector(
+          name: 'createLocation',
+          params: {
+            'location': _is.ParameterDescription(
+              name: 'location',
+              type: _is.getType<_id9j6dcf.Location>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['location'] as _i1lhihy8.LocationEndpoint)
+                  .createLocation(
+                    session,
+                    params['location'],
+                  ),
+        ),
+        'getLocationAreas': _is.MethodConnector(
+          name: 'getLocationAreas',
+          params: {
+            'locationId': _is.ParameterDescription(
+              name: 'locationId',
+              type: _is.getType<int>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['location'] as _i1lhihy8.LocationEndpoint)
+                  .getLocationAreas(
+                    session,
+                    params['locationId'],
+                  ),
+        ),
+        'createLocationArea': _is.MethodConnector(
+          name: 'createLocationArea',
+          params: {
+            'area': _is.ParameterDescription(
+              name: 'area',
+              type: _is.getType<_in7zv6r5.LocationArea>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['location'] as _i1lhihy8.LocationEndpoint)
+                  .createLocationArea(
+                    session,
+                    params['area'],
+                  ),
+        ),
+      },
+    );
     connectors['match'] = _is.EndpointConnector(
       name: 'match',
       endpoint: endpoints['match']!,
@@ -570,6 +688,11 @@ class Endpoints extends _is.EndpointDispatch {
         'listReports': _is.MethodConnector(
           name: 'listReports',
           params: {
+            'locationId': _is.ParameterDescription(
+              name: 'locationId',
+              type: _is.getType<int?>(),
+              nullable: true,
+            ),
             'reportType': _is.ParameterDescription(
               name: 'reportType',
               type: _is.getType<String?>(),
@@ -603,6 +726,7 @@ class Endpoints extends _is.EndpointDispatch {
               ) async =>
                   (endpoints['report'] as _iqte9uvc.ReportEndpoint).listReports(
                     session,
+                    locationId: params['locationId'],
                     reportType: params['reportType'],
                     category: params['category'],
                     status: params['status'],

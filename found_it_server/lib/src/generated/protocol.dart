@@ -11,6 +11,10 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:found_it_server/src/generated/locations/location.dart'
+    as _id9j6dcf;
+import 'package:found_it_server/src/generated/locations/location_area.dart'
+    as _in7zv6r5;
 import 'package:found_it_server/src/generated/matching/item_match.dart'
     as _ismt7y3m;
 import 'package:found_it_server/src/generated/matching/match_details_dto.dart'
@@ -27,6 +31,8 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import 'dashboard/dashboard_stats.dart' as _iesgf4cu;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'locations/location.dart' as _iwtwows4;
+import 'locations/location_area.dart' as _i8bdiajv;
 import 'matching/item_match.dart' as _ixh8na7w;
 import 'matching/match_details_dto.dart' as _itwzvm52;
 import 'matching/match_explanation_details.dart' as _ii6u1nbj;
@@ -37,6 +43,8 @@ import 'verification/verification.dart' as _i7jbm6rm;
 import 'verification/verification_attempt_result.dart' as _ibtylbqq;
 export 'dashboard/dashboard_stats.dart';
 export 'greetings/greeting.dart';
+export 'locations/location.dart';
+export 'locations/location_area.dart';
 export 'matching/item_match.dart';
 export 'matching/match_details_dto.dart';
 export 'matching/match_explanation_details.dart';
@@ -247,6 +255,12 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'double',
         ),
         _isp.ColumnDefinition(
+          name: 'locationScore',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
           name: 'distanceScore',
           columnType: _isp.ColumnType.doublePrecision,
           isNullable: false,
@@ -391,6 +405,18 @@ class Protocol extends _is.DatabaseSerializationManager {
           dartType: 'String',
         ),
         _isp.ColumnDefinition(
+          name: 'locationId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'locationAreaId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: true,
+          dartType: 'int?',
+        ),
+        _isp.ColumnDefinition(
           name: 'eventTime',
           columnType: _isp.ColumnType.timestampWithoutTimeZone,
           isNullable: false,
@@ -469,6 +495,19 @@ class Protocol extends _is.DatabaseSerializationManager {
             _isp.IndexElementDefinition(
               type: _isp.IndexElementDefinitionType.column,
               definition: 'userId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'item_report_location_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'locationId',
             ),
           ],
           type: 'btree',
@@ -564,6 +603,173 @@ class Protocol extends _is.DatabaseSerializationManager {
       ],
       managed: true,
     ),
+    _isp.TableDefinition(
+      name: 'location',
+      dartName: 'Location',
+      schema: 'public',
+      module: 'found_it',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'type',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'address',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'latitude',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
+          name: 'longitude',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+        ),
+        _isp.ColumnDefinition(
+          name: 'description',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'logoUrl',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'isActive',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+        _isp.ColumnDefinition(
+          name: 'createdAt',
+          columnType: _isp.ColumnType.timestampWithoutTimeZone,
+          isNullable: false,
+          dartType: 'DateTime',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'location_name_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'name',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+        _isp.IndexDefinition(
+          indexName: 'location_type_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'type',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
+    _isp.TableDefinition(
+      name: 'location_area',
+      dartName: 'LocationArea',
+      schema: 'public',
+      module: 'found_it',
+      columns: [
+        _isp.ColumnDefinition(
+          name: 'id',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int?',
+          columnDefault: 'serial',
+        ),
+        _isp.ColumnDefinition(
+          name: 'locationId',
+          columnType: _isp.ColumnType.bigint,
+          isNullable: false,
+          dartType: 'int',
+        ),
+        _isp.ColumnDefinition(
+          name: 'name',
+          columnType: _isp.ColumnType.text,
+          isNullable: false,
+          dartType: 'String',
+        ),
+        _isp.ColumnDefinition(
+          name: 'latitude',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: true,
+          dartType: 'double?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'longitude',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: true,
+          dartType: 'double?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'description',
+          columnType: _isp.ColumnType.text,
+          isNullable: true,
+          dartType: 'String?',
+        ),
+        _isp.ColumnDefinition(
+          name: 'isActive',
+          columnType: _isp.ColumnType.boolean,
+          isNullable: false,
+          dartType: 'bool',
+        ),
+      ],
+      foreignKeys: [],
+      indexes: [
+        _isp.IndexDefinition(
+          indexName: 'location_area_loc_idx',
+          tableSpace: null,
+          elements: [
+            _isp.IndexElementDefinition(
+              type: _isp.IndexElementDefinitionType.column,
+              definition: 'locationId',
+            ),
+          ],
+          type: 'btree',
+          isUnique: false,
+          isPrimary: false,
+        ),
+      ],
+      managed: true,
+    ),
     ..._iais.Protocol.targetTableDefinitions,
     ..._iacs.Protocol.targetTableDefinitions,
     ..._isp.Protocol.targetTableDefinitions,
@@ -602,6 +808,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _iwtwows4.Location) {
+      return _iwtwows4.Location.fromJson(data) as T;
+    }
+    if (t == _i8bdiajv.LocationArea) {
+      return _i8bdiajv.LocationArea.fromJson(data) as T;
+    }
     if (t == _ixh8na7w.ItemMatch) {
       return _ixh8na7w.ItemMatch.fromJson(data) as T;
     }
@@ -633,6 +845,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     if (t == _is.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
     }
+    if (t == _is.getType<_iwtwows4.Location?>()) {
+      return (data != null ? _iwtwows4.Location.fromJson(data) : null) as T;
+    }
+    if (t == _is.getType<_i8bdiajv.LocationArea?>()) {
+      return (data != null ? _i8bdiajv.LocationArea.fromJson(data) : null) as T;
+    }
     if (t == _is.getType<_ixh8na7w.ItemMatch?>()) {
       return (data != null ? _ixh8na7w.ItemMatch.fromJson(data) : null) as T;
     }
@@ -663,6 +881,18 @@ class Protocol extends _is.DatabaseSerializationManager {
       return (data != null
               ? _ibtylbqq.VerificationAttemptResult.fromJson(data)
               : null)
+          as T;
+    }
+    if (t == List<_id9j6dcf.Location>) {
+      return (data as List)
+              .map((e) => deserialize<_id9j6dcf.Location>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_in7zv6r5.LocationArea>) {
+      return (data as List)
+              .map((e) => deserialize<_in7zv6r5.LocationArea>(e))
+              .toList()
           as T;
     }
     if (t == List<_i7rmm1bc.MatchDetailsDto>) {
@@ -705,6 +935,8 @@ class Protocol extends _is.DatabaseSerializationManager {
     return switch (type) {
       _iesgf4cu.DashboardStats => 'DashboardStats',
       _izw8z7ou.Greeting => 'Greeting',
+      _iwtwows4.Location => 'Location',
+      _i8bdiajv.LocationArea => 'LocationArea',
       _ixh8na7w.ItemMatch => 'ItemMatch',
       _itwzvm52.MatchDetailsDto => 'MatchDetailsDto',
       _ii6u1nbj.MatchExplanationDetails => 'MatchExplanationDetails',
@@ -731,6 +963,10 @@ class Protocol extends _is.DatabaseSerializationManager {
         return 'DashboardStats';
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _iwtwows4.Location():
+        return 'Location';
+      case _i8bdiajv.LocationArea():
+        return 'LocationArea';
       case _ixh8na7w.ItemMatch():
         return 'ItemMatch';
       case _itwzvm52.MatchDetailsDto():
@@ -778,6 +1014,12 @@ class Protocol extends _is.DatabaseSerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'Location') {
+      return deserialize<_iwtwows4.Location>(data['data']);
+    }
+    if (dataClassName == 'LocationArea') {
+      return deserialize<_i8bdiajv.LocationArea>(data['data']);
     }
     if (dataClassName == 'ItemMatch') {
       return deserialize<_ixh8na7w.ItemMatch>(data['data']);
@@ -844,6 +1086,10 @@ class Protocol extends _is.DatabaseSerializationManager {
       }
     }
     switch (t) {
+      case _iwtwows4.Location:
+        return _iwtwows4.Location.t;
+      case _i8bdiajv.LocationArea:
+        return _i8bdiajv.LocationArea.t;
       case _ixh8na7w.ItemMatch:
         return _ixh8na7w.ItemMatch.t;
       case _ih0s0cfq.AppNotification:

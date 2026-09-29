@@ -31,11 +31,3 @@ class AppConfigRoute extends WidgetRoute {
     return AppConfigWidget(apiUrl: apiUrl.toString());
   }
 }
-
-extension on ServerConfig {
-  Uri get apiUrl => Uri(
-    scheme: publicScheme,
-    host: publicHost,
-    port: publicPort,
-  );
-}

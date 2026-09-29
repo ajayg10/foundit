@@ -20,6 +20,7 @@ abstract class ItemMatch
     required this.foundReportId,
     required this.confidenceScore,
     required this.textScore,
+    required this.locationScore,
     required this.distanceScore,
     required this.timeScore,
     required this.categoryScore,
@@ -36,6 +37,7 @@ abstract class ItemMatch
     required int foundReportId,
     required double confidenceScore,
     required double textScore,
+    required double locationScore,
     required double distanceScore,
     required double timeScore,
     required double categoryScore,
@@ -53,6 +55,7 @@ abstract class ItemMatch
       foundReportId: jsonSerialization['foundReportId'] as int,
       confidenceScore: (jsonSerialization['confidenceScore'] as num).toDouble(),
       textScore: (jsonSerialization['textScore'] as num).toDouble(),
+      locationScore: (jsonSerialization['locationScore'] as num).toDouble(),
       distanceScore: (jsonSerialization['distanceScore'] as num).toDouble(),
       timeScore: (jsonSerialization['timeScore'] as num).toDouble(),
       categoryScore: (jsonSerialization['categoryScore'] as num).toDouble(),
@@ -80,6 +83,8 @@ abstract class ItemMatch
   double confidenceScore;
 
   double textScore;
+
+  double locationScore;
 
   double distanceScore;
 
@@ -109,6 +114,7 @@ abstract class ItemMatch
     int? foundReportId,
     double? confidenceScore,
     double? textScore,
+    double? locationScore,
     double? distanceScore,
     double? timeScore,
     double? categoryScore,
@@ -127,6 +133,7 @@ abstract class ItemMatch
       'foundReportId': foundReportId,
       'confidenceScore': confidenceScore,
       'textScore': textScore,
+      'locationScore': locationScore,
       'distanceScore': distanceScore,
       'timeScore': timeScore,
       'categoryScore': categoryScore,
@@ -147,6 +154,7 @@ abstract class ItemMatch
       'foundReportId': foundReportId,
       'confidenceScore': confidenceScore,
       'textScore': textScore,
+      'locationScore': locationScore,
       'distanceScore': distanceScore,
       'timeScore': timeScore,
       'categoryScore': categoryScore,
@@ -195,6 +203,7 @@ class _ItemMatchImpl extends ItemMatch {
     required int foundReportId,
     required double confidenceScore,
     required double textScore,
+    required double locationScore,
     required double distanceScore,
     required double timeScore,
     required double categoryScore,
@@ -209,6 +218,7 @@ class _ItemMatchImpl extends ItemMatch {
          foundReportId: foundReportId,
          confidenceScore: confidenceScore,
          textScore: textScore,
+         locationScore: locationScore,
          distanceScore: distanceScore,
          timeScore: timeScore,
          categoryScore: categoryScore,
@@ -229,6 +239,7 @@ class _ItemMatchImpl extends ItemMatch {
     int? foundReportId,
     double? confidenceScore,
     double? textScore,
+    double? locationScore,
     double? distanceScore,
     double? timeScore,
     double? categoryScore,
@@ -244,6 +255,7 @@ class _ItemMatchImpl extends ItemMatch {
       foundReportId: foundReportId ?? this.foundReportId,
       confidenceScore: confidenceScore ?? this.confidenceScore,
       textScore: textScore ?? this.textScore,
+      locationScore: locationScore ?? this.locationScore,
       distanceScore: distanceScore ?? this.distanceScore,
       timeScore: timeScore ?? this.timeScore,
       categoryScore: categoryScore ?? this.categoryScore,
@@ -279,6 +291,12 @@ class ItemMatchUpdateTable extends _is.UpdateTable<ItemMatchTable> {
     table.textScore,
     value,
   );
+
+  _is.ColumnValue<double, double> locationScore(double value) =>
+      _is.ColumnValue(
+        table.locationScore,
+        value,
+      );
 
   _is.ColumnValue<double, double> distanceScore(double value) =>
       _is.ColumnValue(
@@ -344,6 +362,10 @@ class ItemMatchTable extends _is.Table<int?> {
       'textScore',
       this,
     );
+    locationScore = _is.ColumnDouble(
+      'locationScore',
+      this,
+    );
     distanceScore = _is.ColumnDouble(
       'distanceScore',
       this,
@@ -388,6 +410,8 @@ class ItemMatchTable extends _is.Table<int?> {
 
   late final _is.ColumnDouble textScore;
 
+  late final _is.ColumnDouble locationScore;
+
   late final _is.ColumnDouble distanceScore;
 
   late final _is.ColumnDouble timeScore;
@@ -411,6 +435,7 @@ class ItemMatchTable extends _is.Table<int?> {
     foundReportId,
     confidenceScore,
     textScore,
+    locationScore,
     distanceScore,
     timeScore,
     categoryScore,

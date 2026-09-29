@@ -65,6 +65,7 @@ class ReportEndpoint extends Endpoint {
   /// Lists reports with optional filters for the public board and exploration.
   Future<List<ItemReport>> listReports(
     Session session, {
+    int? locationId,
     String? reportType,
     String? category,
     String? status,
@@ -77,6 +78,10 @@ class ReportEndpoint extends Endpoint {
       orderBy: (t) => t.createdAt.desc(),
       where: (t) {
         Expression filter = Constant.bool(true);
+
+        if (locationId != null) {
+          filter = filter & t.locationId.equals(locationId);
+        }
 
         if (reportType != null && reportType.isNotEmpty) {
           filter = filter & t.reportType.equals(reportType);

@@ -1,0 +1,12 @@
+class: LocationArea
+table: location_area
+fields:
+  locationId: int
+  name: String
+  latitude: double?
+  longitude: double?
+  description: String?
+  isActive: bool
+indexes:
+  location_area_loc_idx:
+    fields: locationId

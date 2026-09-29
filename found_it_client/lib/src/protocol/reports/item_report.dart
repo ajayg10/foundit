@@ -26,6 +26,8 @@ abstract class ItemReport
     required this.latitude,
     required this.longitude,
     required this.locationLabel,
+    this.locationId,
+    this.locationAreaId,
     required this.eventTime,
     this.imageUrl,
     required this.status,
@@ -45,6 +47,8 @@ abstract class ItemReport
     required double latitude,
     required double longitude,
     required String locationLabel,
+    int? locationId,
+    int? locationAreaId,
     required DateTime eventTime,
     String? imageUrl,
     required String status,
@@ -65,6 +69,8 @@ abstract class ItemReport
       latitude: (jsonSerialization['latitude'] as num).toDouble(),
       longitude: (jsonSerialization['longitude'] as num).toDouble(),
       locationLabel: jsonSerialization['locationLabel'] as String,
+      locationId: jsonSerialization['locationId'] as int?,
+      locationAreaId: jsonSerialization['locationAreaId'] as int?,
       eventTime: _isc.DateTimeJsonExtension.fromJson(
         jsonSerialization['eventTime'],
       ),
@@ -104,6 +110,10 @@ abstract class ItemReport
 
   String locationLabel;
 
+  int? locationId;
+
+  int? locationAreaId;
+
   DateTime eventTime;
 
   String? imageUrl;
@@ -129,6 +139,8 @@ abstract class ItemReport
     double? latitude,
     double? longitude,
     String? locationLabel,
+    int? locationId,
+    int? locationAreaId,
     DateTime? eventTime,
     String? imageUrl,
     String? status,
@@ -150,6 +162,8 @@ abstract class ItemReport
       'latitude': latitude,
       'longitude': longitude,
       'locationLabel': locationLabel,
+      if (locationId != null) 'locationId': locationId,
+      if (locationAreaId != null) 'locationAreaId': locationAreaId,
       'eventTime': eventTime.toJson(),
       if (imageUrl != null) 'imageUrl': imageUrl,
       'status': status,
@@ -173,6 +187,8 @@ abstract class ItemReport
       'latitude': latitude,
       'longitude': longitude,
       'locationLabel': locationLabel,
+      if (locationId != null) 'locationId': locationId,
+      if (locationAreaId != null) 'locationAreaId': locationAreaId,
       'eventTime': eventTime.toJson(),
       if (imageUrl != null) 'imageUrl': imageUrl,
       'status': status,
@@ -202,6 +218,8 @@ class _ItemReportImpl extends ItemReport {
     required double latitude,
     required double longitude,
     required String locationLabel,
+    int? locationId,
+    int? locationAreaId,
     required DateTime eventTime,
     String? imageUrl,
     required String status,
@@ -219,6 +237,8 @@ class _ItemReportImpl extends ItemReport {
          latitude: latitude,
          longitude: longitude,
          locationLabel: locationLabel,
+         locationId: locationId,
+         locationAreaId: locationAreaId,
          eventTime: eventTime,
          imageUrl: imageUrl,
          status: status,
@@ -242,6 +262,8 @@ class _ItemReportImpl extends ItemReport {
     double? latitude,
     double? longitude,
     String? locationLabel,
+    Object? locationId = _Undefined,
+    Object? locationAreaId = _Undefined,
     DateTime? eventTime,
     Object? imageUrl = _Undefined,
     String? status,
@@ -260,6 +282,10 @@ class _ItemReportImpl extends ItemReport {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       locationLabel: locationLabel ?? this.locationLabel,
+      locationId: locationId is int? ? locationId : this.locationId,
+      locationAreaId: locationAreaId is int?
+          ? locationAreaId
+          : this.locationAreaId,
       eventTime: eventTime ?? this.eventTime,
       imageUrl: imageUrl is String? ? imageUrl : this.imageUrl,
       status: status ?? this.status,

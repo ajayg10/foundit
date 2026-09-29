@@ -23,9 +23,10 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   final _answerController = TextEditingController();
 
   String _selectedCategory = 'Bags';
-  String _locationLabel = 'Engineering Block';
-  double _latitude = 37.7810;
-  double _longitude = -122.4120;
+  String _locationLabel = 'Central Library';
+  int? _locationAreaId;
+  double _latitude = 28.5448;
+  double _longitude = 77.1928;
   DateTime _eventTime = DateTime.now().subtract(const Duration(hours: 1));
   String? _imageUrl;
 
@@ -43,6 +44,17 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    final activeLoc = AppState.instance.currentLocation;
+    if (activeLoc != null) {
+      _latitude = activeLoc.latitude;
+      _longitude = activeLoc.longitude;
+      _locationLabel = activeLoc.name;
+    }
+  }
+
+  @override
   void dispose() {
     _titleController.dispose();
     _descController.dispose();
@@ -52,14 +64,21 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   }
 
   void _fillSampleFoundBackpack() {
+    final activeLoc = AppState.instance.currentLocation;
+    final areas = AppState.instance.currentLocationAreas;
+    final libArea = areas.where((a) => a.name.toLowerCase().contains('library')).firstOrNull;
+
     setState(() {
       _titleController.text = 'Black Backpack';
       _descController.text =
-          'Black Wildcraft backpack found on bench near Engineering Block hallway.';
+          'Black Wildcraft backpack found on study table near Central Library 2nd floor.';
       _selectedCategory = 'Bags';
-      _locationLabel = 'Engineering Block';
-      _latitude = 37.7810;
-      _longitude = -122.4120;
+      _locationAreaId = libArea?.id;
+      _locationLabel = libArea != null
+          ? '${activeLoc?.name ?? "IIT Delhi"} — ${libArea.name}'
+          : '${activeLoc?.name ?? "IIT Delhi"} — Central Library';
+      _latitude = libArea?.latitude ?? activeLoc?.latitude ?? 28.5448;
+      _longitude = libArea?.longitude ?? activeLoc?.longitude ?? 77.1928;
       _imageUrl =
           'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80';
       _eventTime = DateTime.now().subtract(const Duration(hours: 1));
@@ -86,6 +105,8 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
         latitude: _latitude,
         longitude: _longitude,
         locationLabel: _locationLabel,
+        locationId: AppState.instance.currentLocation?.id,
+        locationAreaId: _locationAreaId,
         eventTime: _eventTime,
         imageUrl: _imageUrl,
         status: 'open',
@@ -279,10 +300,12 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                   // Location
                   LocationPickerWidget(
                     selectedLabel: _locationLabel,
+                    selectedAreaId: _locationAreaId,
                     latitude: _latitude,
                     longitude: _longitude,
-                    onLocationChanged: (label, lat, lon) {
+                    onLocationChanged: (areaId, label, lat, lon) {
                       setState(() {
+                        _locationAreaId = areaId;
                         _locationLabel = label;
                         _latitude = lat;
                         _longitude = lon;

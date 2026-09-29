@@ -18,6 +18,7 @@ abstract class MatchExplanationDetails
     required this.title,
     required this.confidencePercentage,
     required this.textSimilaritySummary,
+    this.locationSummary,
     required this.distanceSummary,
     required this.timeSummary,
     required this.categorySummary,
@@ -28,6 +29,7 @@ abstract class MatchExplanationDetails
     required String title,
     required int confidencePercentage,
     required String textSimilaritySummary,
+    String? locationSummary,
     required String distanceSummary,
     required String timeSummary,
     required String categorySummary,
@@ -42,6 +44,7 @@ abstract class MatchExplanationDetails
       confidencePercentage: jsonSerialization['confidencePercentage'] as int,
       textSimilaritySummary:
           jsonSerialization['textSimilaritySummary'] as String,
+      locationSummary: jsonSerialization['locationSummary'] as String?,
       distanceSummary: jsonSerialization['distanceSummary'] as String,
       timeSummary: jsonSerialization['timeSummary'] as String,
       categorySummary: jsonSerialization['categorySummary'] as String,
@@ -54,6 +57,8 @@ abstract class MatchExplanationDetails
   int confidencePercentage;
 
   String textSimilaritySummary;
+
+  String? locationSummary;
 
   String distanceSummary;
 
@@ -70,6 +75,7 @@ abstract class MatchExplanationDetails
     String? title,
     int? confidencePercentage,
     String? textSimilaritySummary,
+    String? locationSummary,
     String? distanceSummary,
     String? timeSummary,
     String? categorySummary,
@@ -82,6 +88,7 @@ abstract class MatchExplanationDetails
       'title': title,
       'confidencePercentage': confidencePercentage,
       'textSimilaritySummary': textSimilaritySummary,
+      if (locationSummary != null) 'locationSummary': locationSummary,
       'distanceSummary': distanceSummary,
       'timeSummary': timeSummary,
       'categorySummary': categorySummary,
@@ -96,6 +103,7 @@ abstract class MatchExplanationDetails
       'title': title,
       'confidencePercentage': confidencePercentage,
       'textSimilaritySummary': textSimilaritySummary,
+      if (locationSummary != null) 'locationSummary': locationSummary,
       'distanceSummary': distanceSummary,
       'timeSummary': timeSummary,
       'categorySummary': categorySummary,
@@ -109,11 +117,14 @@ abstract class MatchExplanationDetails
   }
 }
 
+class _Undefined {}
+
 class _MatchExplanationDetailsImpl extends MatchExplanationDetails {
   _MatchExplanationDetailsImpl({
     required String title,
     required int confidencePercentage,
     required String textSimilaritySummary,
+    String? locationSummary,
     required String distanceSummary,
     required String timeSummary,
     required String categorySummary,
@@ -122,6 +133,7 @@ class _MatchExplanationDetailsImpl extends MatchExplanationDetails {
          title: title,
          confidencePercentage: confidencePercentage,
          textSimilaritySummary: textSimilaritySummary,
+         locationSummary: locationSummary,
          distanceSummary: distanceSummary,
          timeSummary: timeSummary,
          categorySummary: categorySummary,
@@ -136,6 +148,7 @@ class _MatchExplanationDetailsImpl extends MatchExplanationDetails {
     String? title,
     int? confidencePercentage,
     String? textSimilaritySummary,
+    Object? locationSummary = _Undefined,
     String? distanceSummary,
     String? timeSummary,
     String? categorySummary,
@@ -146,6 +159,9 @@ class _MatchExplanationDetailsImpl extends MatchExplanationDetails {
       confidencePercentage: confidencePercentage ?? this.confidencePercentage,
       textSimilaritySummary:
           textSimilaritySummary ?? this.textSimilaritySummary,
+      locationSummary: locationSummary is String?
+          ? locationSummary
+          : this.locationSummary,
       distanceSummary: distanceSummary ?? this.distanceSummary,
       timeSummary: timeSummary ?? this.timeSummary,
       categorySummary: categorySummary ?? this.categorySummary,

@@ -11,6 +11,8 @@ fields:
   latitude: double
   longitude: double
   locationLabel: String
+  locationId: int?
+  locationAreaId: int?
   eventTime: DateTime
   imageUrl: String?
   status: String # 'open', 'matched', 'claimPending', 'verified', 'returned'
@@ -25,3 +27,5 @@ indexes:
     fields: category
   item_report_user_id_idx:
     fields: userId
+  item_report_location_idx:
+    fields: locationId

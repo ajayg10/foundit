@@ -1,0 +1,17 @@
+class: Location
+table: location
+fields:
+  name: String
+  type: String # 'campus', 'airport', 'office', 'metro', 'mall', 'other'
+  address: String?
+  latitude: double
+  longitude: double
+  description: String?
+  logoUrl: String?
+  isActive: bool
+  createdAt: DateTime
+indexes:
+  location_name_idx:
+    fields: name
+  location_type_idx:
+    fields: type

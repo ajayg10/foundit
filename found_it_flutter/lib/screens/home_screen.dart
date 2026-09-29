@@ -6,6 +6,7 @@ import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/item_card.dart';
 import '../widgets/metric_card.dart';
+import 'location_selector_screen.dart';
 import 'matches_screen.dart';
 import 'my_reports_screen.dart';
 import 'notifications_screen.dart';
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isLoadingRecent = true);
     try {
       final items = await client.report.listReports(
+        locationId: AppState.instance.currentLocation?.id,
         reportType: 'found',
         limit: 5,
       );
@@ -183,6 +185,56 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
                 actions: [
+                  // Active Campus / Location Pill
+                  InkWell(
+                    onTap: () async {
+                      final changed = await Navigator.of(context).push<bool>(
+                        MaterialPageRoute(
+                          builder: (_) => const LocationSelectorScreen(),
+                        ),
+                      );
+                      if (changed == true || mounted) {
+                        _loadRecent();
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEEF2FF),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFC7D2FE)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.place_rounded,
+                            size: 15,
+                            color: Color(0xFF4F46E5),
+                          ),
+                          const SizedBox(width: 4),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 100),
+                            child: Text(
+                              AppState.instance.currentLocation?.name ?? 'Location',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF4338CA),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          const Icon(Icons.arrow_drop_down, size: 16, color: Color(0xFF6366F1)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+
                   // Active Identity Pill
                   InkWell(
                     onTap: _showUserSwitcherSheet,
@@ -332,7 +384,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'AI-powered multi-signal matching across college campus & offices. Reports are matched automatically in real time.',
+                                  'AI-powered multi-signal matching for ${AppState.instance.currentLocation?.name ?? "campuses & offices"}. Reports are automatically matched in real time.',
                                   textAlign: TextAlign.center,
                                   style: GoogleFonts.inter(
                                     fontSize: 13,
@@ -593,7 +645,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Found Near You',
+                                    'Found at ${AppState.instance.currentLocation?.name ?? "Campus"}',
                                     style: GoogleFonts.outfit(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w700,
@@ -601,7 +653,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   Text(
-                                    'Recently posted found items on campus',
+                                    'Recently posted found items in this location',
                                     style: GoogleFonts.inter(
                                       fontSize: 12,
                                       color: AppTheme.textMuted,

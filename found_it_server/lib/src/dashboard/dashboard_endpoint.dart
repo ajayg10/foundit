@@ -23,11 +23,14 @@ class DashboardEndpoint extends Endpoint {
       where: (t) => t.status.equals('returned'),
     );
 
+    final locationsCount = await Location.db.count(session);
+
     return DashboardStats(
       totalLost: lostCount,
       totalFound: foundCount,
       totalMatched: matchedCount,
       totalReturned: returnedCount,
+      totalLocations: locationsCount,
     );
   }
 

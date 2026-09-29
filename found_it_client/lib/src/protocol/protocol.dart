@@ -11,6 +11,10 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:found_it_client/src/protocol/locations/location.dart'
+    as _ikizyhu2;
+import 'package:found_it_client/src/protocol/locations/location_area.dart'
+    as _ia9iwpp5;
 import 'package:found_it_client/src/protocol/matching/item_match.dart'
     as _ik1j6p4l;
 import 'package:found_it_client/src/protocol/matching/match_details_dto.dart'
@@ -26,6 +30,8 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'dashboard/dashboard_stats.dart' as _iesgf4cu;
 import 'greetings/greeting.dart' as _izw8z7ou;
+import 'locations/location.dart' as _iwtwows4;
+import 'locations/location_area.dart' as _i8bdiajv;
 import 'matching/item_match.dart' as _ixh8na7w;
 import 'matching/match_details_dto.dart' as _itwzvm52;
 import 'matching/match_explanation_details.dart' as _ii6u1nbj;
@@ -36,6 +42,8 @@ import 'verification/verification.dart' as _i7jbm6rm;
 import 'verification/verification_attempt_result.dart' as _ibtylbqq;
 export 'dashboard/dashboard_stats.dart';
 export 'greetings/greeting.dart';
+export 'locations/location.dart';
+export 'locations/location_area.dart';
 export 'matching/item_match.dart';
 export 'matching/match_details_dto.dart';
 export 'matching/match_explanation_details.dart';
@@ -86,6 +94,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
+    if (t == _iwtwows4.Location) {
+      return _iwtwows4.Location.fromJson(data) as T;
+    }
+    if (t == _i8bdiajv.LocationArea) {
+      return _i8bdiajv.LocationArea.fromJson(data) as T;
+    }
     if (t == _ixh8na7w.ItemMatch) {
       return _ixh8na7w.ItemMatch.fromJson(data) as T;
     }
@@ -117,6 +131,12 @@ class Protocol extends _isc.SerializationManager {
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
     }
+    if (t == _isc.getType<_iwtwows4.Location?>()) {
+      return (data != null ? _iwtwows4.Location.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i8bdiajv.LocationArea?>()) {
+      return (data != null ? _i8bdiajv.LocationArea.fromJson(data) : null) as T;
+    }
     if (t == _isc.getType<_ixh8na7w.ItemMatch?>()) {
       return (data != null ? _ixh8na7w.ItemMatch.fromJson(data) : null) as T;
     }
@@ -147,6 +167,18 @@ class Protocol extends _isc.SerializationManager {
       return (data != null
               ? _ibtylbqq.VerificationAttemptResult.fromJson(data)
               : null)
+          as T;
+    }
+    if (t == List<_ikizyhu2.Location>) {
+      return (data as List)
+              .map((e) => deserialize<_ikizyhu2.Location>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ia9iwpp5.LocationArea>) {
+      return (data as List)
+              .map((e) => deserialize<_ia9iwpp5.LocationArea>(e))
+              .toList()
           as T;
     }
     if (t == List<_ipha0ngu.MatchDetailsDto>) {
@@ -186,6 +218,8 @@ class Protocol extends _isc.SerializationManager {
     return switch (type) {
       _iesgf4cu.DashboardStats => 'DashboardStats',
       _izw8z7ou.Greeting => 'Greeting',
+      _iwtwows4.Location => 'Location',
+      _i8bdiajv.LocationArea => 'LocationArea',
       _ixh8na7w.ItemMatch => 'ItemMatch',
       _itwzvm52.MatchDetailsDto => 'MatchDetailsDto',
       _ii6u1nbj.MatchExplanationDetails => 'MatchExplanationDetails',
@@ -212,6 +246,10 @@ class Protocol extends _isc.SerializationManager {
         return 'DashboardStats';
       case _izw8z7ou.Greeting():
         return 'Greeting';
+      case _iwtwows4.Location():
+        return 'Location';
+      case _i8bdiajv.LocationArea():
+        return 'LocationArea';
       case _ixh8na7w.ItemMatch():
         return 'ItemMatch';
       case _itwzvm52.MatchDetailsDto():
@@ -255,6 +293,12 @@ class Protocol extends _isc.SerializationManager {
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);
+    }
+    if (dataClassName == 'Location') {
+      return deserialize<_iwtwows4.Location>(data['data']);
+    }
+    if (dataClassName == 'LocationArea') {
+      return deserialize<_i8bdiajv.LocationArea>(data['data']);
     }
     if (dataClassName == 'ItemMatch') {
       return deserialize<_ixh8na7w.ItemMatch>(data['data']);

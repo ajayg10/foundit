@@ -29,6 +29,16 @@ class AppState extends ChangeNotifier {
   AppUser _currentUser = demoAlice;
   AppUser get currentUser => _currentUser;
 
+  // Locations state
+  Location? _currentLocation;
+  Location? get currentLocation => _currentLocation;
+
+  List<Location> _locations = [];
+  List<Location> get locations => _locations;
+
+  List<LocationArea> _currentLocationAreas = [];
+  List<LocationArea> get currentLocationAreas => _currentLocationAreas;
+
   // Platform statistics
   DashboardStats? _stats;
   DashboardStats? get stats => _stats;
@@ -50,13 +60,14 @@ class AppState extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  /// Initializes state, syncs user with server, and connects real-time notification stream.
+  /// Initializes state, syncs user with server, loads locations, and connects real-time notification stream.
   Future<void> initialize() async {
     _isLoading = true;
     notifyListeners();
 
     try {
       await _syncUserWithServer();
+      await fetchLocations();
       await refreshAll();
       _startNotificationListener();
     } catch (e) {
@@ -65,6 +76,66 @@ class AppState extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Fetches available locations and defaults to IIT Delhi if none selected.
+  Future<void> fetchLocations({String? query, String? type}) async {
+    try {
+      final locs = await client.location.listLocations(query: query, type: type);
+      _locations = locs;
+
+      if (_currentLocation == null && _locations.isNotEmpty) {
+        // Try to pick IIT Delhi first as default demo campus
+        final defaultLoc = _locations.firstWhere(
+          (l) => l.name.toLowerCase().contains('iit delhi'),
+          orElse: () => _locations.first,
+        );
+        await selectLocation(defaultLoc);
+      } else if (_currentLocation != null) {
+        // Refresh current location areas
+        await fetchLocationAreas(_currentLocation!.id!);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Fetch locations error: $e');
+    }
+  }
+
+  /// Selects active location and loads its sub-areas.
+  Future<void> selectLocation(Location location) async {
+    _currentLocation = location;
+    notifyListeners();
+    if (location.id != null) {
+      await fetchLocationAreas(location.id!);
+    }
+  }
+
+  /// Fetches sub-areas for a given location.
+  Future<void> fetchLocationAreas(int locationId) async {
+    try {
+      final areas = await client.location.getLocationAreas(locationId);
+      _currentLocationAreas = areas;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Fetch location areas error: $e');
+    }
+  }
+
+  /// Creates a new location and selects it.
+  Future<Location> createLocation(Location location) async {
+    final created = await client.location.createLocation(location);
+    _locations.insert(0, created);
+    await selectLocation(created);
+    notifyListeners();
+    return created;
+  }
+
+  /// Adds a new area to a location.
+  Future<LocationArea> createLocationArea(LocationArea area) async {
+    final created = await client.location.createLocationArea(area);
+    _currentLocationAreas.add(created);
+    notifyListeners();
+    return created;
   }
 
   /// Switches active demo user (e.g. Alice -> Bob for 2-user demo).

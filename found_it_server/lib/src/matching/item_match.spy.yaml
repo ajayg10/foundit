@@ -5,6 +5,7 @@ fields:
   foundReportId: int
   confidenceScore: double
   textScore: double
+  locationScore: double
   distanceScore: double
   timeScore: double
   categoryScore: double
