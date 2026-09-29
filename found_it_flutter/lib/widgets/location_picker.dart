@@ -257,13 +257,29 @@ class LocationPickerWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    '(${latitude.toStringAsFixed(4)}, ${longitude.toStringAsFixed(4)})',
-                    style: GoogleFonts.robotoMono(
-                      fontSize: 11,
-                      color: AppTheme.textMuted,
+                  if (selectedLabel.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppTheme.recoveryGreen.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.check_circle, size: 12, color: AppTheme.recoveryGreen),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Area Selected',
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.recoveryGreen,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),

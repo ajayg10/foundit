@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 
-/// Screen allowing users to browse, search, select, or create active locations.
+/// Clean, mobile-friendly screen allowing users to select or add their campus or workplace.
 class LocationSelectorScreen extends StatefulWidget {
   const LocationSelectorScreen({super.key});
 
@@ -29,6 +30,12 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
   void initState() {
     super.initState();
     _loadLocations();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLocations() async {
@@ -64,15 +71,15 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
   Color _getTypeColor(String type) {
     switch (type.toLowerCase()) {
       case 'campus':
-        return const Color(0xFF6366F1);
+        return const Color(0xFF4F46E5);
       case 'airport':
-        return const Color(0xFF0EA5E9);
+        return const Color(0xFF0284C7);
       case 'office':
-        return const Color(0xFF10B981);
+        return const Color(0xFF059669);
       case 'metro':
-        return const Color(0xFFF59E0B);
+        return const Color(0xFFD97706);
       default:
-        return const Color(0xFF8B5CF6);
+        return const Color(0xFF7C3AED);
     }
   }
 
@@ -80,26 +87,23 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
     final nameController = TextEditingController();
     final addressController = TextEditingController();
     final descController = TextEditingController();
-    final latController = TextEditingController(text: '28.5456');
-    final lonController = TextEditingController(text: '77.1926');
     String dialogType = 'campus';
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) {
-          return Container(
+          return Padding(
             padding: EdgeInsets.only(
               bottom: MediaQuery.of(context).viewInsets.bottom + 24,
               top: 24,
               left: 20,
               right: 20,
-            ),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1E293B),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -109,16 +113,16 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Add New Location',
-                        style: TextStyle(
-                          color: Colors.white,
+                      Text(
+                        'Add New Campus or Place',
+                        style: GoogleFonts.outfit(
+                          color: AppTheme.textMain,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white70),
+                        icon: const Icon(Icons.close, color: AppTheme.textMuted),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -126,42 +130,28 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textMain),
                     decoration: InputDecoration(
-                      labelText: 'Location / Campus Name *',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      hintText: 'e.g. Stanford University or Google NYC',
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                      filled: true,
-                      fillColor: const Color(0xFF0F172A),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                      labelText: 'Place or Campus Name *',
+                      hintText: 'e.g. Stanford University or Microsoft Campus',
+                      prefixIcon: const Icon(Icons.apartment_rounded, color: AppTheme.primaryBlue),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   DropdownButtonFormField<String>(
                     value: dialogType,
-                    dropdownColor: const Color(0xFF0F172A),
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Location Type',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      filled: true,
-                      fillColor: const Color(0xFF0F172A),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                    style: const TextStyle(color: AppTheme.textMain),
+                    decoration: const InputDecoration(
+                      labelText: 'Place Category',
+                      prefixIcon: Icon(Icons.category_outlined, color: AppTheme.primaryBlue),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'campus', child: Text('🎓 Campus / University')),
+                      DropdownMenuItem(value: 'campus', child: Text('🎓 College / University Campus')),
                       DropdownMenuItem(value: 'office', child: Text('🏢 Office / Tech Park')),
                       DropdownMenuItem(value: 'airport', child: Text('✈️ Airport / Terminal')),
-                      DropdownMenuItem(value: 'metro', child: Text('🚇 Metro / Transit')),
+                      DropdownMenuItem(value: 'metro', child: Text('🚇 Metro / Transit Station')),
                       DropdownMenuItem(value: 'mall', child: Text('🛍️ Shopping Mall')),
-                      DropdownMenuItem(value: 'other', child: Text('📍 Other Venue')),
+                      DropdownMenuItem(value: 'other', child: Text('📍 Other Community Spot')),
                     ],
                     onChanged: (val) {
                       if (val != null) {
@@ -169,96 +159,42 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                       }
                     },
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: addressController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textMain),
                     decoration: InputDecoration(
-                      labelText: 'Full Address or Landmark',
-                      labelStyle: const TextStyle(color: Colors.white70),
+                      labelText: 'Address, Landmark or City',
                       hintText: 'e.g. Hauz Khas, New Delhi',
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                      filled: true,
-                      fillColor: const Color(0xFF0F172A),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                      prefixIcon: const Icon(Icons.pin_drop_outlined, color: AppTheme.primaryBlue),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 14),
                   TextField(
                     controller: descController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: AppTheme.textMain),
                     decoration: InputDecoration(
-                      labelText: 'Description / Notes',
-                      labelStyle: const TextStyle(color: Colors.white70),
+                      labelText: 'Short Description (Optional)',
                       hintText: 'e.g. Main academic and residential campus',
-                      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                      filled: true,
-                      fillColor: const Color(0xFF0F172A),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                      prefixIcon: const Icon(Icons.info_outline, color: AppTheme.primaryBlue),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: latController,
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: 'Latitude',
-                            labelStyle: const TextStyle(color: Colors.white70),
-                            filled: true,
-                            fillColor: const Color(0xFF0F172A),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: lonController,
-                          keyboardType: TextInputType.number,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            labelText: 'Longitude',
-                            labelStyle: const TextStyle(color: Colors.white70),
-                            filled: true,
-                            fillColor: const Color(0xFF0F172A),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 52,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBlue,
+                        backgroundColor: AppTheme.primaryDark,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       icon: const Icon(Icons.add_location_alt_rounded),
-                      label: const Text(
-                        'Save & Set as Active Location',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      label: Text(
+                        'Save & Set as My Location',
+                        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () async {
                         final name = nameController.text.trim();
@@ -269,16 +205,17 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                           return;
                         }
 
-                        final lat = double.tryParse(latController.text) ?? 28.5456;
-                        final lon = double.tryParse(lonController.text) ?? 77.1926;
-
                         final newLoc = Location(
                           name: name,
                           type: dialogType,
-                          address: addressController.text.trim(),
-                          description: descController.text.trim(),
-                          latitude: lat,
-                          longitude: lon,
+                          address: addressController.text.trim().isNotEmpty
+                              ? addressController.text.trim()
+                              : 'Campus Facility',
+                          description: descController.text.trim().isNotEmpty
+                              ? descController.text.trim()
+                              : 'Active lost and found location',
+                          latitude: 28.5456,
+                          longitude: 77.1926,
                           isActive: true,
                           createdAt: DateTime.now(),
                         );
@@ -315,26 +252,26 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
         final locations = AppState.instance.locations;
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
+          backgroundColor: AppTheme.backgroundLight,
           appBar: AppBar(
-            backgroundColor: const Color(0xFF0F172A),
+            backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textMain),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text(
-              'Select Campus or Location',
-              style: TextStyle(
-                color: Colors.white,
+            title: Text(
+              'Select Campus or Place',
+              style: GoogleFonts.outfit(
+                color: AppTheme.textMain,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.add_rounded, color: AppTheme.primaryBlue),
-                tooltip: 'Add New Location',
+                icon: const Icon(Icons.add_location_alt_outlined, color: AppTheme.primaryBlue),
+                tooltip: 'Add New Place',
                 onPressed: _showAddLocationDialog,
               ),
             ],
@@ -342,19 +279,19 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
           body: Column(
             children: [
               // Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: TextField(
                   controller: _searchController,
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: AppTheme.textMain),
                   onChanged: (_) => _loadLocations(),
                   decoration: InputDecoration(
-                    hintText: 'Search campus, airport, office...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
-                    prefixIcon: const Icon(Icons.search_rounded, color: Colors.white54),
+                    hintText: 'Search college, airport, or workplace...',
+                    prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textMuted),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear_rounded, color: Colors.white54),
+                            icon: const Icon(Icons.clear_rounded, color: AppTheme.textMuted),
                             onPressed: () {
                               _searchController.clear();
                               _loadLocations();
@@ -362,9 +299,9 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                           )
                         : null,
                     filled: true,
-                    fillColor: const Color(0xFF1E293B),
+                    fillColor: const Color(0xFFF1F5F9),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide.none,
                     ),
                   ),
@@ -372,40 +309,46 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
               ),
 
               // Filter Chips
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: _types.map((type) {
-                    final isSelected = _selectedType == type;
-                    final label = type == 'all'
-                        ? 'All'
-                        : type[0].toUpperCase() + type.substring(1);
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        selected: isSelected,
-                        label: Text(label),
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : Colors.white70,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 13,
+              Container(
+                color: Colors.white,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: _types.map((type) {
+                      final isSelected = _selectedType == type;
+                      final label = type == 'all'
+                          ? 'All Places'
+                          : type[0].toUpperCase() + type.substring(1);
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: FilterChip(
+                          selected: isSelected,
+                          label: Text(label),
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.white : AppTheme.textMain,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                          backgroundColor: const Color(0xFFF8FAFC),
+                          selectedColor: AppTheme.primaryDark,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          side: BorderSide(
+                            color: isSelected ? AppTheme.primaryDark : AppTheme.borderLight,
+                          ),
+                          onSelected: (selected) {
+                            setState(() => _selectedType = type);
+                            _loadLocations();
+                          },
                         ),
-                        backgroundColor: const Color(0xFF1E293B),
-                        selectedColor: AppTheme.primaryBlue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        side: BorderSide.none,
-                        onSelected: (selected) {
-                          setState(() => _selectedType = type);
-                          _loadLocations();
-                        },
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
+              const Divider(height: 1, color: AppTheme.borderLight),
 
               // Location List
               Expanded(
@@ -415,32 +358,39 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                       )
                     : locations.isEmpty
                         ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.location_off_rounded,
-                                    size: 56, color: Colors.white.withOpacity(0.3)),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'No locations found',
-                                  style: TextStyle(color: Colors.white70, fontSize: 16),
-                                ),
-                                const SizedBox(height: 8),
-                                ElevatedButton.icon(
-                                  onPressed: _showAddLocationDialog,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.primaryBlue,
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.location_off_rounded,
+                                      size: 56, color: AppTheme.textMuted.withOpacity(0.5)),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'No places found for "${_searchController.text}"',
+                                    style: GoogleFonts.inter(
+                                      color: AppTheme.textMuted,
+                                      fontSize: 15,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  icon: const Icon(Icons.add_rounded),
-                                  label: const Text('Add This Location'),
-                                )
-                              ],
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: _showAddLocationDialog,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppTheme.primaryDark,
+                                    ),
+                                    icon: const Icon(Icons.add_rounded),
+                                    label: const Text('Add This Location'),
+                                  )
+                                ],
+                              ),
                             ),
                           )
                         : ListView.separated(
                             padding: const EdgeInsets.all(16),
                             itemCount: locations.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
                             itemBuilder: (context, index) {
                               final loc = locations[index];
                               final isCurrent = currentLoc?.id == loc.id;
@@ -463,14 +413,21 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1E293B),
+                                    color: Colors.white,
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: isCurrent
                                           ? AppTheme.primaryBlue
-                                          : Colors.white.withOpacity(0.08),
+                                          : AppTheme.borderLight,
                                       width: isCurrent ? 2 : 1,
                                     ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.02),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
                                   child: Row(
                                     children: [
@@ -479,8 +436,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                         width: 48,
                                         height: 48,
                                         decoration: BoxDecoration(
-                                          color: typeColor.withOpacity(0.15),
-                                          borderRadius: BorderRadius.circular(12),
+                                          color: typeColor.withOpacity(0.12),
+                                          borderRadius: BorderRadius.circular(14),
                                         ),
                                         child: Icon(
                                           _getTypeIcon(loc.type),
@@ -500,8 +457,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                                 Expanded(
                                                   child: Text(
                                                     loc.name,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
+                                                    style: GoogleFonts.outfit(
+                                                      color: AppTheme.textMain,
                                                       fontSize: 16,
                                                       fontWeight: FontWeight.bold,
                                                     ),
@@ -513,12 +470,12 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                                     vertical: 2,
                                                   ),
                                                   decoration: BoxDecoration(
-                                                    color: typeColor.withOpacity(0.2),
-                                                    borderRadius: BorderRadius.circular(8),
+                                                    color: typeColor.withOpacity(0.12),
+                                                    borderRadius: BorderRadius.circular(6),
                                                   ),
                                                   child: Text(
                                                     loc.type.toUpperCase(),
-                                                    style: TextStyle(
+                                                    style: GoogleFonts.inter(
                                                       color: typeColor,
                                                       fontSize: 10,
                                                       fontWeight: FontWeight.bold,
@@ -532,8 +489,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 loc.address!,
-                                                style: TextStyle(
-                                                  color: Colors.white.withOpacity(0.6),
+                                                style: GoogleFonts.inter(
+                                                  color: AppTheme.textMuted,
                                                   fontSize: 13,
                                                 ),
                                                 maxLines: 1,
@@ -545,8 +502,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                               const SizedBox(height: 2),
                                               Text(
                                                 loc.description!,
-                                                style: TextStyle(
-                                                  color: Colors.white.withOpacity(0.4),
+                                                style: GoogleFonts.inter(
+                                                  color: AppTheme.textMuted.withOpacity(0.7),
                                                   fontSize: 12,
                                                 ),
                                                 maxLines: 1,
@@ -561,7 +518,7 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                       // Selected checkmark or chevron
                                       if (isCurrent)
                                         Container(
-                                          padding: const EdgeInsets.all(4),
+                                          padding: const EdgeInsets.all(6),
                                           decoration: const BoxDecoration(
                                             color: AppTheme.primaryBlue,
                                             shape: BoxShape.circle,
@@ -573,9 +530,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                           ),
                                         )
                                       else
-                                        Icon(
+                                        const Icon(
                                           Icons.chevron_right_rounded,
-                                          color: Colors.white.withOpacity(0.3),
+                                          color: AppTheme.borderLight,
+                                          size: 20,
                                         ),
                                     ],
                                   ),
