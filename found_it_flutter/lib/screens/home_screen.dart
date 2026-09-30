@@ -8,7 +8,7 @@ import '../widgets/item_card.dart';
 import '../widgets/metric_card.dart';
 import 'location_selector_screen.dart';
 import 'matches_screen.dart';
-import 'my_reports_screen.dart';
+import 'dashboard_screen.dart';
 import 'notifications_screen.dart';
 import 'public_board_screen.dart';
 import 'report_found_screen.dart';
@@ -740,7 +740,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ).then((_) => _loadRecent());
               } else if (index == 3) {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const MyReportsScreen()),
+                  MaterialPageRoute(builder: (_) => const DashboardScreen()),
                 ).then((_) => _loadRecent());
               }
             },
