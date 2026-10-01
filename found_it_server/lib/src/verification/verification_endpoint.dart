@@ -41,7 +41,8 @@ class VerificationEndpoint extends Endpoint {
         userId: report.userId,
         type: 'verificationSuccess',
         title: '✅ Item Claim Verified!',
-        body: 'A claimant successfully answered your verification question for "${report.title}". You can now proceed with the handover.',
+        body:
+            'A claimant successfully answered your verification question for "${report.title}". You can now proceed with the handover.',
         relatedReportId: report.id,
       );
 
@@ -51,7 +52,8 @@ class VerificationEndpoint extends Endpoint {
         userId: claimantUserId,
         type: 'verificationSuccess',
         title: '✅ Verification Successful!',
-        body: 'Your answer for "${report.title}" was verified. Please arrange safe handover with the finder.',
+        body:
+            'Your answer for "${report.title}" was verified. Please arrange safe handover with the finder.',
         relatedReportId: report.id,
       );
     } else if (report != null && !result.success) {
@@ -86,7 +88,8 @@ class VerificationEndpoint extends Endpoint {
     // Also update any related match
     final match = await ItemMatch.db.findFirstRow(
       session,
-      where: (t) => t.foundReportId.equals(reportId) | t.lostReportId.equals(reportId),
+      where: (t) =>
+          t.foundReportId.equals(reportId) | t.lostReportId.equals(reportId),
     );
 
     if (match != null) {
@@ -107,7 +110,8 @@ class VerificationEndpoint extends Endpoint {
           userId: otherReport.userId,
           type: 'itemReturned',
           title: '🎉 Item Returned & Case Closed!',
-          body: 'Your report for "${otherReport.title}" has been successfully returned and closed.',
+          body:
+              'Your report for "${otherReport.title}" has been successfully returned and closed.',
           relatedMatchId: match.id,
           relatedReportId: otherReport.id,
         );

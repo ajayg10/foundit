@@ -21,7 +21,15 @@ class SimilarityService {
   static const List<Set<String>> _synonymGroups = [
     {'bag', 'backpack', 'rucksack', 'sack', 'pack', 'haversack'},
     {'wallet', 'purse', 'billfold', 'cardholder', 'card holder'},
-    {'phone', 'mobile', 'smartphone', 'iphone', 'android', 'handset', 'cellphone'},
+    {
+      'phone',
+      'mobile',
+      'smartphone',
+      'iphone',
+      'android',
+      'handset',
+      'cellphone',
+    },
     {'laptop', 'notebook', 'computer', 'macbook', 'chromebook'},
     {'airpods', 'earbuds', 'earphones', 'headphones', 'headset', 'buds'},
     {'keys', 'key', 'keychain', 'key ring', 'keyring'},
@@ -63,7 +71,8 @@ class SimilarityService {
     final descTokenSim = _jaccardOf(fullTokens1, fullTokens2);
 
     // Keyword containment boost (e.g. "Backpack" in "Black Wildcraft Backpack")
-    final isContained = tokens1.isNotEmpty &&
+    final isContained =
+        tokens1.isNotEmpty &&
         tokens2.isNotEmpty &&
         (tokens1.every(tokens2.contains) || tokens2.every(tokens1.contains));
 
@@ -71,7 +80,8 @@ class SimilarityService {
     final effectiveTitleTokenSim = isContained ? 1.0 : titleTokenSim;
 
     // Weighted combination (title-heavy)
-    final combined = (effectiveTitleSim * 0.40) +
+    final combined =
+        (effectiveTitleSim * 0.40) +
         (effectiveTitleTokenSim * 0.35) +
         (descTokenSim * 0.15) +
         (descSim * 0.10);
@@ -112,15 +122,43 @@ class SimilarityService {
     final shared = tokens1.intersection(tokens2);
 
     const stopWords = {
-      'the', 'and', 'for', 'with', 'near', 'lost', 'found', 'this', 'that',
-      'from', 'some', 'about', 'here', 'there', 'have', 'been', 'into',
-      'around', 'just', 'item', 'something', 'where', 'when', 'what', 'which',
-      'was', 'were', 'has', 'had', 'not', 'but', 'its', 'my', 'their',
+      'the',
+      'and',
+      'for',
+      'with',
+      'near',
+      'lost',
+      'found',
+      'this',
+      'that',
+      'from',
+      'some',
+      'about',
+      'here',
+      'there',
+      'have',
+      'been',
+      'into',
+      'around',
+      'just',
+      'item',
+      'something',
+      'where',
+      'when',
+      'what',
+      'which',
+      'was',
+      'were',
+      'has',
+      'had',
+      'not',
+      'but',
+      'its',
+      'my',
+      'their',
     };
 
-    return shared
-        .where((t) => t.length > 2 && !stopWords.contains(t))
-        .toList();
+    return shared.where((t) => t.length > 2 && !stopWords.contains(t)).toList();
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────
@@ -130,10 +168,9 @@ class SimilarityService {
   }
 
   static Set<String> _tokenize(String input) {
-    return _clean(input)
-        .split(RegExp(r'\s+'))
-        .where((w) => w.length > 1)
-        .toSet();
+    return _clean(
+      input,
+    ).split(RegExp(r'\s+')).where((w) => w.length > 1).toSet();
   }
 
   /// Expand tokens by adding synonym group representatives.

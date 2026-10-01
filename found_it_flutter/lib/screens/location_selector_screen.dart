@@ -122,7 +122,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: AppTheme.textMuted),
+                        icon: const Icon(
+                          Icons.close,
+                          color: AppTheme.textMuted,
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
@@ -134,7 +137,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                     decoration: InputDecoration(
                       labelText: 'Place or Campus Name *',
                       hintText: 'e.g. Stanford University or Microsoft Campus',
-                      prefixIcon: const Icon(Icons.apartment_rounded, color: AppTheme.primaryBlue),
+                      prefixIcon: const Icon(
+                        Icons.apartment_rounded,
+                        color: AppTheme.primaryBlue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -143,15 +149,36 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                     style: const TextStyle(color: AppTheme.textMain),
                     decoration: const InputDecoration(
                       labelText: 'Place Category',
-                      prefixIcon: Icon(Icons.category_outlined, color: AppTheme.primaryBlue),
+                      prefixIcon: Icon(
+                        Icons.category_outlined,
+                        color: AppTheme.primaryBlue,
+                      ),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'campus', child: Text('🎓 College / University Campus')),
-                      DropdownMenuItem(value: 'office', child: Text('🏢 Office / Tech Park')),
-                      DropdownMenuItem(value: 'airport', child: Text('✈️ Airport / Terminal')),
-                      DropdownMenuItem(value: 'metro', child: Text('🚇 Metro / Transit Station')),
-                      DropdownMenuItem(value: 'mall', child: Text('🛍️ Shopping Mall')),
-                      DropdownMenuItem(value: 'other', child: Text('📍 Other Community Spot')),
+                      DropdownMenuItem(
+                        value: 'campus',
+                        child: Text('🎓 College / University Campus'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'office',
+                        child: Text('🏢 Office / Tech Park'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'airport',
+                        child: Text('✈️ Airport / Terminal'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'metro',
+                        child: Text('🚇 Metro / Transit Station'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'mall',
+                        child: Text('🛍️ Shopping Mall'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'other',
+                        child: Text('📍 Other Community Spot'),
+                      ),
                     ],
                     onChanged: (val) {
                       if (val != null) {
@@ -166,7 +193,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                     decoration: InputDecoration(
                       labelText: 'Address, Landmark or City',
                       hintText: 'e.g. Hauz Khas, New Delhi',
-                      prefixIcon: const Icon(Icons.pin_drop_outlined, color: AppTheme.primaryBlue),
+                      prefixIcon: const Icon(
+                        Icons.pin_drop_outlined,
+                        color: AppTheme.primaryBlue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -176,7 +206,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                     decoration: InputDecoration(
                       labelText: 'Short Description (Optional)',
                       hintText: 'e.g. Main academic and residential campus',
-                      prefixIcon: const Icon(Icons.info_outline, color: AppTheme.primaryBlue),
+                      prefixIcon: const Icon(
+                        Icons.info_outline,
+                        color: AppTheme.primaryBlue,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -194,13 +227,18 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                       icon: const Icon(Icons.add_location_alt_rounded),
                       label: Text(
                         'Save & Set as My Location',
-                        style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       onPressed: () async {
                         final name = nameController.text.trim();
                         if (name.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please enter a location name')),
+                            const SnackBar(
+                              content: Text('Please enter a location name'),
+                            ),
                           );
                           return;
                         }
@@ -228,7 +266,9 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                           }
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error creating location: $e')),
+                            SnackBar(
+                              content: Text('Error creating location: $e'),
+                            ),
                           );
                         }
                       },
@@ -257,7 +297,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
             backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.textMain),
+              icon: const Icon(
+                Icons.arrow_back_rounded,
+                color: AppTheme.textMain,
+              ),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
@@ -270,7 +313,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.add_location_alt_outlined, color: AppTheme.primaryBlue),
+                icon: const Icon(
+                  Icons.add_location_alt_outlined,
+                  color: AppTheme.primaryBlue,
+                ),
                 tooltip: 'Add New Place',
                 onPressed: _showAddLocationDialog,
               ),
@@ -288,10 +334,16 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                   onChanged: (_) => _loadLocations(),
                   decoration: InputDecoration(
                     hintText: 'Search college, airport, or workplace...',
-                    prefixIcon: const Icon(Icons.search_rounded, color: AppTheme.textMuted),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      color: AppTheme.textMuted,
+                    ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear_rounded, color: AppTheme.textMuted),
+                            icon: const Icon(
+                              Icons.clear_rounded,
+                              color: AppTheme.textMuted,
+                            ),
                             onPressed: () {
                               _searchController.clear();
                               _loadLocations();
@@ -313,7 +365,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                 color: Colors.white,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: _types.map((type) {
                       final isSelected = _selectedType == type;
@@ -326,8 +381,12 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                           selected: isSelected,
                           label: Text(label),
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : AppTheme.textMain,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white
+                                : AppTheme.textMain,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.w500,
                             fontSize: 13,
                           ),
                           backgroundColor: const Color(0xFFF8FAFC),
@@ -336,7 +395,9 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           side: BorderSide(
-                            color: isSelected ? AppTheme.primaryDark : AppTheme.borderLight,
+                            color: isSelected
+                                ? AppTheme.primaryDark
+                                : AppTheme.borderLight,
                           ),
                           onSelected: (selected) {
                             setState(() => _selectedType = type);
@@ -354,193 +415,205 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
               Expanded(
                 child: _isLoading
                     ? const Center(
-                        child: CircularProgressIndicator(color: AppTheme.primaryBlue),
+                        child: CircularProgressIndicator(
+                          color: AppTheme.primaryBlue,
+                        ),
                       )
                     : locations.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.location_off_rounded,
-                                      size: 56, color: AppTheme.textMuted.withOpacity(0.5)),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    'No places found for "${_searchController.text}"',
-                                    style: GoogleFonts.inter(
-                                      color: AppTheme.textMuted,
-                                      fontSize: 15,
-                                    ),
-                                    textAlign: TextAlign.center,
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_off_rounded,
+                                size: 56,
+                                color: AppTheme.textMuted.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No places found for "${_searchController.text}"',
+                                style: GoogleFonts.inter(
+                                  color: AppTheme.textMuted,
+                                  fontSize: 15,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: _showAddLocationDialog,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryDark,
+                                ),
+                                icon: const Icon(Icons.add_rounded),
+                                label: const Text('Add This Location'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: locations.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (context, index) {
+                          final loc = locations[index];
+                          final isCurrent = currentLoc?.id == loc.id;
+                          final typeColor = _getTypeColor(loc.type);
+
+                          return InkWell(
+                            onTap: () async {
+                              await AppState.instance.selectLocation(loc);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Switched to ${loc.name}'),
+                                    duration: const Duration(seconds: 2),
                                   ),
-                                  const SizedBox(height: 16),
-                                  ElevatedButton.icon(
-                                    onPressed: _showAddLocationDialog,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppTheme.primaryDark,
-                                    ),
-                                    icon: const Icon(Icons.add_rounded),
-                                    label: const Text('Add This Location'),
-                                  )
+                                );
+                                Navigator.pop(context, true);
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isCurrent
+                                      ? AppTheme.primaryBlue
+                                      : AppTheme.borderLight,
+                                  width: isCurrent ? 2 : 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.02),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
                                 ],
                               ),
-                            ),
-                          )
-                        : ListView.separated(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: locations.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 10),
-                            itemBuilder: (context, index) {
-                              final loc = locations[index];
-                              final isCurrent = currentLoc?.id == loc.id;
-                              final typeColor = _getTypeColor(loc.type);
-
-                              return InkWell(
-                                onTap: () async {
-                                  await AppState.instance.selectLocation(loc);
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Switched to ${loc.name}'),
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-                                    Navigator.pop(context, true);
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: isCurrent
-                                          ? AppTheme.primaryBlue
-                                          : AppTheme.borderLight,
-                                      width: isCurrent ? 2 : 1,
+                              child: Row(
+                                children: [
+                                  // Type Icon badge
+                                  Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: typeColor.withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.02),
-                                        blurRadius: 8,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
+                                    child: Icon(
+                                      _getTypeIcon(loc.type),
+                                      color: typeColor,
+                                      size: 24,
+                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      // Type Icon badge
-                                      Container(
-                                        width: 48,
-                                        height: 48,
-                                        decoration: BoxDecoration(
-                                          color: typeColor.withOpacity(0.12),
-                                          borderRadius: BorderRadius.circular(14),
-                                        ),
-                                        child: Icon(
-                                          _getTypeIcon(loc.type),
-                                          color: typeColor,
-                                          size: 24,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
+                                  const SizedBox(width: 14),
 
-                                      // Location Info
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                  // Location Info
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
                                           children: [
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    loc.name,
-                                                    style: GoogleFonts.outfit(
-                                                      color: AppTheme.textMain,
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                    ),
-                                                  ),
+                                            Expanded(
+                                              child: Text(
+                                                loc.name,
+                                                style: GoogleFonts.outfit(
+                                                  color: AppTheme.textMain,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                Container(
-                                                  padding: const EdgeInsets.symmetric(
+                                              ),
+                                            ),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
                                                     horizontal: 8,
                                                     vertical: 2,
                                                   ),
-                                                  decoration: BoxDecoration(
-                                                    color: typeColor.withOpacity(0.12),
-                                                    borderRadius: BorderRadius.circular(6),
-                                                  ),
-                                                  child: Text(
-                                                    loc.type.toUpperCase(),
-                                                    style: GoogleFonts.inter(
-                                                      color: typeColor,
-                                                      fontSize: 10,
-                                                      fontWeight: FontWeight.bold,
-                                                      letterSpacing: 0.5,
-                                                    ),
-                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: typeColor.withOpacity(
+                                                  0.12,
                                                 ),
-                                              ],
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                loc.type.toUpperCase(),
+                                                style: GoogleFonts.inter(
+                                                  color: typeColor,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                              ),
                                             ),
-                                            if (loc.address != null && loc.address!.isNotEmpty) ...[
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                loc.address!,
-                                                style: GoogleFonts.inter(
-                                                  color: AppTheme.textMuted,
-                                                  fontSize: 13,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
-                                            if (loc.description != null &&
-                                                loc.description!.isNotEmpty) ...[
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                loc.description!,
-                                                style: GoogleFonts.inter(
-                                                  color: AppTheme.textMuted.withOpacity(0.7),
-                                                  fontSize: 12,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ],
                                           ],
                                         ),
-                                      ),
-                                      const SizedBox(width: 10),
-
-                                      // Selected checkmark or chevron
-                                      if (isCurrent)
-                                        Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: const BoxDecoration(
-                                            color: AppTheme.primaryBlue,
-                                            shape: BoxShape.circle,
+                                        if (loc.address != null &&
+                                            loc.address!.isNotEmpty) ...[
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            loc.address!,
+                                            style: GoogleFonts.inter(
+                                              color: AppTheme.textMuted,
+                                              fontSize: 13,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          child: const Icon(
-                                            Icons.check_rounded,
-                                            color: Colors.white,
-                                            size: 16,
+                                        ],
+                                        if (loc.description != null &&
+                                            loc.description!.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            loc.description!,
+                                            style: GoogleFonts.inter(
+                                              color: AppTheme.textMuted
+                                                  .withOpacity(0.7),
+                                              fontSize: 12,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        )
-                                      else
-                                        const Icon(
-                                          Icons.chevron_right_rounded,
-                                          color: AppTheme.borderLight,
-                                          size: 20,
-                                        ),
-                                    ],
+                                        ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
+                                  const SizedBox(width: 10),
+
+                                  // Selected checkmark or chevron
+                                  if (isCurrent)
+                                    Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: const BoxDecoration(
+                                        color: AppTheme.primaryBlue,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.check_rounded,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                    )
+                                  else
+                                    const Icon(
+                                      Icons.chevron_right_rounded,
+                                      color: AppTheme.borderLight,
+                                      size: 20,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),

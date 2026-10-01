@@ -11,14 +11,21 @@ class MatchEndpoint extends Endpoint {
   ) async {
     final matches = await ItemMatch.db.find(
       session,
-      where: (t) => t.lostReportId.equals(reportId) | t.foundReportId.equals(reportId),
+      where: (t) =>
+          t.lostReportId.equals(reportId) | t.foundReportId.equals(reportId),
       orderBy: (t) => t.confidenceScore.desc(),
     );
 
     final results = <MatchDetailsDto>[];
     for (final match in matches) {
-      final lostReport = await ItemReport.db.findById(session, match.lostReportId);
-      final foundReport = await ItemReport.db.findById(session, match.foundReportId);
+      final lostReport = await ItemReport.db.findById(
+        session,
+        match.lostReportId,
+      );
+      final foundReport = await ItemReport.db.findById(
+        session,
+        match.foundReportId,
+      );
 
       if (lostReport != null && foundReport != null) {
         final verification = await Verification.db.findFirstRow(
@@ -64,13 +71,20 @@ class MatchEndpoint extends Endpoint {
     );
 
     final relevantMatches = allMatches.where((m) {
-      return reportIds.contains(m.lostReportId) || reportIds.contains(m.foundReportId);
+      return reportIds.contains(m.lostReportId) ||
+          reportIds.contains(m.foundReportId);
     }).toList();
 
     final results = <MatchDetailsDto>[];
     for (final match in relevantMatches) {
-      final lostReport = await ItemReport.db.findById(session, match.lostReportId);
-      final foundReport = await ItemReport.db.findById(session, match.foundReportId);
+      final lostReport = await ItemReport.db.findById(
+        session,
+        match.lostReportId,
+      );
+      final foundReport = await ItemReport.db.findById(
+        session,
+        match.foundReportId,
+      );
 
       if (lostReport != null && foundReport != null) {
         final verification = await Verification.db.findFirstRow(
@@ -102,8 +116,14 @@ class MatchEndpoint extends Endpoint {
     final match = await ItemMatch.db.findById(session, matchId);
     if (match == null) return null;
 
-    final lostReport = await ItemReport.db.findById(session, match.lostReportId);
-    final foundReport = await ItemReport.db.findById(session, match.foundReportId);
+    final lostReport = await ItemReport.db.findById(
+      session,
+      match.lostReportId,
+    );
+    final foundReport = await ItemReport.db.findById(
+      session,
+      match.foundReportId,
+    );
 
     if (lostReport == null || foundReport == null) return null;
 

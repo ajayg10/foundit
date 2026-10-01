@@ -16,7 +16,8 @@ class LocationPickerWidget extends StatelessWidget {
   final int? selectedAreaId;
   final double latitude;
   final double longitude;
-  final Function(int? areaId, String label, double lat, double lon) onLocationChanged;
+  final Function(int? areaId, String label, double lat, double lon)
+  onLocationChanged;
 
   const LocationPickerWidget({
     super.key,
@@ -33,23 +34,28 @@ class LocationPickerWidget extends StatelessWidget {
     if (n.contains('cse') ||
         n.contains('building') ||
         n.contains('lab') ||
-        n.contains('tower')) return Icons.domain_rounded;
+        n.contains('tower'))
+      return Icons.domain_rounded;
     if (n.contains('canteen') ||
         n.contains('cafe') ||
         n.contains('food') ||
-        n.contains('dining')) return Icons.restaurant_outlined;
-    if (n.contains('hostel') ||
-        n.contains('dorm') ||
-        n.contains('hall')) return Icons.hotel_rounded;
+        n.contains('dining'))
+      return Icons.restaurant_outlined;
+    if (n.contains('hostel') || n.contains('dorm') || n.contains('hall'))
+      return Icons.hotel_rounded;
     if (n.contains('sac') ||
         n.contains('activity') ||
         n.contains('gym') ||
-        n.contains('sports')) return Icons.sports_tennis_rounded;
-    if (n.contains('security') || n.contains('gate')) return Icons.shield_outlined;
+        n.contains('sports'))
+      return Icons.sports_tennis_rounded;
+    if (n.contains('security') || n.contains('gate'))
+      return Icons.shield_outlined;
     if (n.contains('terminal') ||
         n.contains('arrival') ||
-        n.contains('departure')) return Icons.flight_takeoff_rounded;
-    if (n.contains('baggage') || n.contains('claim')) return Icons.luggage_rounded;
+        n.contains('departure'))
+      return Icons.flight_takeoff_rounded;
+    if (n.contains('baggage') || n.contains('claim'))
+      return Icons.luggage_rounded;
     if (n.contains('parking')) return Icons.local_parking_rounded;
     return Icons.place_outlined;
   }
@@ -73,12 +79,19 @@ class LocationPickerWidget extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryDark),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryDark,
+            ),
             onPressed: () {
               final spot = customController.text.trim();
               if (spot.isNotEmpty) {
                 final label = '${activeLoc.name} — $spot';
-                onLocationChanged(null, label, activeLoc.latitude, activeLoc.longitude);
+                onLocationChanged(
+                  null,
+                  label,
+                  activeLoc.latitude,
+                  activeLoc.longitude,
+                );
                 Navigator.pop(ctx);
               }
             },
@@ -111,7 +124,6 @@ class LocationPickerWidget extends StatelessWidget {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
@@ -133,8 +145,11 @@ class LocationPickerWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place_rounded,
-                      color: Color(0xFF4F46E5), size: 20),
+                  const Icon(
+                    Icons.place_rounded,
+                    color: Color(0xFF4F46E5),
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
@@ -164,23 +179,33 @@ class LocationPickerWidget extends StatelessWidget {
                   ),
                   TextButton.icon(
                     style: TextButton.styleFrom(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       visualDensity: VisualDensity.compact,
                     ),
                     onPressed: () async {
                       await Navigator.of(context).push(
                         MaterialPageRoute(
-                            builder: (_) => const LocationSelectorScreen()),
+                          builder: (_) => const LocationSelectorScreen(),
+                        ),
                       );
                       final newLoc = AppState.instance.currentLocation;
                       if (newLoc != null) {
                         onLocationChanged(
-                            null, newLoc.name, newLoc.latitude, newLoc.longitude);
+                          null,
+                          newLoc.name,
+                          newLoc.latitude,
+                          newLoc.longitude,
+                        );
                       }
                     },
-                    icon: const Icon(Icons.swap_horiz_rounded,
-                        size: 16, color: Color(0xFF4F46E5)),
+                    icon: const Icon(
+                      Icons.swap_horiz_rounded,
+                      size: 16,
+                      color: Color(0xFF4F46E5),
+                    ),
                     label: Text(
                       'Change',
                       style: GoogleFonts.inter(
@@ -200,8 +225,10 @@ class LocationPickerWidget extends StatelessWidget {
               onTap: () => _openMapPicker(context),
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 11,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -215,8 +242,11 @@ class LocationPickerWidget extends StatelessWidget {
                         color: AppTheme.primaryDark.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.map_outlined,
-                          color: AppTheme.primaryDark, size: 18),
+                      child: const Icon(
+                        Icons.map_outlined,
+                        color: AppTheme.primaryDark,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -241,8 +271,10 @@ class LocationPickerWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: AppTheme.textMuted),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppTheme.textMuted,
+                    ),
                   ],
                 ),
               ),
@@ -266,7 +298,8 @@ class LocationPickerWidget extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   ...areas.map((area) {
-                    final isSelected = selectedAreaId == area.id ||
+                    final isSelected =
+                        selectedAreaId == area.id ||
                         selectedLabel.contains(area.name);
                     return ChoiceChip(
                       avatar: Icon(
@@ -305,8 +338,11 @@ class LocationPickerWidget extends StatelessWidget {
                   }),
                   // Custom spot chip
                   ActionChip(
-                    avatar: const Icon(Icons.add_rounded,
-                        size: 16, color: AppTheme.primaryBlue),
+                    avatar: const Icon(
+                      Icons.add_rounded,
+                      size: 16,
+                      color: AppTheme.primaryBlue,
+                    ),
                     label: const Text('Other Spot…'),
                     backgroundColor: Colors.white,
                     side: const BorderSide(color: AppTheme.borderLight),
@@ -327,15 +363,16 @@ class LocationPickerWidget extends StatelessWidget {
               Text(
                 'No sub-areas configured for this location yet.',
                 style: GoogleFonts.inter(
-                    fontSize: 12, color: AppTheme.textMuted),
+                  fontSize: 12,
+                  color: AppTheme.textMuted,
+                ),
               ),
             ],
             const SizedBox(height: 10),
 
             // ── Selected summary pill ────────────────────────────────────
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xFFF8FAFC),
                 borderRadius: BorderRadius.circular(10),
@@ -343,8 +380,11 @@ class LocationPickerWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.pin_drop_outlined,
-                      size: 18, color: AppTheme.primaryBlue),
+                  const Icon(
+                    Icons.pin_drop_outlined,
+                    size: 18,
+                    color: AppTheme.primaryBlue,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -361,7 +401,9 @@ class LocationPickerWidget extends StatelessWidget {
                   if (selectedLabel.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.recoveryGreen.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(6),
@@ -369,8 +411,11 @@ class LocationPickerWidget extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.check_circle,
-                              size: 12, color: AppTheme.recoveryGreen),
+                          const Icon(
+                            Icons.check_circle,
+                            size: 12,
+                            color: AppTheme.recoveryGreen,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Area Selected',

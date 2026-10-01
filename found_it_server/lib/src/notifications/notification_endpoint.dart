@@ -21,7 +21,10 @@ class NotificationEndpoint extends Endpoint {
     Session session,
     int notificationId,
   ) async {
-    final notification = await AppNotification.db.findById(session, notificationId);
+    final notification = await AppNotification.db.findById(
+      session,
+      notificationId,
+    );
     if (notification != null) {
       notification.isRead = true;
       await AppNotification.db.updateRow(session, notification);

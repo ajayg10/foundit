@@ -38,8 +38,14 @@ class MatchingService {
 
     // Prefer same-location candidates first
     candidates.sort((a, b) {
-      final aSameLoc = (report.locationId != null && a.locationId == report.locationId) ? 1 : 0;
-      final bSameLoc = (report.locationId != null && b.locationId == report.locationId) ? 1 : 0;
+      final aSameLoc =
+          (report.locationId != null && a.locationId == report.locationId)
+          ? 1
+          : 0;
+      final bSameLoc =
+          (report.locationId != null && b.locationId == report.locationId)
+          ? 1
+          : 0;
       return bSameLoc.compareTo(aSameLoc);
     });
 
@@ -153,7 +159,8 @@ class MatchingService {
     required ItemReport foundReport,
   }) {
     // 1. Category similarity (Weight: 15%)
-    final isCategoryMatch = lostReport.category.trim().toLowerCase() ==
+    final isCategoryMatch =
+        lostReport.category.trim().toLowerCase() ==
         foundReport.category.trim().toLowerCase();
     final categoryScore = isCategoryMatch ? 1.0 : 0.0;
 
@@ -201,7 +208,8 @@ class MatchingService {
     final timeScore = TimeService.calculateTimeScore(timeDiffHours);
 
     // Overall weighted confidence score (0.0 to 1.0)
-    final overallConfidence = (textScore * 0.35) +
+    final overallConfidence =
+        (textScore * 0.35) +
         (locationScore * 0.10) +
         (distanceScore * 0.20) +
         (timeScore * 0.20) +
@@ -309,8 +317,8 @@ class MatchingService {
     final verdict = confidenceScore >= 0.85
         ? 'High probability of being the same item'
         : (confidenceScore >= 0.65
-            ? 'Strong potential match with shared signals'
-            : 'Moderate similarity warranting review');
+              ? 'Strong potential match with shared signals'
+              : 'Moderate similarity warranting review');
 
     final map = {
       'percent': percent,

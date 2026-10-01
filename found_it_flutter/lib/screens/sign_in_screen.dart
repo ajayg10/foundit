@@ -197,8 +197,11 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.find_in_page_rounded,
-                        color: Colors.white, size: 36),
+                    child: const Icon(
+                      Icons.find_in_page_rounded,
+                      color: Colors.white,
+                      size: 36,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -254,9 +257,13 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                               unselectedLabelColor: AppTheme.textMuted,
                               dividerColor: Colors.transparent,
                               labelStyle: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w700, fontSize: 14),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
                               unselectedLabelStyle: GoogleFonts.inter(
-                                  fontWeight: FontWeight.w500, fontSize: 14),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
                               tabs: const [
                                 Tab(text: 'Sign In'),
                                 Tab(text: 'Sign Up'),
@@ -282,7 +289,10 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
 
                   // Demo note
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
@@ -290,14 +300,19 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded,
-                            color: Colors.white54, size: 16),
+                        const Icon(
+                          Icons.info_outline_rounded,
+                          color: Colors.white54,
+                          size: 16,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'For demo: use any email + password. No real email verification required.',
                             style: GoogleFonts.inter(
-                                fontSize: 12, color: Colors.white60),
+                              fontSize: 12,
+                              color: Colors.white60,
+                            ),
                           ),
                         ),
                       ],
@@ -341,11 +356,12 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
               obscure: _obscurePassword,
               suffixIcon: IconButton(
                 icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 20,
-                    color: AppTheme.textMuted),
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                  color: AppTheme.textMuted,
+                ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
@@ -361,7 +377,8 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
                 onPressed: _loading ? null : _signIn,
@@ -370,10 +387,17 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Text('Sign In',
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'Sign In',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -396,8 +420,9 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
               controller: _signUpNameCtrl,
               hint: 'Ajay Kumar',
               icon: Icons.person_outline_rounded,
-              validator: (v) =>
-                  (v != null && v.trim().length >= 2) ? null : 'Enter your name',
+              validator: (v) => (v != null && v.trim().length >= 2)
+                  ? null
+                  : 'Enter your name',
             ),
             const SizedBox(height: 12),
             _fieldLabel('Email'),
@@ -420,11 +445,12 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
               obscure: _obscurePassword,
               suffixIcon: IconButton(
                 icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 20,
-                    color: AppTheme.textMuted),
+                  _obscurePassword
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                  color: AppTheme.textMuted,
+                ),
                 onPressed: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
@@ -441,17 +467,17 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
               obscure: _obscureConfirm,
               suffixIcon: IconButton(
                 icon: Icon(
-                    _obscureConfirm
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    size: 20,
-                    color: AppTheme.textMuted),
+                  _obscureConfirm
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                  color: AppTheme.textMuted,
+                ),
                 onPressed: () =>
                     setState(() => _obscureConfirm = !_obscureConfirm),
               ),
-              validator: (v) => (v != null && v.length >= 6)
-                  ? null
-                  : 'Min 6 characters',
+              validator: (v) =>
+                  (v != null && v.length >= 6) ? null : 'Min 6 characters',
             ),
             const SizedBox(height: 18),
             SizedBox(
@@ -462,7 +488,8 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
                 onPressed: _loading ? null : _signUp,
@@ -471,10 +498,17 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Text('Create Account',
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        'Create Account',
                         style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w700, fontSize: 15)),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -527,15 +561,16 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppTheme.primaryBlue, width: 1.5),
+          borderSide: const BorderSide(color: AppTheme.primaryBlue, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppTheme.lostRed),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 13,
+        ),
       ),
     );
   }

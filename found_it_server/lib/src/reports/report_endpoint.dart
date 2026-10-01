@@ -159,7 +159,8 @@ class ReportEndpoint extends Endpoint {
       final bytes = base64Decode(base64Data);
       final byteData = ByteData.sublistView(Uint8List.fromList(bytes));
       final cleanName = filename.replaceAll(RegExp(r'[^a-zA-Z0-9_\.-]'), '_');
-      final uniquePath = 'uploads/${DateTime.now().millisecondsSinceEpoch}_$cleanName';
+      final uniquePath =
+          'uploads/${DateTime.now().millisecondsSinceEpoch}_$cleanName';
 
       await session.storage.storeFile(
         storageId: 'public',
@@ -174,7 +175,10 @@ class ReportEndpoint extends Endpoint {
 
       return publicUrl.toString();
     } catch (e) {
-      session.log('Photo upload error: $e, falling back to data URL', level: LogLevel.warning);
+      session.log(
+        'Photo upload error: $e, falling back to data URL',
+        level: LogLevel.warning,
+      );
       return 'data:image/jpeg;base64,$base64Data';
     }
   }

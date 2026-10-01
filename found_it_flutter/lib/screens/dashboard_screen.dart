@@ -114,16 +114,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                 controller: _tabController,
                 children: [
                   _buildReportList(
-                    _userReports
-                        .where((r) => r.reportType == 'lost')
-                        .toList(),
+                    _userReports.where((r) => r.reportType == 'lost').toList(),
                     'No lost item reports yet.',
                     Icons.search_off_rounded,
                   ),
                   _buildReportList(
-                    _userReports
-                        .where((r) => r.reportType == 'found')
-                        .toList(),
+                    _userReports.where((r) => r.reportType == 'found').toList(),
                     'No found item reports yet.',
                     Icons.inventory_2_outlined,
                   ),
@@ -136,9 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     Icons.pending_actions_outlined,
                   ),
                   _buildReportList(
-                    _userReports
-                        .where((r) => r.status == 'returned')
-                        .toList(),
+                    _userReports.where((r) => r.status == 'returned').toList(),
                     'No returned items yet — keep going! 🎉',
                     Icons.check_circle_outline_rounded,
                   ),
@@ -160,13 +154,22 @@ class _DashboardScreenState extends State<DashboardScreen>
           child: Row(
             children: [
               _statTile(
-                  '${_lostCount + _foundCount}', 'Total\nReports', Icons.article_outlined),
+                '${_lostCount + _foundCount}',
+                'Total\nReports',
+                Icons.article_outlined,
+              ),
               const SizedBox(width: 12),
               _statTile(
-                  '$_matchedCount', 'Matches\nFound', Icons.auto_awesome_rounded),
+                '$_matchedCount',
+                'Matches\nFound',
+                Icons.auto_awesome_rounded,
+              ),
               const SizedBox(width: 12),
               _statTile(
-                  '$_returnedCount', 'Items\nReturned', Icons.check_circle_rounded),
+                '$_returnedCount',
+                'Items\nReturned',
+                Icons.check_circle_rounded,
+              ),
             ],
           ),
         ),
@@ -181,8 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.12),
           borderRadius: BorderRadius.circular(14),
-          border:
-              Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
         ),
         child: Column(
           children: [

@@ -12,7 +12,9 @@ void main() async {
 
   // 2. Fetch stats
   final stats = await client.dashboard.getStats();
-  print('Stats: Lost=${stats.totalLost}, Found=${stats.totalFound}, Matched=${stats.totalMatched}, Returned=${stats.totalReturned}, Locations=${stats.totalLocations}');
+  print(
+    'Stats: Lost=${stats.totalLost}, Found=${stats.totalFound}, Matched=${stats.totalMatched}, Returned=${stats.totalReturned}, Locations=${stats.totalLocations}',
+  );
 
   // 3. Test Multi-Location API
   print('\n--- TESTING MULTI-LOCATION ARCHITECTURE ---');
@@ -34,7 +36,9 @@ void main() async {
 
   // 4. Test Location-Scoped Reports and Automatic Matching:
   print('\n--- RUNNING IIT DELHI HACKATHON PRIMARY DEMO ---');
-  print('Step 1: Alice reports lost Black Wildcraft Backpack at IIT Delhi Central Library...');
+  print(
+    'Step 1: Alice reports lost Black Wildcraft Backpack at IIT Delhi Central Library...',
+  );
   final lostBackpack = await client.report.createReport(
     report: ItemReport(
       userId: 'alice_live_demo',
@@ -42,7 +46,8 @@ void main() async {
       userEmail: 'alice@campus.edu',
       reportType: 'lost',
       title: 'Black Wildcraft Backpack',
-      description: 'Black Wildcraft backpack with laptop compartment and small red keychain on zipper',
+      description:
+          'Black Wildcraft backpack with laptop compartment and small red keychain on zipper',
       category: 'Bags',
       latitude: libraryArea.latitude ?? 28.5448,
       longitude: libraryArea.longitude ?? 77.1928,
@@ -58,7 +63,9 @@ void main() async {
   print('Alice lost report created with ID: ${lostBackpack.id}');
 
   // Bob reports found backpack with verification challenge at IIT Delhi Bharti Building
-  print('Step 2: Bob reports found Black Backpack at IIT Delhi Bharti Building...');
+  print(
+    'Step 2: Bob reports found Black Backpack at IIT Delhi Bharti Building...',
+  );
   final foundBackpack = await client.report.createReport(
     report: ItemReport(
       userId: 'bob_live_demo',
@@ -66,7 +73,8 @@ void main() async {
       userEmail: 'bob@campus.edu',
       reportType: 'found',
       title: 'Black Backpack',
-      description: 'Found black backpack on bench outside Bharti Building CSE hallway',
+      description:
+          'Found black backpack on bench outside Bharti Building CSE hallway',
       category: 'Bags',
       latitude: bhartiArea.latitude ?? 28.5460,
       longitude: bhartiArea.longitude ?? 77.1912,
@@ -84,7 +92,9 @@ void main() async {
   print('Bob found report created with ID: ${foundBackpack.id}');
 
   // Step 3: Check matches generated automatically by Serverpod
-  print('\nStep 3: Checking automatic multi-signal matches with location boost...');
+  print(
+    '\nStep 3: Checking automatic multi-signal matches with location boost...',
+  );
   final matches = await client.match.getMatchesForReport(lostBackpack.id!);
   print('Matches discovered: ${matches.length}');
   for (final m in matches) {
@@ -92,8 +102,12 @@ void main() async {
     print('>>> MATCH FOUND: $pct% Confidence');
     print('    Text score: ${m.match.textScore}');
     print('    Location score: ${m.match.locationScore}');
-    print('    Distance score: ${m.match.distanceScore} (${m.match.distanceKm} km apart)');
-    print('    Time score: ${m.match.timeScore} (${m.match.timeDiffHours} hours apart)');
+    print(
+      '    Distance score: ${m.match.distanceScore} (${m.match.distanceKm} km apart)',
+    );
+    print(
+      '    Time score: ${m.match.timeScore} (${m.match.timeDiffHours} hours apart)',
+    );
     print('    Category score: ${m.match.categoryScore}');
     print('    Explanation: ${m.match.explanation}');
     print('    Verification challenge: "${m.verificationQuestion}"');
@@ -101,13 +115,17 @@ void main() async {
 
   // Step 4: Check notifications for both users
   print('\nStep 4: Checking real-time notifications dispatched to users...');
-  final aliceNotifs = await client.notification.getUserNotifications('alice_live_demo');
+  final aliceNotifs = await client.notification.getUserNotifications(
+    'alice_live_demo',
+  );
   print('Alice received ${aliceNotifs.length} notifications:');
   for (final n in aliceNotifs) {
     print(' - ${n.title}: ${n.body}');
   }
 
-  final bobNotifs = await client.notification.getUserNotifications('bob_live_demo');
+  final bobNotifs = await client.notification.getUserNotifications(
+    'bob_live_demo',
+  );
   print('Bob received ${bobNotifs.length} notifications:');
   for (final n in bobNotifs) {
     print(' - ${n.title}: ${n.body}');
@@ -121,7 +139,9 @@ void main() async {
     claimantUserId: 'alice_live_demo',
     answer: 'blue sticker',
   );
-  print('Wrong answer attempt: success=${wrongRes.success}, message="${wrongRes.message}", remaining=${wrongRes.attemptsRemaining}');
+  print(
+    'Wrong answer attempt: success=${wrongRes.success}, message="${wrongRes.message}", remaining=${wrongRes.attemptsRemaining}',
+  );
 
   // B. Correct answer
   final correctRes = await client.verification.submitVerificationAnswer(
@@ -129,7 +149,9 @@ void main() async {
     claimantUserId: 'alice_live_demo',
     answer: 'Red keychain',
   );
-  print('Correct answer attempt: success=${correctRes.success}, message="${correctRes.message}"');
+  print(
+    'Correct answer attempt: success=${correctRes.success}, message="${correctRes.message}"',
+  );
 
   // Step 6: Mark returned
   print('\nStep 6: Handover completed, marking returned...');

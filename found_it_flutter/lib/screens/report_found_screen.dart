@@ -66,7 +66,9 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
   void _fillSampleFoundBackpack() {
     final activeLoc = AppState.instance.currentLocation;
     final areas = AppState.instance.currentLocationAreas;
-    final libArea = areas.where((a) => a.name.toLowerCase().contains('library')).firstOrNull;
+    final libArea = areas
+        .where((a) => a.name.toLowerCase().contains('library'))
+        .firstOrNull;
 
     setState(() {
       _titleController.text = 'Black Backpack';
@@ -82,7 +84,8 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
       _imageUrl =
           'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80';
       _eventTime = DateTime.now().subtract(const Duration(hours: 1));
-      _questionController.text = "What is attached to the front zipper of the backpack?";
+      _questionController.text =
+          "What is attached to the front zipper of the backpack?";
       _answerController.text = "Red keychain";
     });
   }
@@ -146,7 +149,11 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                   color: AppTheme.recoveryGreen.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.auto_awesome, color: AppTheme.recoveryGreen, size: 40),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: AppTheme.recoveryGreen,
+                  size: 40,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -161,7 +168,10 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
               Text(
                 'Serverpod processed your found report. Any potential owners who reported lost matching items have been notified with your verification challenge.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -198,7 +208,11 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
         actions: [
           TextButton.icon(
             onPressed: _fillSampleFoundBackpack,
-            icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.warningAmber),
+            icon: const Icon(
+              Icons.flash_on,
+              size: 16,
+              color: AppTheme.warningAmber,
+            ),
             label: Text(
               'Fill Demo',
               style: GoogleFonts.inter(
@@ -225,16 +239,25 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                     decoration: BoxDecoration(
                       color: AppTheme.recoveryGreen.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.recoveryGreen.withOpacity(0.2)),
+                      border: Border.all(
+                        color: AppTheme.recoveryGreen.withOpacity(0.2),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.volunteer_activism_outlined, color: AppTheme.recoveryGreen, size: 20),
+                        const Icon(
+                          Icons.volunteer_activism_outlined,
+                          color: AppTheme.recoveryGreen,
+                          size: 20,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Thank you for being a good Samaritan! Set a verification question so only the rightful owner can claim this item.',
-                            style: GoogleFonts.inter(fontSize: 13, color: AppTheme.textMain),
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                         ),
                       ],
@@ -245,24 +268,32 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                   // Title
                   Text(
                     'Item Title *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _titleController,
                     decoration: const InputDecoration(
-                      hintText: 'e.g. Black Backpack, AirPods Pro Case, Set of Keys',
+                      hintText:
+                          'e.g. Black Backpack, AirPods Pro Case, Set of Keys',
                       prefixIcon: Icon(Icons.title, size: 18),
                     ),
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Please enter item title' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Please enter item title'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
                   // Description
                   Text(
                     'Public Description *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -272,15 +303,19 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       hintText:
                           'Describe where you found it, general appearance (keep subtle details private for the verification question!)...',
                     ),
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Please enter a description' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Please enter a description'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
                   // Category
                   Text(
                     'Category *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
@@ -317,7 +352,10 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                   // Date and Time Found
                   Text(
                     'Approximate Date & Time Found *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   InkWell(
@@ -325,7 +363,9 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       final pickedDate = await showDatePicker(
                         context: context,
                         initialDate: _eventTime,
-                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                        firstDate: DateTime.now().subtract(
+                          const Duration(days: 365),
+                        ),
                         lastDate: DateTime.now(),
                       );
                       if (pickedDate != null && mounted) {
@@ -348,7 +388,10 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(12),
@@ -356,14 +399,27 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today, size: 18, color: AppTheme.primaryBlue),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: AppTheme.primaryBlue,
+                          ),
                           const SizedBox(width: 12),
                           Text(
-                            DateFormat('EEEE, MMM d, yyyy • h:mm a').format(_eventTime),
-                            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMain),
+                            DateFormat(
+                              'EEEE, MMM d, yyyy • h:mm a',
+                            ).format(_eventTime),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                           const Spacer(),
-                          const Icon(Icons.edit, size: 16, color: AppTheme.textMuted),
+                          const Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: AppTheme.textMuted,
+                          ),
                         ],
                       ),
                     ),
@@ -383,7 +439,11 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.verified_user, color: AppTheme.warningAmber, size: 20),
+                            const Icon(
+                              Icons.verified_user,
+                              color: AppTheme.warningAmber,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Private Ownership Verification Challenge',
@@ -420,10 +480,12 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                           controller: _questionController,
                           decoration: const InputDecoration(
                             fillColor: Colors.white,
-                            hintText: 'e.g. What keychain/accessory is attached to it?',
+                            hintText:
+                                'e.g. What keychain/accessory is attached to it?',
                           ),
-                          validator: (v) =>
-                              v == null || v.trim().isEmpty ? 'Please enter a verification question' : null,
+                          validator: (v) => v == null || v.trim().isEmpty
+                              ? 'Please enter a verification question'
+                              : null,
                         ),
                         const SizedBox(height: 12),
 
@@ -444,8 +506,9 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                             hintText: 'e.g. Red keychain',
                             prefixIcon: Icon(Icons.lock, size: 18),
                           ),
-                          validator: (v) =>
-                              v == null || v.trim().isEmpty ? 'Please enter the expected answer' : null,
+                          validator: (v) => v == null || v.trim().isEmpty
+                              ? 'Please enter the expected answer'
+                              : null,
                         ),
                       ],
                     ),
@@ -474,11 +537,17 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : Text(
                               'Post Found Item & Notify Owners',
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),

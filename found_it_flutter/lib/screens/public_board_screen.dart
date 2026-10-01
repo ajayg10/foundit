@@ -67,7 +67,9 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
   }
 
   void _showItemDetails(ItemReport item) async {
-    final question = await client.verification.getVerificationQuestion(item.id!);
+    final question = await client.verification.getVerificationQuestion(
+      item.id!,
+    );
 
     if (!mounted) return;
 
@@ -88,7 +90,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.recoveryGreen.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(8),
@@ -104,7 +109,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(8),
@@ -139,7 +147,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
 
               Text(
                 item.description,
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted, height: 1.5),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -153,7 +165,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.location_on, color: AppTheme.primaryBlue, size: 20),
+                    const Icon(
+                      Icons.location_on,
+                      color: AppTheme.primaryBlue,
+                      size: 20,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -169,7 +185,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                           ),
                           Text(
                             'Found on ${DateFormat('MMM d, yyyy • h:mm a').format(item.eventTime.toLocal())}',
-                            style: GoogleFonts.inter(fontSize: 11, color: AppTheme.textMuted),
+                            style: GoogleFonts.inter(
+                              fontSize: 11,
+                              color: AppTheme.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -214,7 +233,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                   child: Center(
                     child: Text(
                       'No verification question set. Please visit Campus Lost & Found center.',
-                      style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textMuted),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
                   ),
                 ),
@@ -234,7 +256,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
           children: [
             Text(
               'Public Found Items',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w700, fontSize: 18),
+              style: GoogleFonts.outfit(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
             ),
             Text(
               'at ${AppState.instance.currentLocation?.name ?? "All Locations"}',
@@ -265,7 +290,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.place_rounded, size: 14, color: Color(0xFF4F46E5)),
+                  const Icon(
+                    Icons.place_rounded,
+                    size: 14,
+                    color: Color(0xFF4F46E5),
+                  ),
                   const SizedBox(width: 4),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 110),
@@ -281,7 +310,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                     ),
                   ),
                   const SizedBox(width: 2),
-                  const Icon(Icons.arrow_drop_down, size: 16, color: Color(0xFF6366F1)),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: Color(0xFF6366F1),
+                  ),
                 ],
               ),
             ),
@@ -339,13 +372,19 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                           backgroundColor: const Color(0xFFF1F5F9),
                           labelStyle: GoogleFonts.inter(
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected ? Colors.white : AppTheme.textMain,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isSelected
+                                ? Colors.white
+                                : AppTheme.textMain,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                             side: BorderSide(
-                              color: isSelected ? AppTheme.primaryDark : AppTheme.borderLight,
+                              color: isSelected
+                                  ? AppTheme.primaryDark
+                                  : AppTheme.borderLight,
                             ),
                           ),
                         ),
@@ -362,51 +401,62 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _items.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.inventory_2_outlined, size: 48, color: AppTheme.textMuted),
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'No found items found',
-                              style: GoogleFonts.outfit(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.textMain,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'Try clearing your search filters or check back later.',
-                              style: GoogleFonts.inter(fontSize: 13, color: AppTheme.textMuted),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.inventory_2_outlined,
+                            size: 48,
+                            color: AppTheme.textMuted,
+                          ),
                         ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _fetchItems,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.all(16),
-                          itemCount: _items.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final item = _items[index];
-                            return ItemCard(
-                              report: item,
-                              onTap: () => _showItemDetails(item),
-                              trailing: const Icon(Icons.chevron_right, size: 20, color: AppTheme.textMuted),
-                            );
-                          },
+                        const SizedBox(height: 16),
+                        Text(
+                          'No found items found',
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textMain,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Try clearing your search filters or check back later.',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: AppTheme.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : RefreshIndicator(
+                    onRefresh: _fetchItems,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _items.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final item = _items[index];
+                        return ItemCard(
+                          report: item,
+                          onTap: () => _showItemDetails(item),
+                          trailing: const Icon(
+                            Icons.chevron_right,
+                            size: 20,
+                            color: AppTheme.textMuted,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

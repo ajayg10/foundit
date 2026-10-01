@@ -30,29 +30,32 @@ void main() {
       expect(sim, lessThan(0.20));
     });
 
-    test('Nearby locations have high distance score, distant locations have low score', () {
-      // Library to Engineering Block (~0.8 km)
-      final d1 = DistanceService.calculateDistanceKm(
-        lat1: 37.7749,
-        lon1: -122.4194,
-        lat2: 37.7810,
-        lon2: -122.4120,
-      );
-      final score1 = DistanceService.calculateDistanceScore(d1);
-      expect(d1, lessThan(1.5));
-      expect(score1, greaterThan(0.70));
+    test(
+      'Nearby locations have high distance score, distant locations have low score',
+      () {
+        // Library to Engineering Block (~0.8 km)
+        final d1 = DistanceService.calculateDistanceKm(
+          lat1: 37.7749,
+          lon1: -122.4194,
+          lat2: 37.7810,
+          lon2: -122.4120,
+        );
+        final score1 = DistanceService.calculateDistanceScore(d1);
+        expect(d1, lessThan(1.5));
+        expect(score1, greaterThan(0.70));
 
-      // Campus to distant city (~50 km)
-      final d2 = DistanceService.calculateDistanceKm(
-        lat1: 37.7749,
-        lon1: -122.4194,
-        lat2: 37.3382,
-        lon2: -121.8863,
-      );
-      final score2 = DistanceService.calculateDistanceScore(d2);
-      expect(d2, greaterThan(40.0));
-      expect(score2, lessThan(0.10));
-    });
+        // Campus to distant city (~50 km)
+        final d2 = DistanceService.calculateDistanceKm(
+          lat1: 37.7749,
+          lon1: -122.4194,
+          lat2: 37.3382,
+          lon2: -121.8863,
+        );
+        final score2 = DistanceService.calculateDistanceScore(d2);
+        expect(d2, greaterThan(40.0));
+        expect(score2, lessThan(0.10));
+      },
+    );
 
     test('Close timestamps have higher time score than distant timestamps', () {
       final now = DateTime.now();
@@ -109,7 +112,9 @@ void main() {
         updatedAt: now,
       );
 
-      final foundDiffCategory = foundSameCategory.copyWith(category: 'Clothing');
+      final foundDiffCategory = foundSameCategory.copyWith(
+        category: 'Clothing',
+      );
 
       final evalSame = MatchingService.evaluateMatch(
         lostReport: lost,
@@ -126,184 +131,196 @@ void main() {
   });
 
   withServerpod('Found It Integration Tests', (sessionBuilder, endpoints) {
-    test('End-to-End: Report creation triggers matching and notifications', () async {
-      final now = DateTime.now();
+    test(
+      'End-to-End: Report creation triggers matching and notifications',
+      () async {
+        final now = DateTime.now();
 
-      // 1. Alice reports lost backpack
-      final lostReport = await endpoints.report.createReport(
-        sessionBuilder,
-        report: ItemReport(
-          userId: 'alice_integration_test',
-          userName: 'Alice Test',
-          userEmail: 'alice@integration.test',
-          reportType: 'lost',
-          title: 'Black Wildcraft Backpack',
-          description: 'Black backpack with laptop sleeve and small red keychain',
-          category: 'Bags',
-          latitude: 37.7749,
-          longitude: -122.4194,
-          locationLabel: 'Campus Library',
-          eventTime: now.subtract(const Duration(hours: 2)),
-          status: 'open',
-          createdAt: now,
-          updatedAt: now,
-        ),
-      );
+        // 1. Alice reports lost backpack
+        final lostReport = await endpoints.report.createReport(
+          sessionBuilder,
+          report: ItemReport(
+            userId: 'alice_integration_test',
+            userName: 'Alice Test',
+            userEmail: 'alice@integration.test',
+            reportType: 'lost',
+            title: 'Black Wildcraft Backpack',
+            description:
+                'Black backpack with laptop sleeve and small red keychain',
+            category: 'Bags',
+            latitude: 37.7749,
+            longitude: -122.4194,
+            locationLabel: 'Campus Library',
+            eventTime: now.subtract(const Duration(hours: 2)),
+            status: 'open',
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
 
-      expect(lostReport.id, isNotNull);
+        expect(lostReport.id, isNotNull);
 
-      // 2. Bob reports found backpack with verification challenge
-      final foundReport = await endpoints.report.createReport(
-        sessionBuilder,
-        report: ItemReport(
-          userId: 'bob_integration_test',
-          userName: 'Bob Test',
-          userEmail: 'bob@integration.test',
-          reportType: 'found',
-          title: 'Black Wildcraft Backpack',
-          description: 'Found black Wildcraft backpack near library entrance',
-          category: 'Bags',
-          latitude: 37.7755,
-          longitude: -122.4190,
-          locationLabel: 'Library Entrance',
-          eventTime: now.subtract(const Duration(hours: 1)),
-          status: 'open',
-          createdAt: now,
-          updatedAt: now,
-        ),
-        verificationQuestion: 'What color is the keychain attached to the zipper?',
-        verificationAnswer: 'red',
-      );
+        // 2. Bob reports found backpack with verification challenge
+        final foundReport = await endpoints.report.createReport(
+          sessionBuilder,
+          report: ItemReport(
+            userId: 'bob_integration_test',
+            userName: 'Bob Test',
+            userEmail: 'bob@integration.test',
+            reportType: 'found',
+            title: 'Black Wildcraft Backpack',
+            description: 'Found black Wildcraft backpack near library entrance',
+            category: 'Bags',
+            latitude: 37.7755,
+            longitude: -122.4190,
+            locationLabel: 'Library Entrance',
+            eventTime: now.subtract(const Duration(hours: 1)),
+            status: 'open',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          verificationQuestion:
+              'What color is the keychain attached to the zipper?',
+          verificationAnswer: 'red',
+        );
 
-      expect(foundReport.id, isNotNull);
+        expect(foundReport.id, isNotNull);
 
-      // 3. Verify matches were generated automatically
-      final matches = await endpoints.match.getMatchesForReport(
-        sessionBuilder,
-        lostReport.id!,
-      );
+        // 3. Verify matches were generated automatically
+        final matches = await endpoints.match.getMatchesForReport(
+          sessionBuilder,
+          lostReport.id!,
+        );
 
-      expect(matches, isNotEmpty);
-      final topMatch = matches.first;
-      expect(topMatch.match.confidenceScore, greaterThan(0.60));
-      expect(topMatch.lostReport.title, contains('Backpack'));
-      expect(topMatch.foundReport.title, contains('Backpack'));
-      expect(topMatch.verificationQuestion, isNotNull);
+        expect(matches, isNotEmpty);
+        final topMatch = matches.first;
+        expect(topMatch.match.confidenceScore, greaterThan(0.60));
+        expect(topMatch.lostReport.title, contains('Backpack'));
+        expect(topMatch.foundReport.title, contains('Backpack'));
+        expect(topMatch.verificationQuestion, isNotNull);
 
-      // 4. Verify notifications generated for both users
-      final aliceNotifs = await endpoints.notification.getUserNotifications(
-        sessionBuilder,
-        'alice_integration_test',
-      );
-      final bobNotifs = await endpoints.notification.getUserNotifications(
-        sessionBuilder,
-        'bob_integration_test',
-      );
+        // 4. Verify notifications generated for both users
+        final aliceNotifs = await endpoints.notification.getUserNotifications(
+          sessionBuilder,
+          'alice_integration_test',
+        );
+        final bobNotifs = await endpoints.notification.getUserNotifications(
+          sessionBuilder,
+          'bob_integration_test',
+        );
 
-      expect(aliceNotifs, isNotEmpty);
-      expect(bobNotifs, isNotEmpty);
+        expect(aliceNotifs, isNotEmpty);
+        expect(bobNotifs, isNotEmpty);
 
-      // 5. Verification tests
-      // A. Public question access (does NOT return the answer)
-      final question = await endpoints.verification.getVerificationQuestion(
-        sessionBuilder,
-        foundReport.id!,
-      );
-      expect(question, 'What color is the keychain attached to the zipper?');
+        // 5. Verification tests
+        // A. Public question access (does NOT return the answer)
+        final question = await endpoints.verification.getVerificationQuestion(
+          sessionBuilder,
+          foundReport.id!,
+        );
+        expect(question, 'What color is the keychain attached to the zipper?');
 
-      // B. Incorrect answer verification
-      final wrongAttempt = await endpoints.verification.submitVerificationAnswer(
-        sessionBuilder,
-        reportId: foundReport.id!,
-        claimantUserId: 'alice_integration_test',
-        answer: 'blue',
-      );
-      expect(wrongAttempt.success, isFalse);
-      expect(wrongAttempt.attemptsRemaining, 4);
-      expect(wrongAttempt.isLocked, isFalse);
+        // B. Incorrect answer verification
+        final wrongAttempt = await endpoints.verification
+            .submitVerificationAnswer(
+              sessionBuilder,
+              reportId: foundReport.id!,
+              claimantUserId: 'alice_integration_test',
+              answer: 'blue',
+            );
+        expect(wrongAttempt.success, isFalse);
+        expect(wrongAttempt.attemptsRemaining, 4);
+        expect(wrongAttempt.isLocked, isFalse);
 
-      // C. Correct answer verification
-      final correctAttempt = await endpoints.verification.submitVerificationAnswer(
-        sessionBuilder,
-        reportId: foundReport.id!,
-        claimantUserId: 'alice_integration_test',
-        answer: 'Red', // test case-insensitivity & whitespace trimming
-      );
-      expect(correctAttempt.success, isTrue);
-      expect(correctAttempt.message, contains('successful'));
+        // C. Correct answer verification
+        final correctAttempt = await endpoints.verification
+            .submitVerificationAnswer(
+              sessionBuilder,
+              reportId: foundReport.id!,
+              claimantUserId: 'alice_integration_test',
+              answer: 'Red', // test case-insensitivity & whitespace trimming
+            );
+        expect(correctAttempt.success, isTrue);
+        expect(correctAttempt.message, contains('successful'));
 
-      // D. Mark item returned and lifecycle complete
-      final returned = await endpoints.verification.markItemReturned(
-        sessionBuilder,
-        reportId: foundReport.id!,
-        userId: 'bob_integration_test',
-      );
-      expect(returned, isTrue);
-
-      final updatedFound = await endpoints.report.getReport(
-        sessionBuilder,
-        foundReport.id!,
-      );
-      expect(updatedFound?.status, 'returned');
-    });
-
-    test('Brute force defense: Repeated incorrect answers lock verification', () async {
-      final now = DateTime.now();
-
-      final foundReport = await endpoints.report.createReport(
-        sessionBuilder,
-        report: ItemReport(
-          userId: 'finder_lock_test',
-          userName: 'Finder',
-          userEmail: 'finder@lock.test',
-          reportType: 'found',
-          title: 'Car Key Fob',
-          description: 'Found Honda key fob',
-          category: 'Keys',
-          latitude: 37.77,
-          longitude: -122.41,
-          locationLabel: 'Parking',
-          eventTime: now,
-          status: 'open',
-          createdAt: now,
-          updatedAt: now,
-        ),
-        verificationQuestion: 'What logo is on the back?',
-        verificationAnswer: 'secret_code_123',
-      );
-
-      // Submit 5 incorrect attempts
-      for (var i = 1; i <= 4; i++) {
-        final attempt = await endpoints.verification.submitVerificationAnswer(
+        // D. Mark item returned and lifecycle complete
+        final returned = await endpoints.verification.markItemReturned(
           sessionBuilder,
           reportId: foundReport.id!,
-          claimantUserId: 'attacker',
-          answer: 'wrong_$i',
+          userId: 'bob_integration_test',
         );
-        expect(attempt.success, isFalse);
-        expect(attempt.isLocked, isFalse);
-      }
+        expect(returned, isTrue);
 
-      // 5th attempt should lock
-      final fifthAttempt = await endpoints.verification.submitVerificationAnswer(
-        sessionBuilder,
-        reportId: foundReport.id!,
-        claimantUserId: 'attacker',
-        answer: 'wrong_5',
-      );
-      expect(fifthAttempt.success, isFalse);
-      expect(fifthAttempt.isLocked, isTrue);
+        final updatedFound = await endpoints.report.getReport(
+          sessionBuilder,
+          foundReport.id!,
+        );
+        expect(updatedFound?.status, 'returned');
+      },
+    );
 
-      // Subsequent attempt even with correct answer must be rejected because it is locked
-      final lateAttempt = await endpoints.verification.submitVerificationAnswer(
-        sessionBuilder,
-        reportId: foundReport.id!,
-        claimantUserId: 'attacker',
-        answer: 'secret_code_123',
-      );
-      expect(lateAttempt.success, isFalse);
-      expect(lateAttempt.isLocked, isTrue);
-    });
+    test(
+      'Brute force defense: Repeated incorrect answers lock verification',
+      () async {
+        final now = DateTime.now();
+
+        final foundReport = await endpoints.report.createReport(
+          sessionBuilder,
+          report: ItemReport(
+            userId: 'finder_lock_test',
+            userName: 'Finder',
+            userEmail: 'finder@lock.test',
+            reportType: 'found',
+            title: 'Car Key Fob',
+            description: 'Found Honda key fob',
+            category: 'Keys',
+            latitude: 37.77,
+            longitude: -122.41,
+            locationLabel: 'Parking',
+            eventTime: now,
+            status: 'open',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          verificationQuestion: 'What logo is on the back?',
+          verificationAnswer: 'secret_code_123',
+        );
+
+        // Submit 5 incorrect attempts
+        for (var i = 1; i <= 4; i++) {
+          final attempt = await endpoints.verification.submitVerificationAnswer(
+            sessionBuilder,
+            reportId: foundReport.id!,
+            claimantUserId: 'attacker',
+            answer: 'wrong_$i',
+          );
+          expect(attempt.success, isFalse);
+          expect(attempt.isLocked, isFalse);
+        }
+
+        // 5th attempt should lock
+        final fifthAttempt = await endpoints.verification
+            .submitVerificationAnswer(
+              sessionBuilder,
+              reportId: foundReport.id!,
+              claimantUserId: 'attacker',
+              answer: 'wrong_5',
+            );
+        expect(fifthAttempt.success, isFalse);
+        expect(fifthAttempt.isLocked, isTrue);
+
+        // Subsequent attempt even with correct answer must be rejected because it is locked
+        final lateAttempt = await endpoints.verification
+            .submitVerificationAnswer(
+              sessionBuilder,
+              reportId: foundReport.id!,
+              claimantUserId: 'attacker',
+              answer: 'secret_code_123',
+            );
+        expect(lateAttempt.success, isFalse);
+        expect(lateAttempt.isLocked, isTrue);
+      },
+    );
 
     test('Authorization: User cannot modify another user\'s report', () async {
       final now = DateTime.now();

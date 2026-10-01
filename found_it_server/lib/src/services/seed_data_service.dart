@@ -8,13 +8,28 @@ class SeedDataService {
     // Check if demo data already seeded
     final existingUsers = await AppUser.db.find(session, limit: 1);
     if (existingUsers.isNotEmpty) {
-      session.log('Database already has data. Resetting demo data...', level: LogLevel.info);
+      session.log(
+        'Database already has data. Resetting demo data...',
+        level: LogLevel.info,
+      );
       // Clean up previous demo rows
-      await AppNotification.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
+      await AppNotification.db.deleteWhere(
+        session,
+        where: (t) => t.id.notEquals(-1),
+      );
       await ItemMatch.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
-      await Verification.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
-      await ItemReport.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
-      await LocationArea.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
+      await Verification.db.deleteWhere(
+        session,
+        where: (t) => t.id.notEquals(-1),
+      );
+      await ItemReport.db.deleteWhere(
+        session,
+        where: (t) => t.id.notEquals(-1),
+      );
+      await LocationArea.db.deleteWhere(
+        session,
+        where: (t) => t.id.notEquals(-1),
+      );
       await Location.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
       await AppUser.db.deleteWhere(session, where: (t) => t.id.notEquals(-1));
     }
@@ -31,7 +46,8 @@ class SeedDataService {
         latitude: 28.5456,
         longitude: 77.1926,
         description: 'Indian Institute of Technology Delhi Main Campus',
-        logoUrl: 'https://images.unsplash.com/photo-1562774053-701939374585?w=200&auto=format&fit=crop&q=80',
+        logoUrl:
+            'https://images.unsplash.com/photo-1562774053-701939374585?w=200&auto=format&fit=crop&q=80',
         isActive: true,
         createdAt: now.subtract(const Duration(days: 30)),
       ),
@@ -46,7 +62,8 @@ class SeedDataService {
         latitude: 28.5562,
         longitude: 77.1000,
         description: 'Indira Gandhi International Airport Terminal 3',
-        logoUrl: 'https://images.unsplash.com/photo-1542296332-2e4473faf563?w=200&auto=format&fit=crop&q=80',
+        logoUrl:
+            'https://images.unsplash.com/photo-1542296332-2e4473faf563?w=200&auto=format&fit=crop&q=80',
         isActive: true,
         createdAt: now.subtract(const Duration(days: 30)),
       ),
@@ -61,7 +78,8 @@ class SeedDataService {
         latitude: 28.4986,
         longitude: 77.0878,
         description: 'Microsoft India Development Center Gurugram Campus',
-        logoUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&auto=format&fit=crop&q=80',
+        logoUrl:
+            'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&auto=format&fit=crop&q=80',
         isActive: true,
         createdAt: now.subtract(const Duration(days: 30)),
       ),
@@ -220,12 +238,16 @@ class SeedDataService {
       locationId: iitDelhi.id,
       locationAreaId: areaLibrary.id,
       eventTime: now.subtract(const Duration(hours: 3)),
-      imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80',
+      imageUrl:
+          'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80',
       status: 'open',
       createdAt: now.subtract(const Duration(hours: 3)),
       updatedAt: now.subtract(const Duration(hours: 3)),
     );
-    final savedLostBackpack = await ItemReport.db.insertRow(session, lostBackpack);
+    final savedLostBackpack = await ItemReport.db.insertRow(
+      session,
+      lostBackpack,
+    );
 
     // 5. Additional Public Found Items for the Board at IIT Delhi
     // AirPods Pro at Main Canteen
@@ -244,7 +266,8 @@ class SeedDataService {
       locationId: iitDelhi.id,
       locationAreaId: areaCanteen.id,
       eventTime: now.subtract(const Duration(hours: 6)),
-      imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600&auto=format&fit=crop&q=80',
+      imageUrl:
+          'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=600&auto=format&fit=crop&q=80',
       status: 'open',
       createdAt: now.subtract(const Duration(hours: 6)),
       updatedAt: now.subtract(const Duration(hours: 6)),
@@ -269,7 +292,8 @@ class SeedDataService {
       userEmail: userCharlie.email,
       reportType: 'found',
       title: 'Set of Keys with Honda Fob',
-      description: 'Found a bunch of 4 keys including a Honda remote key fob on the walkway near SAC.',
+      description:
+          'Found a bunch of 4 keys including a Honda remote key fob on the walkway near SAC.',
       category: 'Keys',
       latitude: 28.5435,
       longitude: 77.1930,
@@ -277,7 +301,8 @@ class SeedDataService {
       locationId: iitDelhi.id,
       locationAreaId: areaSac.id,
       eventTime: now.subtract(const Duration(hours: 18)),
-      imageUrl: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80',
+      imageUrl:
+          'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80',
       status: 'open',
       createdAt: now.subtract(const Duration(hours: 18)),
       updatedAt: now.subtract(const Duration(hours: 18)),
@@ -302,7 +327,8 @@ class SeedDataService {
       userEmail: userBob.email,
       reportType: 'found',
       title: 'Brown Leather Bi-fold Wallet',
-      description: 'Brown leather wallet found under bench near Bharti auditorium. Cards intact.',
+      description:
+          'Brown leather wallet found under bench near Bharti auditorium. Cards intact.',
       category: 'Wallets & Purses',
       latitude: 28.5460,
       longitude: 77.1912,
@@ -310,7 +336,8 @@ class SeedDataService {
       locationId: iitDelhi.id,
       locationAreaId: areaBharti.id,
       eventTime: now.subtract(const Duration(days: 1, hours: 2)),
-      imageUrl: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&auto=format&fit=crop&q=80',
+      imageUrl:
+          'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600&auto=format&fit=crop&q=80',
       status: 'open',
       createdAt: now.subtract(const Duration(days: 1, hours: 2)),
       updatedAt: now.subtract(const Duration(days: 1, hours: 2)),

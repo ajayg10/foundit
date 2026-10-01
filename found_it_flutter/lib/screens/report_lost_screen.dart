@@ -62,7 +62,9 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
   void _fillSampleLostBackpack() {
     final activeLoc = AppState.instance.currentLocation;
     final areas = AppState.instance.currentLocationAreas;
-    final libArea = areas.where((a) => a.name.toLowerCase().contains('library')).firstOrNull;
+    final libArea = areas
+        .where((a) => a.name.toLowerCase().contains('library'))
+        .firstOrNull;
 
     setState(() {
       _titleController.text = 'Black Wildcraft Backpack';
@@ -133,7 +135,11 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                   color: AppTheme.recoveryGreen.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle, color: AppTheme.recoveryGreen, size: 40),
+                child: const Icon(
+                  Icons.check_circle,
+                  color: AppTheme.recoveryGreen,
+                  size: 40,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -148,7 +154,10 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
               Text(
                 'Serverpod is now automatically analyzing and matching this item with reported found items.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                ),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -185,7 +194,11 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
         actions: [
           TextButton.icon(
             onPressed: _fillSampleLostBackpack,
-            icon: const Icon(Icons.flash_on, size: 16, color: AppTheme.warningAmber),
+            icon: const Icon(
+              Icons.flash_on,
+              size: 16,
+              color: AppTheme.warningAmber,
+            ),
             label: Text(
               'Fill Demo',
               style: GoogleFonts.inter(
@@ -212,16 +225,25 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                     decoration: BoxDecoration(
                       color: AppTheme.lostRed.withOpacity(0.08),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.lostRed.withOpacity(0.2)),
+                      border: Border.all(
+                        color: AppTheme.lostRed.withOpacity(0.2),
+                      ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: AppTheme.lostRed, size: 20),
+                        const Icon(
+                          Icons.info_outline,
+                          color: AppTheme.lostRed,
+                          size: 20,
+                        ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
-                            style: GoogleFonts.inter(fontSize: 13, color: AppTheme.textMain),
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                         ),
                       ],
@@ -232,7 +254,10 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                   // Title
                   Text(
                     'Item Title *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -241,15 +266,19 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       hintText: 'e.g. Black Wildcraft Backpack, Blue iPhone 13',
                       prefixIcon: Icon(Icons.title, size: 18),
                     ),
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Please enter item title' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Please enter item title'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
                   // Description
                   Text(
                     'Description & Distinguishing Features *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   TextFormField(
@@ -259,15 +288,19 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       hintText:
                           'Describe color, brand, stickers, scratches, or attachments...',
                     ),
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Please enter a description' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Please enter a description'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
                   // Category
                   Text(
                     'Category *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
@@ -304,7 +337,10 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                   // Date and Time
                   Text(
                     'Approximate Date & Time Lost *',
-                    style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   InkWell(
@@ -312,7 +348,9 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       final pickedDate = await showDatePicker(
                         context: context,
                         initialDate: _eventTime,
-                        firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                        firstDate: DateTime.now().subtract(
+                          const Duration(days: 365),
+                        ),
                         lastDate: DateTime.now(),
                       );
                       if (pickedDate != null && mounted) {
@@ -335,7 +373,10 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(12),
@@ -343,14 +384,27 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today, size: 18, color: AppTheme.primaryBlue),
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: AppTheme.primaryBlue,
+                          ),
                           const SizedBox(width: 12),
                           Text(
-                            DateFormat('EEEE, MMM d, yyyy • h:mm a').format(_eventTime),
-                            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMain),
+                            DateFormat(
+                              'EEEE, MMM d, yyyy • h:mm a',
+                            ).format(_eventTime),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppTheme.textMain,
+                            ),
                           ),
                           const Spacer(),
-                          const Icon(Icons.edit, size: 16, color: AppTheme.textMuted),
+                          const Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: AppTheme.textMuted,
+                          ),
                         ],
                       ),
                     ),
@@ -379,11 +433,17 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                           ? const SizedBox(
                               height: 20,
                               width: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : Text(
                               'Submit Lost Report & Find Matches',
-                              style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.inter(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),

@@ -121,8 +121,12 @@ class _VerificationDialogState extends State<VerificationDialog> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    _isVerified ? Icons.check_circle : Icons.verified_user_outlined,
-                    color: _isVerified ? AppTheme.recoveryGreen : AppTheme.primaryBlue,
+                    _isVerified
+                        ? Icons.check_circle
+                        : Icons.verified_user_outlined,
+                    color: _isVerified
+                        ? AppTheme.recoveryGreen
+                        : AppTheme.primaryBlue,
                     size: 24,
                   ),
                 ),
@@ -132,7 +136,9 @@ class _VerificationDialogState extends State<VerificationDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isVerified ? 'Verification Successful!' : 'Ownership Verification',
+                        _isVerified
+                            ? 'Verification Successful!'
+                            : 'Ownership Verification',
                         style: GoogleFonts.outfit(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -174,7 +180,11 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.security, color: AppTheme.recoveryGreen, size: 20),
+                        const Icon(
+                          Icons.security,
+                          color: AppTheme.recoveryGreen,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'You are confirmed as the owner!',
@@ -202,7 +212,10 @@ class _VerificationDialogState extends State<VerificationDialog> {
               if (!_isMarkedReturned) ...[
                 Text(
                   'Once you have received your item in person, click below to mark it as Returned.',
-                  style: GoogleFonts.inter(fontSize: 12, color: AppTheme.textMuted),
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppTheme.textMuted,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
@@ -210,7 +223,11 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   child: ElevatedButton.icon(
                     onPressed: _isSubmitting ? null : _markReturned,
                     icon: const Icon(Icons.handshake_outlined, size: 18),
-                    label: Text(_isSubmitting ? 'Updating...' : 'Mark Item Returned & Close Case'),
+                    label: Text(
+                      _isSubmitting
+                          ? 'Updating...'
+                          : 'Mark Item Returned & Close Case',
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.recoveryGreen,
                     ),
@@ -225,7 +242,11 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.celebration, color: AppTheme.recoveryGreen, size: 20),
+                      const Icon(
+                        Icons.celebration,
+                        color: AppTheme.recoveryGreen,
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         '🎉 Item returned and case closed!',
@@ -300,7 +321,9 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: _remainingAttempts! <= 1 ? AppTheme.lostRed : AppTheme.warningAmber,
+                    color: _remainingAttempts! <= 1
+                        ? AppTheme.lostRed
+                        : AppTheme.warningAmber,
                   ),
                 ),
               ],
@@ -308,12 +331,19 @@ class _VerificationDialogState extends State<VerificationDialog> {
 
               Row(
                 children: [
-                  const Icon(Icons.shield_outlined, size: 14, color: AppTheme.textMuted),
+                  const Icon(
+                    Icons.shield_outlined,
+                    size: 14,
+                    color: AppTheme.textMuted,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'Verified server-side. The finder\'s expected answer is never shared with you.',
-                      style: GoogleFonts.inter(fontSize: 11, color: AppTheme.textMuted),
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: AppTheme.textMuted,
+                      ),
                     ),
                   ),
                 ],
@@ -329,7 +359,9 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
-                    onPressed: _isLocked || _isSubmitting ? null : _submitAnswer,
+                    onPressed: _isLocked || _isSubmitting
+                        ? null
+                        : _submitAnswer,
                     child: _isSubmitting
                         ? const SizedBox(
                             width: 18,

@@ -24,10 +24,9 @@ class ItemCard extends StatelessWidget {
     this.trailing,
   });
 
-  Color get _typeColor =>
-      report.reportType.toLowerCase() == 'lost'
-          ? AppTheme.lostRed
-          : AppTheme.recoveryGreen;
+  Color get _typeColor => report.reportType.toLowerCase() == 'lost'
+      ? AppTheme.lostRed
+      : AppTheme.recoveryGreen;
 
   Color _statusColor(String status) {
     switch (status.toLowerCase()) {
@@ -171,94 +170,98 @@ class ItemCard extends StatelessWidget {
               ),
             ),
 
-              // ── Content ──────────────────────────────────────────────
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(0, 12, 14, 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Badges row
-                      Row(
-                        children: [
-                          _chip(
-                            isLost ? 'LOST' : 'FOUND',
-                            _typeColor,
-                            _typeColor.withOpacity(0.12),
+            // ── Content ──────────────────────────────────────────────
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 12, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Badges row
+                    Row(
+                      children: [
+                        _chip(
+                          isLost ? 'LOST' : 'FOUND',
+                          _typeColor,
+                          _typeColor.withOpacity(0.12),
+                        ),
+                        const SizedBox(width: 5),
+                        _chip(
+                          _statusLabel(report.status),
+                          sc,
+                          sc.withOpacity(0.10),
+                        ),
+                        const Spacer(),
+                        Text(
+                          _relativeTime(report.eventTime),
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: AppTheme.textMuted,
                           ),
-                          const SizedBox(width: 5),
-                          _chip(
-                            _statusLabel(report.status),
-                            sc,
-                            sc.withOpacity(0.10),
-                          ),
-                          const Spacer(),
-                          Text(
-                            _relativeTime(report.eventTime),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+
+                    // Title
+                    Text(
+                      report.title,
+                      style: GoogleFonts.outfit(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.textMain,
+                        height: 1.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+
+                    // Description
+                    Text(
+                      report.description,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppTheme.textMuted,
+                        height: 1.4,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Location row
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_rounded,
+                          size: 13,
+                          color: AppTheme.primaryBlue,
+                        ),
+                        const SizedBox(width: 3),
+                        Expanded(
+                          child: Text(
+                            report.locationLabel,
                             style: GoogleFonts.inter(
-                                fontSize: 10, color: AppTheme.textMuted),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-
-                      // Title
-                      Text(
-                        report.title,
-                        style: GoogleFonts.outfit(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textMain,
-                          height: 1.2,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3),
-
-                      // Description
-                      Text(
-                        report.description,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: AppTheme.textMuted,
-                          height: 1.4,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-
-                      // Location row
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_rounded,
-                              size: 13, color: AppTheme.primaryBlue),
-                          const SizedBox(width: 3),
-                          Expanded(
-                            child: Text(
-                              report.locationLabel,
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.textMain,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppTheme.textMain,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          if (trailing != null) trailing!,
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                        if (trailing != null) trailing!,
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Widget _chip(String text, Color fg, Color bg) {

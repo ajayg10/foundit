@@ -85,7 +85,10 @@ class VerificationService {
         match.status = 'verified';
         await ItemMatch.db.updateRow(session, match);
 
-        final lostReport = await ItemReport.db.findById(session, match.lostReportId);
+        final lostReport = await ItemReport.db.findById(
+          session,
+          match.lostReportId,
+        );
         if (lostReport != null) {
           lostReport.status = 'verified';
           lostReport.updatedAt = DateTime.now();

@@ -87,7 +87,10 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
       });
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 500), () => _nominatimSearch(q));
+    _debounce = Timer(
+      const Duration(milliseconds: 500),
+      () => _nominatimSearch(q),
+    );
   }
 
   Future<void> _nominatimSearch(String query) async {
@@ -117,7 +120,8 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
     final lat = double.tryParse(place['lat'] as String? ?? '') ?? 0;
     final lon = double.tryParse(place['lon'] as String? ?? '') ?? 0;
     final displayName = place['display_name'] as String? ?? '';
-    final nameField = (place['namedetails'] as Map?)?['name'] as String? ??
+    final nameField =
+        (place['namedetails'] as Map?)?['name'] as String? ??
         (place['address'] as Map?)?['amenity'] as String? ??
         (place['address'] as Map?)?['building'] as String? ??
         displayName.split(',').first.trim();
@@ -161,7 +165,8 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
         final data = json.decode(res.body) as Map<String, dynamic>;
         final display = data['display_name'] as String? ?? 'Selected location';
         final addr = data['address'] as Map? ?? {};
-        final name = addr['amenity'] as String? ??
+        final name =
+            addr['amenity'] as String? ??
             addr['building'] as String? ??
             addr['tourism'] as String? ??
             addr['road'] as String? ??
@@ -231,7 +236,9 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
         latitude: _pinPosition.latitude,
         longitude: _pinPosition.longitude,
         address: _address,
-        venueName: _venueName.isNotEmpty ? _venueName : _address.split(',').first.trim(),
+        venueName: _venueName.isNotEmpty
+            ? _venueName
+            : _address.split(',').first.trim(),
       ),
     );
   }
@@ -282,8 +289,11 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.place_rounded,
-                              color: Colors.white, size: 20),
+                          child: const Icon(
+                            Icons.place_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                         // Pin tail
                         Container(
@@ -344,13 +354,19 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                               hintText:
                                   'Search airport, college, mall, office…',
                               hintStyle: GoogleFonts.inter(
-                                  fontSize: 13, color: AppTheme.textMuted),
-                              prefixIcon: const Icon(Icons.search_rounded,
-                                  color: AppTheme.primaryBlue),
+                                fontSize: 13,
+                                color: AppTheme.textMuted,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                color: AppTheme.primaryBlue,
+                              ),
                               suffixIcon: _searchCtrl.text.isNotEmpty
                                   ? IconButton(
-                                      icon: const Icon(Icons.close_rounded,
-                                          size: 18),
+                                      icon: const Icon(
+                                        Icons.close_rounded,
+                                        size: 18,
+                                      ),
                                       onPressed: () {
                                         _searchCtrl.clear();
                                         setState(() {
@@ -361,8 +377,9 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                                     )
                                   : null,
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
                             ),
                             style: GoogleFonts.inter(fontSize: 13),
                           ),
@@ -399,27 +416,38 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                             onTap: () => _selectSuggestion(s),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 10),
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
                               child: Row(
                                 children: [
-                                  Icon(typeIcon,
-                                      size: 20, color: AppTheme.primaryBlue),
+                                  Icon(
+                                    typeIcon,
+                                    size: 20,
+                                    color: AppTheme.primaryBlue,
+                                  ),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(name,
-                                            style: GoogleFonts.inter(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600)),
-                                        Text(sub,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: GoogleFonts.inter(
-                                                fontSize: 11,
-                                                color: AppTheme.textMuted)),
+                                        Text(
+                                          name,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          sub,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 11,
+                                            color: AppTheme.textMuted,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -448,9 +476,13 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.my_location_rounded,
-                      color: AppTheme.primaryBlue, size: 20),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(
+                      Icons.my_location_rounded,
+                      color: AppTheme.primaryBlue,
+                      size: 20,
+                    ),
             ),
           ),
 
@@ -462,17 +494,23 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 20,
-                      offset: const Offset(0, -4)),
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 20,
+                    offset: const Offset(0, -4),
+                  ),
                 ],
               ),
               padding: EdgeInsets.fromLTRB(
-                  20, 16, 20, MediaQuery.of(context).padding.bottom + 16),
+                20,
+                16,
+                20,
+                MediaQuery.of(context).padding.bottom + 16,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -482,8 +520,9 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(2)),
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -495,45 +534,59 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                           color: AppTheme.primaryDark.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.pin_drop_rounded,
-                            color: AppTheme.primaryDark, size: 22),
+                        child: const Icon(
+                          Icons.pin_drop_rounded,
+                          color: AppTheme.primaryDark,
+                          size: 22,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Selected Location',
-                                style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppTheme.textMuted)),
+                            Text(
+                              'Selected Location',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textMuted,
+                              ),
+                            ),
                             if (_loadingAddress)
                               const Padding(
                                 padding: EdgeInsets.only(top: 4),
                                 child: SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                        strokeWidth: 2)),
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
                               )
                             else
                               Text(
-                                _venueName.isNotEmpty
-                                    ? _venueName
-                                    : _address,
+                                _venueName.isNotEmpty ? _venueName : _address,
                                 style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppTheme.textMain),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.textMain,
+                                ),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             if (_venueName.isNotEmpty)
                               Text(
-                                _address.split(',').skip(1).take(2).join(',').trim(),
+                                _address
+                                    .split(',')
+                                    .skip(1)
+                                    .take(2)
+                                    .join(',')
+                                    .trim(),
                                 style: GoogleFonts.inter(
-                                    fontSize: 11, color: AppTheme.textMuted),
+                                  fontSize: 11,
+                                  color: AppTheme.textMuted,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -551,13 +604,18 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       onPressed: _loadingAddress ? null : _confirm,
                       icon: const Icon(Icons.check_circle_rounded, size: 20),
-                      label: Text('Confirm Location',
-                          style: GoogleFonts.inter(
-                              fontSize: 15, fontWeight: FontWeight.bold)),
+                      label: Text(
+                        'Confirm Location',
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ],

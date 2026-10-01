@@ -71,7 +71,11 @@ class NotificationsScreen extends StatelessWidget {
                             color: const Color(0xFFF1F5F9),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.notifications_none, size: 48, color: AppTheme.textMuted),
+                          child: const Icon(
+                            Icons.notifications_none,
+                            size: 48,
+                            color: AppTheme.textMuted,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         Text(
@@ -86,7 +90,11 @@ class NotificationsScreen extends StatelessWidget {
                         Text(
                           'You will receive instant alerts here whenever Serverpod finds potential matches or when someone verifies your item.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted, height: 1.4),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppTheme.textMuted,
+                            height: 1.4,
+                          ),
                         ),
                       ],
                     ),
@@ -111,10 +119,14 @@ class NotificationsScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: item.isRead ? Colors.white : const Color(0xFFF0FDF4),
+                          color: item.isRead
+                              ? Colors.white
+                              : const Color(0xFFF0FDF4),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: item.isRead ? AppTheme.borderLight : const Color(0xFFA7F3D0),
+                            color: item.isRead
+                                ? AppTheme.borderLight
+                                : const Color(0xFFA7F3D0),
                             width: item.isRead ? 1 : 1.5,
                           ),
                           boxShadow: [
@@ -148,7 +160,9 @@ class NotificationsScreen extends StatelessWidget {
                                           item.title,
                                           style: GoogleFonts.outfit(
                                             fontSize: 15,
-                                            fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w700,
+                                            fontWeight: item.isRead
+                                                ? FontWeight.w600
+                                                : FontWeight.w700,
                                             color: AppTheme.textMain,
                                           ),
                                         ),
@@ -169,13 +183,17 @@ class NotificationsScreen extends StatelessWidget {
                                     item.body,
                                     style: GoogleFonts.inter(
                                       fontSize: 13,
-                                      color: item.isRead ? AppTheme.textMuted : AppTheme.textMain,
+                                      color: item.isRead
+                                          ? AppTheme.textMuted
+                                          : AppTheme.textMain,
                                       height: 1.4,
                                     ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    DateFormat('MMM d, h:mm a').format(item.createdAt.toLocal()),
+                                    DateFormat(
+                                      'MMM d, h:mm a',
+                                    ).format(item.createdAt.toLocal()),
                                     style: GoogleFonts.robotoMono(
                                       fontSize: 11,
                                       color: AppTheme.textMuted,

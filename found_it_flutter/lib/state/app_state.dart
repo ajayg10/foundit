@@ -81,7 +81,10 @@ class AppState extends ChangeNotifier {
   /// Fetches available locations and defaults to IIT Delhi if none selected.
   Future<void> fetchLocations({String? query, String? type}) async {
     try {
-      final locs = await client.location.listLocations(query: query, type: type);
+      final locs = await client.location.listLocations(
+        query: query,
+        type: type,
+      );
       _locations = locs;
 
       if (_currentLocation == null && _locations.isNotEmpty) {
@@ -252,7 +255,9 @@ class AppState extends ChangeNotifier {
 
     try {
       // 1. Listen to real-time streaming endpoint method
-      final stream = client.notification.watchNotifications(_currentUser.userId);
+      final stream = client.notification.watchNotifications(
+        _currentUser.userId,
+      );
       _notificationSubscription = stream.listen(
         (notification) {
           _notifications.insert(0, notification);

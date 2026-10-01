@@ -108,7 +108,9 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: $e'),
+            content: Text(
+              'Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: $e',
+            ),
             backgroundColor: AppTheme.lostRed,
           ),
         );
@@ -309,8 +311,8 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                 color: _isUploading
                     ? AppTheme.primaryBlue.withOpacity(0.4)
                     : hasImage
-                        ? AppTheme.recoveryGreen.withOpacity(0.4)
-                        : AppTheme.borderLight,
+                    ? AppTheme.recoveryGreen.withOpacity(0.4)
+                    : AppTheme.borderLight,
                 width: _isUploading ? 2.0 : 1.0,
               ),
             ),
@@ -388,7 +390,10 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.recoveryGreen,
                         borderRadius: BorderRadius.circular(20),
@@ -403,7 +408,11 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.white, size: 14),
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'Photo Added',
@@ -434,7 +443,11 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                             color: Colors.black.withOpacity(0.55),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close, color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -451,7 +464,10 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         onTap: _showPickerSheet,
                         borderRadius: BorderRadius.circular(20),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.black.withOpacity(0.55),
                             borderRadius: BorderRadius.circular(20),
@@ -459,7 +475,11 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.refresh, color: Colors.white, size: 16),
+                              const Icon(
+                                Icons.refresh,
+                                color: Colors.white,
+                                size: 16,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Replace',

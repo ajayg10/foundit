@@ -13,7 +13,8 @@ class MyReportsScreen extends StatefulWidget {
   State<MyReportsScreen> createState() => _MyReportsScreenState();
 }
 
-class _MyReportsScreenState extends State<MyReportsScreen> with SingleTickerProviderStateMixin {
+class _MyReportsScreenState extends State<MyReportsScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<ItemReport> _userReports = [];
   bool _isLoading = true;
@@ -47,8 +48,12 @@ class _MyReportsScreenState extends State<MyReportsScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    final lostReports = _userReports.where((r) => r.reportType == 'lost').toList();
-    final foundReports = _userReports.where((r) => r.reportType == 'found').toList();
+    final lostReports = _userReports
+        .where((r) => r.reportType == 'lost')
+        .toList();
+    final foundReports = _userReports
+        .where((r) => r.reportType == 'found')
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -73,8 +78,14 @@ class _MyReportsScreenState extends State<MyReportsScreen> with SingleTickerProv
           : TabBarView(
               controller: _tabController,
               children: [
-                _buildReportList(lostReports, 'You haven\'t reported any lost items yet.'),
-                _buildReportList(foundReports, 'You haven\'t posted any found items yet.'),
+                _buildReportList(
+                  lostReports,
+                  'You haven\'t reported any lost items yet.',
+                ),
+                _buildReportList(
+                  foundReports,
+                  'You haven\'t posted any found items yet.',
+                ),
               ],
             ),
     );
@@ -94,13 +105,20 @@ class _MyReportsScreenState extends State<MyReportsScreen> with SingleTickerProv
                   color: const Color(0xFFF1F5F9),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.folder_open, size: 40, color: AppTheme.textMuted),
+                child: const Icon(
+                  Icons.folder_open,
+                  size: 40,
+                  color: AppTheme.textMuted,
+                ),
               ),
               const SizedBox(height: 16),
               Text(
                 emptyMessage,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted),
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                ),
               ),
             ],
           ),

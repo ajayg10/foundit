@@ -41,7 +41,11 @@ class MatchesScreen extends StatelessWidget {
                             color: AppTheme.matchIndigo.withOpacity(0.10),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.auto_awesome, size: 48, color: AppTheme.matchIndigo),
+                          child: const Icon(
+                            Icons.auto_awesome,
+                            size: 48,
+                            color: AppTheme.matchIndigo,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         Text(
@@ -56,12 +60,20 @@ class MatchesScreen extends StatelessWidget {
                         Text(
                           'When someone reports an item matching your lost or found posts, Serverpod will rank them and notify you automatically.',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(fontSize: 14, color: AppTheme.textMuted, height: 1.4),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppTheme.textMuted,
+                            height: 1.4,
+                          ),
                         ),
                         const SizedBox(height: 24),
                         OutlinedButton.icon(
                           onPressed: () => AppState.instance.resetDemoData(),
-                          icon: const Icon(Icons.flash_on, size: 18, color: AppTheme.warningAmber),
+                          icon: const Icon(
+                            Icons.flash_on,
+                            size: 18,
+                            color: AppTheme.warningAmber,
+                          ),
                           label: const Text('Seed Hackathon Demo Data'),
                         ),
                       ],

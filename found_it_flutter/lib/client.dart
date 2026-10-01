@@ -35,8 +35,8 @@ Future<void> initializeClient() async {
     final config = json.decode(configStr) as Map<String, dynamic>;
     googleMapsApiKey =
         const String.fromEnvironment('GOOGLE_MAPS_API_KEY').isNotEmpty
-            ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
-            : (config['googleMapsApiKey'] as String? ?? '');
+        ? const String.fromEnvironment('GOOGLE_MAPS_API_KEY')
+        : (config['googleMapsApiKey'] as String? ?? '');
   } catch (_) {
     googleMapsApiKey = '';
   }

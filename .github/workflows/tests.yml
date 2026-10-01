@@ -13,6 +13,10 @@ jobs:
       VERSION: '4.0.3'
       SERVERPOD_PASSWORD_database: '_HkJTlAyCH9zWSncqDHDh0dXHMfFsTDN'
       SERVERPOD_PASSWORD_redis: 'NxTjkQof2OFtfQh_Skb9Qdgi_Uuq91bE'
+      SERVERPOD_PASSWORD_serviceSecret: 'found_it_service_secret_ci_2026'
+      SERVERPOD_PASSWORD_jwtRefreshTokenHashPepper: 'found_it_refresh_token_pepper_secret_key_2026'
+      SERVERPOD_PASSWORD_jwtHmacSha512PrivateKey: 'found_it_jwt_hmac_sha512_secret_key_must_be_very_long_secure_string_2026_foundit_app'
+      SERVERPOD_PASSWORD_emailSecretHashPepper: 'found_it_email_hash_pepper_secure_token_2026'
 
     steps:
       - uses: actions/checkout@v4

@@ -18,7 +18,8 @@ class AppConfigRoute extends WidgetRoute {
   @override
   Future<WebWidget> build(Session session, Request request) async {
     final reqHost = request.url.host;
-    final host = (reqHost.isNotEmpty && reqHost != 'localhost' && reqHost != '127.0.0.1')
+    final host =
+        (reqHost.isNotEmpty && reqHost != 'localhost' && reqHost != '127.0.0.1')
         ? reqHost
         : apiConfig.publicHost;
 

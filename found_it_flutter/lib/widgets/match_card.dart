@@ -34,8 +34,10 @@ class MatchCard extends StatelessWidget {
       return {
         'percent': (m.confidenceScore * 100).round(),
         'textSummary': 'Strong text and semantic similarity',
-        'distanceSummary': '${m.distanceKm?.toStringAsFixed(1) ?? "?"} km apart',
-        'timeSummary': '${m.timeDiffHours?.toStringAsFixed(1) ?? "?"} hours apart',
+        'distanceSummary':
+            '${m.distanceKm?.toStringAsFixed(1) ?? "?"} km apart',
+        'timeSummary':
+            '${m.timeDiffHours?.toStringAsFixed(1) ?? "?"} hours apart',
         'categorySummary': 'Matched categories',
         'verdict': 'Potential match detected',
       };
@@ -128,7 +130,8 @@ class MatchCard extends StatelessWidget {
                   icon: Icons.description_outlined,
                   color: AppTheme.primaryBlue,
                   title: 'Description Match',
-                  detail: explanation['textSummary'] as String? ??
+                  detail:
+                      explanation['textSummary'] as String? ??
                       'Similar item characteristics',
                   score: match.textScore,
                 ),
@@ -139,7 +142,8 @@ class MatchCard extends StatelessWidget {
                     icon: Icons.place_outlined,
                     color: const Color(0xFF6366F1),
                     title: 'Location',
-                    detail: explanation['locationSummary'] as String? ??
+                    detail:
+                        explanation['locationSummary'] as String? ??
                         'Same campus / location',
                     score: match.locationScore,
                   ),
@@ -150,7 +154,8 @@ class MatchCard extends StatelessWidget {
                   icon: Icons.near_me_outlined,
                   color: const Color(0xFF0D9488),
                   title: 'Geographic Distance',
-                  detail: explanation['distanceSummary'] as String? ??
+                  detail:
+                      explanation['distanceSummary'] as String? ??
                       '${match.distanceKm?.toStringAsFixed(1) ?? "?"} km apart',
                   score: match.distanceScore,
                 ),
@@ -160,7 +165,8 @@ class MatchCard extends StatelessWidget {
                   icon: Icons.schedule_outlined,
                   color: const Color(0xFF8B5CF6),
                   title: 'Time Closeness',
-                  detail: explanation['timeSummary'] as String? ??
+                  detail:
+                      explanation['timeSummary'] as String? ??
                       '${match.timeDiffHours?.toStringAsFixed(1) ?? "?"} hours apart',
                   score: match.timeScore,
                 ),
@@ -170,7 +176,8 @@ class MatchCard extends StatelessWidget {
                   icon: Icons.sell_outlined,
                   color: AppTheme.warningAmber,
                   title: 'Category',
-                  detail: explanation['categorySummary'] as String? ??
+                  detail:
+                      explanation['categorySummary'] as String? ??
                       'Category: ${lost.category}',
                   score: match.categoryScore,
                 ),
@@ -251,8 +258,10 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
             children: [
               // Score badge
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: widget.color,
                   borderRadius: BorderRadius.circular(20),
@@ -260,8 +269,11 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.auto_awesome,
-                        color: Colors.white, size: 13),
+                    const Icon(
+                      Icons.auto_awesome,
+                      color: Colors.white,
+                      size: 13,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${widget.percent}%',
@@ -301,8 +313,10 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
               ),
               if (widget.isVerified)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppTheme.recoveryGreen.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
@@ -447,24 +461,28 @@ class _SignalBullet extends StatelessWidget {
                     child: Text(
                       title,
                       style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textMain),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.textMain,
+                      ),
                     ),
                   ),
                   Text(
                     '$pct%',
                     style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: color),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
                   ),
                 ],
               ),
               Text(
                 detail,
                 style: GoogleFonts.inter(
-                    fontSize: 11, color: AppTheme.textMuted),
+                  fontSize: 11,
+                  color: AppTheme.textMuted,
+                ),
               ),
               const SizedBox(height: 3),
               ClipRRect(
@@ -502,14 +520,16 @@ class _ActionBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.recoveryGreen.withOpacity(0.10),
           borderRadius: BorderRadius.circular(10),
-          border:
-              Border.all(color: AppTheme.recoveryGreen.withOpacity(0.25)),
+          border: Border.all(color: AppTheme.recoveryGreen.withOpacity(0.25)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.check_circle_rounded,
-                color: AppTheme.recoveryGreen, size: 17),
+            const Icon(
+              Icons.check_circle_rounded,
+              color: AppTheme.recoveryGreen,
+              size: 17,
+            ),
             const SizedBox(width: 8),
             Text(
               'Ownership Verified — Handover Unlocked',
@@ -531,15 +551,15 @@ class _ActionBar extends StatelessWidget {
           icon: const Icon(Icons.verified_user_outlined, size: 17),
           label: Text(
             'Verify Ownership to Claim',
-            style:
-                GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13),
+            style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryDark,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 12),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           onPressed: () {
             showDialog(
@@ -560,21 +580,26 @@ class _ActionBar extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton.icon(
         icon: const Icon(Icons.contact_mail_outlined, size: 17),
-        label: Text('Contact via Campus Admin',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+        label: Text(
+          'Contact via Campus Admin',
+          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+        ),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text(
-                  'No verification challenge set. Contact your campus admin.'),
+                'No verification challenge set. Contact your campus admin.',
+              ),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               margin: const EdgeInsets.all(16),
             ),
           );
