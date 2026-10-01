@@ -34,10 +34,8 @@ class MatchCard extends StatelessWidget {
       return {
         'percent': (m.confidenceScore * 100).round(),
         'textSummary': 'Strong text and semantic similarity',
-        'distanceSummary':
-            '${m.distanceKm?.toStringAsFixed(1) ?? "?"} km apart',
-        'timeSummary':
-            '${m.timeDiffHours?.toStringAsFixed(1) ?? "?"} hours apart',
+        'distanceSummary': '${m.distanceKm.toStringAsFixed(1)} km apart',
+        'timeSummary': '${m.timeDiffHours.toStringAsFixed(1)} hours apart',
         'categorySummary': 'Matched categories',
         'verdict': 'Potential match detected',
       };
@@ -156,7 +154,7 @@ class MatchCard extends StatelessWidget {
                   title: 'Geographic Distance',
                   detail:
                       explanation['distanceSummary'] as String? ??
-                      '${match.distanceKm?.toStringAsFixed(1) ?? "?"} km apart',
+                      '${match.distanceKm.toStringAsFixed(1)} km apart',
                   score: match.distanceScore,
                 ),
                 const SizedBox(height: 6),
@@ -167,7 +165,7 @@ class MatchCard extends StatelessWidget {
                   title: 'Time Closeness',
                   detail:
                       explanation['timeSummary'] as String? ??
-                      '${match.timeDiffHours?.toStringAsFixed(1) ?? "?"} hours apart',
+                      '${match.timeDiffHours.toStringAsFixed(1)} hours apart',
                   score: match.timeScore,
                 ),
                 const SizedBox(height: 6),

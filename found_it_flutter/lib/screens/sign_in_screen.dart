@@ -89,10 +89,12 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
     if (!_signInForm.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      await client.auth.signIn(
-        _signInEmailCtrl.text.trim(),
-        _signInPassCtrl.text,
+      final controller = EmailAuthController(
+        client: client,
       );
+      controller.emailController.text = _signInEmailCtrl.text.trim();
+      controller.passwordController.text = _signInPassCtrl.text;
+      await controller.login();
     } catch (e) {
       if (mounted) {
         _showError('Sign-in failed: ${e.toString().split(':').last.trim()}');
@@ -110,11 +112,21 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
     }
     setState(() => _loading = true);
     try {
-      await client.auth.register(
-        _signUpEmailCtrl.text.trim(),
-        _signUpPassCtrl.text,
-        displayName: _signUpNameCtrl.text.trim(),
+      final controller = EmailAuthController(
+        client: client,
       );
+      controller.emailController.text = _signUpEmailCtrl.text.trim();
+      controller.legalNoticeAcceptedNotifier.value = true;
+      await controller.startRegistration();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Registration initiated! Check your email for verification.',
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         _showError('Sign-up failed: ${e.toString().split(':').last.trim()}');
@@ -571,22 +583,6 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
           horizontal: 14,
           vertical: 13,
         ),
-      ),
-    );
-  }
-}
-
-extension on BuildContext {
-  void showSnackBar({
-    required String message,
-    required Color backgroundColor,
-    required Color foregroundColor,
-  }) {
-    ScaffoldMessenger.of(this).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: foregroundColor)),
-        backgroundColor: backgroundColor,
-        duration: const Duration(seconds: 5),
       ),
     );
   }

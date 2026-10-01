@@ -110,6 +110,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     if (location.id != null) {
       await fetchLocationAreas(location.id!);
+    } else {
+      _currentLocationAreas = [];
+      notifyListeners();
     }
   }
 
