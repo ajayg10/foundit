@@ -1,279 +1,217 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
+
 import '../theme/app_theme.dart';
 
-/// Result returned from the MapLocationPicker when the user confirms a location.
+/// Result returned from the map picker.
 class MapLocationResult {
   final double latitude;
   final double longitude;
   final String address;
-  final String? placeId;
   final String venueName;
 
   const MapLocationResult({
     required this.latitude,
     required this.longitude,
     required this.address,
-    this.placeId,
     required this.venueName,
   });
 }
 
-/// Full-screen map location picker with:
-/// - Google Places Autocomplete search bar
-/// - Interactive map pin dragging
-/// - "Use my current location" button
-/// - Address reverse-geocoding via Places API
+/// Full-screen OpenStreetMap location picker.
+///
+/// Uses:
+/// - flutter_map + OpenStreetMap tiles (100% free, no API key)
+/// - Nominatim API for search autocomplete + reverse geocoding (free)
+/// - Geolocator for "Use My Current Location"
 class MapLocationPickerScreen extends StatefulWidget {
-  /// Your Google Maps/Places API key (from Google Cloud Console).
-  final String apiKey;
-
-  /// Initial position to show (defaults to India center if null).
   final LatLng? initialPosition;
 
-  const MapLocationPickerScreen({
-    super.key,
-    required this.apiKey,
-    this.initialPosition,
-  });
+  const MapLocationPickerScreen({super.key, this.initialPosition});
 
   @override
-  State<MapLocationPickerScreen> createState() => _MapLocationPickerScreenState();
+  State<MapLocationPickerScreen> createState() =>
+      _MapLocationPickerScreenState();
 }
 
 class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
-  final Completer<GoogleMapController> _mapController = Completer();
-  final TextEditingController _searchController = TextEditingController();
+  // Default to India centre
+  LatLng _pinPosition = const LatLng(20.5937, 78.9629);
+  final MapController _mapController = MapController();
+  final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
 
-  LatLng _selectedPosition = const LatLng(20.5937, 78.9629); // India center
-  String _selectedAddress = 'Tap the map or search a location';
-  String? _selectedPlaceId;
+  String _address = 'Tap the map or search a venue';
   String _venueName = '';
+  bool _loadingAddress = false;
+  bool _loadingLocation = false;
 
-  bool _isLoadingLocation = false;
-  bool _isLoadingAddress = false;
   List<Map<String, dynamic>> _suggestions = [];
   bool _showSuggestions = false;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     if (widget.initialPosition != null) {
-      _selectedPosition = widget.initialPosition!;
+      _pinPosition = widget.initialPosition!;
     }
-    _searchController.addListener(_onSearchChanged);
+    _searchCtrl.addListener(_onQueryChanged);
   }
 
   @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
+    _debounce?.cancel();
+    _searchCtrl.removeListener(_onQueryChanged);
+    _searchCtrl.dispose();
     _searchFocus.dispose();
     super.dispose();
   }
 
-  void _onSearchChanged() {
-    final query = _searchController.text.trim();
-    if (query.length >= 3) {
-      _fetchAutocompleteSuggestions(query);
-    } else {
+  // ── Search ───────────────────────────────────────────────────────────────
+
+  void _onQueryChanged() {
+    _debounce?.cancel();
+    final q = _searchCtrl.text.trim();
+    if (q.length < 3) {
       setState(() {
         _suggestions = [];
         _showSuggestions = false;
       });
+      return;
     }
+    _debounce = Timer(const Duration(milliseconds: 500), () => _nominatimSearch(q));
   }
 
-  Future<void> _fetchAutocompleteSuggestions(String query) async {
-    final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/autocomplete/json'
-      '?input=${Uri.encodeComponent(query)}'
-      '&types=establishment|geocode'
-      '&key=${widget.apiKey}',
+  Future<void> _nominatimSearch(String query) async {
+    final uri = Uri.parse(
+      'https://nominatim.openstreetmap.org/search'
+      '?q=${Uri.encodeComponent(query)}'
+      '&format=json'
+      '&addressdetails=1'
+      '&limit=6',
     );
-
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as Map<String, dynamic>;
-        final predictions = (data['predictions'] as List<dynamic>? ?? [])
-            .map((p) => p as Map<String, dynamic>)
-            .toList();
-        if (mounted) {
-          setState(() {
-            _suggestions = predictions;
-            _showSuggestions = predictions.isNotEmpty;
-          });
-        }
+      final res = await http.get(
+        uri,
+        headers: {'User-Agent': 'FoundItApp/1.0 (lost-and-found)'},
+      );
+      if (res.statusCode == 200 && mounted) {
+        final data = json.decode(res.body) as List<dynamic>;
+        setState(() {
+          _suggestions = data.cast<Map<String, dynamic>>();
+          _showSuggestions = _suggestions.isNotEmpty;
+        });
       }
-    } catch (_) {
-      // Silently ignore — user can still tap map
-    }
+    } catch (_) {}
   }
 
-  Future<void> _selectSuggestion(Map<String, dynamic> suggestion) async {
-    final placeId = suggestion['place_id'] as String;
-    final description = suggestion['description'] as String;
+  Future<void> _selectSuggestion(Map<String, dynamic> place) async {
+    final lat = double.tryParse(place['lat'] as String? ?? '') ?? 0;
+    final lon = double.tryParse(place['lon'] as String? ?? '') ?? 0;
+    final displayName = place['display_name'] as String? ?? '';
+    final nameField = (place['namedetails'] as Map?)?['name'] as String? ??
+        (place['address'] as Map?)?['amenity'] as String? ??
+        (place['address'] as Map?)?['building'] as String? ??
+        displayName.split(',').first.trim();
 
+    final pos = LatLng(lat, lon);
     setState(() {
+      _pinPosition = pos;
+      _address = displayName;
+      _venueName = nameField;
       _showSuggestions = false;
-      _selectedPlaceId = placeId;
-      _searchController.text = description;
-      _isLoadingAddress = true;
+      _searchCtrl.text = nameField;
     });
     _searchFocus.unfocus();
-
-    // Fetch place details to get coordinates
-    final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/place/details/json'
-      '?place_id=$placeId'
-      '&fields=geometry,name,formatted_address'
-      '&key=${widget.apiKey}',
-    );
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as Map<String, dynamic>;
-        final result = data['result'] as Map<String, dynamic>;
-        final location =
-            (result['geometry'] as Map<String, dynamic>)['location'] as Map<String, dynamic>;
-        final lat = (location['lat'] as num).toDouble();
-        final lng = (location['lng'] as num).toDouble();
-        final name = result['name'] as String? ?? description;
-        final address = result['formatted_address'] as String? ?? description;
-
-        final newPosition = LatLng(lat, lng);
-        setState(() {
-          _selectedPosition = newPosition;
-          _selectedAddress = address;
-          _venueName = name;
-          _isLoadingAddress = false;
-        });
-
-        final controller = await _mapController.future;
-        await controller.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: newPosition, zoom: 17),
-          ),
-        );
-      }
-    } catch (_) {
-      setState(() => _isLoadingAddress = false);
-    }
+    _mapController.move(pos, 16);
   }
 
-  Future<void> _onMapTap(LatLng position) async {
+  // ── Tap on map ───────────────────────────────────────────────────────────
+
+  Future<void> _onMapTap(TapPosition _, LatLng position) async {
     setState(() {
-      _selectedPosition = position;
-      _isLoadingAddress = true;
+      _pinPosition = position;
+      _loadingAddress = true;
       _showSuggestions = false;
     });
     _searchFocus.unfocus();
     await _reverseGeocode(position);
   }
 
-  Future<void> _reverseGeocode(LatLng position) async {
-    final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/geocode/json'
-      '?latlng=${position.latitude},${position.longitude}'
-      '&key=${widget.apiKey}',
+  Future<void> _reverseGeocode(LatLng pos) async {
+    final uri = Uri.parse(
+      'https://nominatim.openstreetmap.org/reverse'
+      '?lat=${pos.latitude}&lon=${pos.longitude}'
+      '&format=json',
     );
-
     try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body) as Map<String, dynamic>;
-        final results = data['results'] as List<dynamic>;
-        if (results.isNotEmpty) {
-          final first = results.first as Map<String, dynamic>;
-          final address = first['formatted_address'] as String;
-          // Extract a short venue name from address_components
-          final components =
-              first['address_components'] as List<dynamic>? ?? [];
-          String venueName = '';
-          for (final c in components) {
-            final types = (c['types'] as List<dynamic>).cast<String>();
-            if (types.contains('point_of_interest') ||
-                types.contains('establishment') ||
-                types.contains('premise')) {
-              venueName = c['long_name'] as String;
-              break;
-            }
-          }
-          if (venueName.isEmpty && components.isNotEmpty) {
-            venueName = components.first['long_name'] as String? ?? '';
-          }
-          if (mounted) {
-            setState(() {
-              _selectedAddress = address;
-              _venueName = venueName;
-              _isLoadingAddress = false;
-              _searchController.text = address;
-            });
-          }
-        } else {
-          setState(() => _isLoadingAddress = false);
-        }
+      final res = await http.get(
+        uri,
+        headers: {'User-Agent': 'FoundItApp/1.0 (lost-and-found)'},
+      );
+      if (res.statusCode == 200 && mounted) {
+        final data = json.decode(res.body) as Map<String, dynamic>;
+        final display = data['display_name'] as String? ?? 'Selected location';
+        final addr = data['address'] as Map? ?? {};
+        final name = addr['amenity'] as String? ??
+            addr['building'] as String? ??
+            addr['tourism'] as String? ??
+            addr['road'] as String? ??
+            display.split(',').first.trim();
+        setState(() {
+          _address = display;
+          _venueName = name;
+          _loadingAddress = false;
+          _searchCtrl.text = name;
+        });
       }
     } catch (_) {
-      setState(() => _isLoadingAddress = false);
+      if (mounted) setState(() => _loadingAddress = false);
     }
   }
 
+  // ── Current location ─────────────────────────────────────────────────────
+
   Future<void> _useCurrentLocation() async {
-    setState(() => _isLoadingLocation = true);
-
+    setState(() => _loadingLocation = true);
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
+      LocationPermission perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
       }
-
-      if (permission == LocationPermission.deniedForever) {
+      if (perm == LocationPermission.deniedForever) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-                'Location permission permanently denied. Please enable it in Settings.',
+                'Location permission denied. Enable it in device Settings.',
               ),
             ),
           );
         }
-        setState(() => _isLoadingLocation = false);
         return;
       }
-
-      if (permission == LocationPermission.whileInUse ||
-          permission == LocationPermission.always) {
-        final position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10),
-          ),
-        );
-
-        final newPosition = LatLng(position.latitude, position.longitude);
-        setState(() {
-          _selectedPosition = newPosition;
-          _isLoadingAddress = true;
-        });
-
-        final controller = await _mapController.future;
-        await controller.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: newPosition, zoom: 17),
-          ),
-        );
-
-        await _reverseGeocode(newPosition);
-      }
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 12),
+        ),
+      );
+      final latlng = LatLng(pos.latitude, pos.longitude);
+      setState(() {
+        _pinPosition = latlng;
+        _loadingAddress = true;
+      });
+      _mapController.move(latlng, 17);
+      await _reverseGeocode(latlng);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -281,53 +219,96 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => _isLoadingLocation = false);
+      if (mounted) setState(() => _loadingLocation = false);
     }
   }
+
+  // ── Confirm ──────────────────────────────────────────────────────────────
 
   void _confirm() {
     Navigator.of(context).pop(
       MapLocationResult(
-        latitude: _selectedPosition.latitude,
-        longitude: _selectedPosition.longitude,
-        address: _selectedAddress,
-        placeId: _selectedPlaceId,
-        venueName: _venueName.isNotEmpty ? _venueName : _selectedAddress,
+        latitude: _pinPosition.latitude,
+        longitude: _pinPosition.longitude,
+        address: _address,
+        venueName: _venueName.isNotEmpty ? _venueName : _address.split(',').first.trim(),
       ),
     );
   }
 
+  // ── UI ───────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
       body: Stack(
         children: [
-          // ── Map ──────────────────────────────────────────────────────────
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: _selectedPosition,
-              zoom: widget.initialPosition != null ? 16 : 5,
+          // ── OpenStreetMap ────────────────────────────────────────────────
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _pinPosition,
+              initialZoom: widget.initialPosition != null ? 16.0 : 5.0,
+              onTap: _onMapTap,
             ),
-            onMapCreated: (controller) => _mapController.complete(controller),
-            onTap: _onMapTap,
-            myLocationButtonEnabled: false,
-            myLocationEnabled: false,
-            zoomControlsEnabled: false,
-            markers: {
-              Marker(
-                markerId: const MarkerId('selected'),
-                position: _selectedPosition,
-                draggable: true,
-                onDragEnd: _onMapTap,
-                icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueViolet,
-                ),
+            children: [
+              // Free OSM tile layer — no API key
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.found_it_flutter',
+                maxZoom: 19,
               ),
-            },
+              // Pin marker
+              MarkerLayer(
+                markers: [
+                  Marker(
+                    point: _pinPosition,
+                    width: 48,
+                    height: 64,
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryDark,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryDark.withOpacity(0.4),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(Icons.place_rounded,
+                              color: Colors.white, size: 20),
+                        ),
+                        // Pin tail
+                        Container(
+                          width: 3,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryDark,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              // Attribution (required by OSM)
+              const RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution('© OpenStreetMap contributors'),
+                ],
+              ),
+            ],
           ),
 
-          // ── Top Search Bar & Back Button ──────────────────────────────────
+          // ── Search bar + back button ─────────────────────────────────────
           SafeArea(
             child: Column(
               children: [
@@ -335,7 +316,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                   child: Row(
                     children: [
-                      // Back button
+                      // Back
                       Material(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
@@ -350,34 +331,31 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // Search field
+                      // Search
                       Expanded(
                         child: Material(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           elevation: 4,
                           child: TextField(
-                            controller: _searchController,
+                            controller: _searchCtrl,
                             focusNode: _searchFocus,
                             decoration: InputDecoration(
-                              hintText: 'Search airport, college, mall…',
+                              hintText:
+                                  'Search airport, college, mall, office…',
                               hintStyle: GoogleFonts.inter(
-                                fontSize: 14,
-                                color: AppTheme.textMuted,
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.search_rounded,
-                                color: AppTheme.primaryBlue,
-                              ),
-                              suffixIcon: _searchController.text.isNotEmpty
+                                  fontSize: 13, color: AppTheme.textMuted),
+                              prefixIcon: const Icon(Icons.search_rounded,
+                                  color: AppTheme.primaryBlue),
+                              suffixIcon: _searchCtrl.text.isNotEmpty
                                   ? IconButton(
                                       icon: const Icon(Icons.close_rounded,
                                           size: 18),
                                       onPressed: () {
-                                        _searchController.clear();
+                                        _searchCtrl.clear();
                                         setState(() {
-                                          _showSuggestions = false;
                                           _suggestions = [];
+                                          _showSuggestions = false;
                                         });
                                       },
                                     )
@@ -386,7 +364,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                               contentPadding:
                                   const EdgeInsets.symmetric(vertical: 14),
                             ),
-                            style: GoogleFonts.inter(fontSize: 14),
+                            style: GoogleFonts.inter(fontSize: 13),
                           ),
                         ),
                       ),
@@ -394,10 +372,10 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                   ),
                 ),
 
-                // ── Autocomplete Suggestions ──────────────────────────────
+                // ── Autocomplete suggestions ─────────────────────────────
                 if (_showSuggestions && _suggestions.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
                     child: Material(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -406,43 +384,42 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _suggestions.length.clamp(0, 5),
+                        itemCount: _suggestions.length.clamp(0, 6),
                         separatorBuilder: (_, __) =>
                             const Divider(height: 1, indent: 16),
-                        itemBuilder: (context, index) {
-                          final s = _suggestions[index];
-                          final main = (s['structured_formatting']
-                                  as Map<String, dynamic>?)?['main_text'] as String? ??
-                              s['description'] as String;
-                          final secondary = (s['structured_formatting']
-                                  as Map<String, dynamic>?)?['secondary_text'] as String? ??
-                              '';
+                        itemBuilder: (context, i) {
+                          final s = _suggestions[i];
+                          final name = (s['display_name'] as String? ?? '')
+                              .split(',')
+                              .first
+                              .trim();
+                          final sub = s['display_name'] as String? ?? '';
+                          final typeIcon = _iconForType(s['type'] as String?);
                           return InkWell(
                             onTap: () => _selectSuggestion(s),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
+                                  horizontal: 14, vertical: 10),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.place_outlined,
+                                  Icon(typeIcon,
                                       size: 20, color: AppTheme.primaryBlue),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(main,
+                                        Text(name,
                                             style: GoogleFonts.inter(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w600)),
-                                        if (secondary.isNotEmpty)
-                                          Text(secondary,
-                                              style: GoogleFonts.inter(
-                                                  fontSize: 11,
-                                                  color: AppTheme.textMuted),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis),
+                                        Text(sub,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: GoogleFonts.inter(
+                                                fontSize: 11,
+                                                color: AppTheme.textMuted)),
                                       ],
                                     ),
                                   ),
@@ -458,26 +435,26 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
             ),
           ),
 
-          // ── Current Location FAB ─────────────────────────────────────────
+          // ── My Location FAB ──────────────────────────────────────────────
           Positioned(
             right: 16,
-            bottom: 180,
+            bottom: 190,
             child: FloatingActionButton.small(
-              heroTag: 'currentLocation',
+              heroTag: 'myLoc',
               backgroundColor: Colors.white,
-              onPressed: _isLoadingLocation ? null : _useCurrentLocation,
-              child: _isLoadingLocation
+              onPressed: _loadingLocation ? null : _useCurrentLocation,
+              tooltip: 'Use my location',
+              child: _loadingLocation
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.my_location_rounded,
                       color: AppTheme.primaryBlue, size: 20),
             ),
           ),
 
-          // ── Bottom Confirm Panel ─────────────────────────────────────────
+          // ── Confirm panel ────────────────────────────────────────────────
           Positioned(
             left: 0,
             right: 0,
@@ -489,10 +466,9 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                     const BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 20,
-                    offset: const Offset(0, -4),
-                  ),
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 20,
+                      offset: const Offset(0, -4)),
                 ],
               ),
               padding: EdgeInsets.fromLTRB(
@@ -501,15 +477,13 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Handle bar
                   Center(
                     child: Container(
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2)),
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -529,31 +503,40 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Selected Location',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                color: AppTheme.textMuted,
-                              ),
-                            ),
-                            _isLoadingAddress
-                                ? const SizedBox(
-                                    height: 16,
+                            Text('Selected Location',
+                                style: GoogleFonts.inter(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppTheme.textMuted)),
+                            if (_loadingAddress)
+                              const Padding(
+                                padding: EdgeInsets.only(top: 4),
+                                child: SizedBox(
                                     width: 16,
+                                    height: 16,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2),
-                                  )
-                                : Text(
-                                    _selectedAddress,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.textMain,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                        strokeWidth: 2)),
+                              )
+                            else
+                              Text(
+                                _venueName.isNotEmpty
+                                    ? _venueName
+                                    : _address,
+                                style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textMain),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            if (_venueName.isNotEmpty)
+                              Text(
+                                _address.split(',').skip(1).take(2).join(',').trim(),
+                                style: GoogleFonts.inter(
+                                    fontSize: 11, color: AppTheme.textMuted),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                           ],
                         ),
                       ),
@@ -568,18 +551,13 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                            borderRadius: BorderRadius.circular(14)),
                       ),
-                      onPressed: _isLoadingAddress ? null : _confirm,
+                      onPressed: _loadingAddress ? null : _confirm,
                       icon: const Icon(Icons.check_circle_rounded, size: 20),
-                      label: Text(
-                        'Confirm Location',
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      label: Text('Confirm Location',
+                          style: GoogleFonts.inter(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -589,5 +567,36 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
         ],
       ),
     );
+  }
+
+  IconData _iconForType(String? type) {
+    switch (type) {
+      case 'aerodrome':
+      case 'airport':
+        return Icons.flight_rounded;
+      case 'university':
+      case 'college':
+      case 'school':
+        return Icons.school_rounded;
+      case 'hospital':
+      case 'clinic':
+        return Icons.local_hospital_rounded;
+      case 'mall':
+      case 'department_store':
+      case 'supermarket':
+        return Icons.shopping_bag_rounded;
+      case 'restaurant':
+      case 'cafe':
+      case 'fast_food':
+        return Icons.restaurant_rounded;
+      case 'bus_station':
+      case 'train_station':
+      case 'station':
+        return Icons.train_rounded;
+      case 'hotel':
+        return Icons.hotel_rounded;
+      default:
+        return Icons.place_outlined;
+    }
   }
 }

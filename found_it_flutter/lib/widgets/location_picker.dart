@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:latlong2/latlong.dart';
 import '../client.dart';
 import '../screens/location_selector_screen.dart';
 import '../state/app_state.dart';
@@ -97,7 +97,6 @@ class LocationPickerWidget extends StatelessWidget {
     final result = await Navigator.of(context).push<MapLocationResult>(
       MaterialPageRoute(
         builder: (_) => MapLocationPickerScreen(
-          apiKey: googleMapsApiKey,
           initialPosition: initialPos,
         ),
         fullscreenDialog: true,
@@ -105,13 +104,13 @@ class LocationPickerWidget extends StatelessWidget {
     );
 
     if (result != null) {
-      // Use the venue name as the label, keeping privacy (no exact coords shown)
       final label = result.venueName.isNotEmpty
           ? result.venueName
-          : result.address;
+          : result.address.split(',').first.trim();
       onLocationChanged(null, label, result.latitude, result.longitude);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
