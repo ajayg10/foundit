@@ -1,9 +1,17 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 
+/// Rich item card that shows:
+/// - Left accent border colored by report type
+/// - Photo thumbnail (supports base64, network URL, or category icon)
+/// - LOST/FOUND badge + status chip + relative time
+/// - Title, truncated description, location
 class ItemCard extends StatelessWidget {
   final ItemReport report;
   final VoidCallback? onTap;
@@ -16,10 +24,15 @@ class ItemCard extends StatelessWidget {
     this.trailing,
   });
 
-  Color _getStatusColor(String status) {
+  Color get _typeColor =>
+      report.reportType.toLowerCase() == 'lost'
+          ? AppTheme.lostRed
+          : AppTheme.recoveryGreen;
+
+  Color _statusColor(String status) {
     switch (status.toLowerCase()) {
       case 'open':
-        return report.reportType == 'lost' ? AppTheme.lostRed : AppTheme.recoveryGreen;
+        return _typeColor;
       case 'matched':
         return AppTheme.matchIndigo;
       case 'claimpending':
@@ -33,7 +46,16 @@ class ItemCard extends StatelessWidget {
     }
   }
 
-  IconData _getCategoryIcon(String category) {
+  String _statusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'claimpending':
+        return 'CLAIM PENDING';
+      default:
+        return status.toUpperCase();
+    }
+  }
+
+  IconData _categoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'bags':
         return Icons.backpack_outlined;
@@ -54,10 +76,61 @@ class ItemCard extends StatelessWidget {
     }
   }
 
+  /// Relative time label e.g. "2h ago", "Just now"
+  String _relativeTime(DateTime dt) {
+    final diff = DateTime.now().difference(dt.toLocal());
+    if (diff.inMinutes < 1) return 'Just now';
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return DateFormat('MMM d').format(dt.toLocal());
+  }
+
+  Widget _photoWidget() {
+    final img = report.imageUrl;
+    if (img != null && img.isNotEmpty) {
+      // Base64 encoded image
+      if (img.startsWith('data:image')) {
+        try {
+          final base64Str = img.split(',').last;
+          final bytes = base64Decode(base64Str);
+          return Image.memory(
+            Uint8List.fromList(bytes),
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            errorBuilder: (_, __, ___) => _iconPlaceholder(),
+          );
+        } catch (_) {
+          return _iconPlaceholder();
+        }
+      }
+      // Network URL
+      return Image.network(
+        img,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : _iconPlaceholder(),
+        errorBuilder: (_, __, ___) => _iconPlaceholder(),
+      );
+    }
+    return _iconPlaceholder();
+  }
+
+  Widget _iconPlaceholder() {
+    return Icon(
+      _categoryIcon(report.category),
+      color: _typeColor,
+      size: 30,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final statusColor = _getStatusColor(report.status);
     final isLost = report.reportType.toLowerCase() == 'lost';
+    final sc = _statusColor(report.status);
 
     return InkWell(
       onTap: onTap,
@@ -69,152 +142,148 @@ class ItemCard extends StatelessWidget {
           border: Border.all(color: AppTheme.borderLight),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withOpacity(0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
+        child: IntrinsicHeight(
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Photo Thumbnail or Category Icon
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 76,
-                  height: 76,
-                  color: isLost
-                      ? AppTheme.lostRed.withOpacity(0.08)
-                      : AppTheme.recoveryGreen.withOpacity(0.08),
-                  child: report.imageUrl != null && report.imageUrl!.isNotEmpty
-                      ? (report.imageUrl!.startsWith('data:')
-                          ? const Center(
-                              child: Icon(Icons.image, color: AppTheme.primaryBlue, size: 32),
-                            )
-                          : Image.network(
-                              report.imageUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                _getCategoryIcon(report.category),
-                                color: isLost ? AppTheme.lostRed : AppTheme.recoveryGreen,
-                                size: 32,
-                              ),
-                            ))
-                      : Icon(
-                          _getCategoryIcon(report.category),
-                          color: isLost ? AppTheme.lostRed : AppTheme.recoveryGreen,
-                          size: 32,
-                        ),
+              // ── Left accent bar ──────────────────────────────────────
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: _typeColor,
+                  borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(16)),
                 ),
               ),
-              const SizedBox(width: 14),
 
-              // Details
+              // ── Photo thumbnail ──────────────────────────────────────
+              ClipRRect(
+                borderRadius: BorderRadius.zero,
+                child: Container(
+                  width: 76,
+                  margin: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: _typeColor.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: _photoWidget(),
+                  ),
+                ),
+              ),
+
+              // ── Content ──────────────────────────────────────────────
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Top row: Type Tag + Status Badge
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isLost
-                                ? AppTheme.lostRed.withOpacity(0.12)
-                                : AppTheme.recoveryGreen.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.fromLTRB(0, 12, 14, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Badges row
+                      Row(
+                        children: [
+                          _chip(
                             isLost ? 'LOST' : 'FOUND',
+                            _typeColor,
+                            _typeColor.withOpacity(0.12),
+                          ),
+                          const SizedBox(width: 5),
+                          _chip(
+                            _statusLabel(report.status),
+                            sc,
+                            sc.withOpacity(0.10),
+                          ),
+                          const Spacer(),
+                          Text(
+                            _relativeTime(report.eventTime),
                             style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: isLost ? AppTheme.lostRed : AppTheme.recoveryGreen,
-                            ),
+                                fontSize: 10, color: AppTheme.textMuted),
                           ),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.10),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            report.status.toUpperCase(),
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: statusColor,
-                            ),
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          DateFormat('MMM d, h:mm a').format(report.eventTime.toLocal()),
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Title
-                    Text(
-                      report.title,
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textMain,
+                        ],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
+                      const SizedBox(height: 6),
 
-                    // Description
-                    Text(
-                      report.description,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Location Tag
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on, size: 14, color: AppTheme.primaryBlue),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            report.locationLabel,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.textMain,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                      // Title
+                      Text(
+                        report.title,
+                        style: GoogleFonts.outfit(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textMain,
+                          height: 1.2,
                         ),
-                        if (trailing != null) trailing!,
-                      ],
-                    ),
-                  ],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 3),
+
+                      // Description
+                      Text(
+                        report.description,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: AppTheme.textMuted,
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Location row
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_rounded,
+                              size: 13, color: AppTheme.primaryBlue),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              report.locationLabel,
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                color: AppTheme.textMain,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (trailing != null) trailing!,
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _chip(String text, Color fg, Color bg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          color: fg,
+          letterSpacing: 0.3,
         ),
       ),
     );
