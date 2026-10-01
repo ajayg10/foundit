@@ -11,6 +11,7 @@ class AppTheme {
   static const Color matchIndigo = Color(0xFF6366F1); // Indigo Accent
   static const Color warningAmber = Color(0xFFD97706); // Amber Warning
   static const Color backgroundLight = Color(0xFFF8FAFC); // Soft Slate White
+  static const Color backgroundDark = Color(0xFF0F172A); // Dark Slate
   static const Color surfaceWhite = Colors.white;
   static const Color borderLight = Color(0xFFE2E8F0);
   static const Color textMain = Color(0xFF0F172A);

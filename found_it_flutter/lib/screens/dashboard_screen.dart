@@ -151,11 +151,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildStatsHeader() {
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF4F46E5), Color(0xFF7C3AED)],
-        ),
+        color: Color(0xFF4F46E5),
       ),
       child: SafeArea(
         bottom: false,
@@ -299,7 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         itemBuilder: (context, index) {
           final dto = _matches[index];
           return MatchCard(
-            dto: dto,
+            matchDetails: dto,
             currentUserId: AppState.instance.currentUser.userId,
           );
         },

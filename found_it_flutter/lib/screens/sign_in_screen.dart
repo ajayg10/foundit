@@ -141,14 +141,10 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Gradient background
+          // Background
           Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF0F172A), Color(0xFF1E1B4B), Color(0xFF312E81)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Color(0xFF0F172A),
             ),
           ),
 
@@ -191,11 +187,7 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF6366F1), Color(0xFF4F46E5)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: const Color(0xFF6366F1),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(

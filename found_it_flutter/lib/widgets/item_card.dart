@@ -139,7 +139,12 @@ class ItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppTheme.borderLight),
+          border: Border(
+            left: BorderSide(color: _typeColor, width: 5),
+            top: const BorderSide(color: AppTheme.borderLight),
+            right: const BorderSide(color: AppTheme.borderLight),
+            bottom: const BorderSide(color: AppTheme.borderLight),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.03),
@@ -148,36 +153,23 @@ class ItemCard extends StatelessWidget {
             ),
           ],
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Left accent bar ──────────────────────────────────────
-              Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  color: _typeColor,
-                  borderRadius: const BorderRadius.horizontal(
-                      left: Radius.circular(16)),
-                ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Photo thumbnail ──────────────────────────────────────
+            Container(
+              width: 76,
+              height: 76,
+              margin: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: _typeColor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
               ),
-
-              // ── Photo thumbnail ──────────────────────────────────────
-              ClipRRect(
-                borderRadius: BorderRadius.zero,
-                child: Container(
-                  width: 76,
-                  margin: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _typeColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: _photoWidget(),
-                  ),
-                ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: _photoWidget(),
               ),
+            ),
 
               // ── Content ──────────────────────────────────────────────
               Expanded(
@@ -266,8 +258,7 @@ class ItemCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   Widget _chip(String text, Color fg, Color bg) {

@@ -140,15 +140,10 @@ class _HomeScreenState extends State<HomeScreen> {
         final stats = AppState.instance.stats;
 
         return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              // Modern App Bar
-              SliverAppBar(
-                floating: true,
-                pinned: true,
-                expandedHeight: 80,
-                backgroundColor: Colors.white,
-                elevation: 0,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0.5,
+            toolbarHeight: 65,
                 title: Row(
                   children: [
                     Container(
@@ -329,11 +324,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 8),
                 ],
               ),
-
-              // Body Content
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 800),
@@ -345,11 +337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: const Color(0xFF0F172A),
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
@@ -540,9 +528,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFFEEF2FF), Color(0xFFE0E7FF)],
-                                  ),
+                                  color: const Color(0xFFEEF2FF),
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(color: const Color(0xFFC7D2FE)),
                                 ),
@@ -698,22 +684,25 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             )
                           else
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _recentFoundItems.length,
-                              separatorBuilder: (_, __) => const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final item = _recentFoundItems[index];
-                                return ItemCard(
-                                  report: item,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => const PublicBoardScreen()),
-                                    );
-                                  },
-                                );
-                              },
+                            Column(
+                              children: _recentFoundItems
+                                  .map(
+                                    (item) => Padding(
+                                      padding: const EdgeInsets.only(bottom: 10),
+                                      child: ItemCard(
+                                        report: item,
+                                        onTap: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const PublicBoardScreen(),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
                             ),
                           const SizedBox(height: 40),
                         ],
@@ -721,9 +710,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
           bottomNavigationBar: NavigationBar(
             backgroundColor: Colors.white,
             elevation: 2,
