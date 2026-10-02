@@ -24,6 +24,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<ItemReport> _recentFoundItems = [];
   bool _isLoadingRecent = true;
+  int _areaFoundCount = 0;
+  int _userLostCount = 0;
+  int _areaMatchedCount = 0;
+  int _areaReturnedCount = 0;
+  int? _lastLocationId;
 
   @override
   void initState() {
@@ -34,12 +39,40 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadRecent() async {
     setState(() => _isLoadingRecent = true);
     try {
-      final items = await client.report.listReports(
-        locationId: AppState.instance.currentLocation?.id,
+      final locId = AppState.instance.currentLocation?.id;
+      final userId = AppState.instance.currentUser.userId;
+
+      // 1. Fetch found items in this area
+      final foundInArea = await client.report.listReports(
+        locationId: locId,
         reportType: 'found',
-        limit: 5,
+        limit: 50,
       );
-      setState(() => _recentFoundItems = items);
+
+      // 2. Fetch user's reports
+      final userReports = await client.report.listUserReports(userId);
+      final userLost = userReports
+          .where((r) => r.reportType == 'lost')
+          .toList();
+
+      // 3. Fetch user matches
+      final userMatches = await client.match.getUserMatches(userId);
+
+      // 4. Fetch returned items in this area
+      final returnedInArea = await client.report.listReports(
+        locationId: locId,
+        status: 'returned',
+        limit: 50,
+      );
+
+      setState(() {
+        _recentFoundItems = foundInArea.take(6).toList();
+        _areaFoundCount = foundInArea.length;
+        _userLostCount = userLost.length;
+        _areaMatchedCount = userMatches.length;
+        _areaReturnedCount = returnedInArea.length;
+        _lastLocationId = locId;
+      });
     } catch (e) {
       debugPrint('Error loading recent: $e');
     } finally {
@@ -63,23 +96,65 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: AppTheme.primaryDark,
+                    radius: 20,
+                    child: Text(
+                      current.name.isNotEmpty
+                          ? current.name[0].toUpperCase()
+                          : 'U',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          current.name,
+                          style: GoogleFonts.outfit(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textMain,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          current.email,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppTheme.textMuted,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+
               Text(
-                'Demo Identity Switcher',
-                style: GoogleFonts.outfit(
-                  fontSize: 18,
+                'Demo Personas (Quick Switch)',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
+                  color: AppTheme.textMuted,
+                  letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                'Easily switch perspectives between Phone A (the person who lost an item) and Phone B (the finder) for testing the primary hackathon demo.',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-              const SizedBox(height: 20),
 
               // Alice
               ListTile(
@@ -143,6 +218,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   _loadRecent();
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Sign Out Button
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppTheme.lostRed,
+                    side: const BorderSide(color: Color(0xFFFCA5A5)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.logout_rounded, size: 18),
+                  label: const Text(
+                    'Sign Out',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () async {
+                    Navigator.of(ctx).pop();
+                    await AppState.instance.signOut();
+                  },
+                ),
+              ),
             ],
           ),
         );
@@ -158,7 +258,13 @@ class _HomeScreenState extends State<HomeScreen> {
         final currentUser = AppState.instance.currentUser;
         final unreadCount = AppState.instance.unreadNotificationCount;
         final matches = AppState.instance.userMatches;
-        final stats = AppState.instance.stats;
+
+        if (AppState.instance.currentLocation?.id != _lastLocationId) {
+          _lastLocationId = AppState.instance.currentLocation?.id;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) _loadRecent();
+          });
+        }
 
         return Scaffold(
           appBar: AppBar(
@@ -275,22 +381,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.person,
-                        size: 16,
-                        color: currentUser.userId == AppState.demoAlice.userId
-                            ? AppTheme.lostRed
-                            : AppTheme.recoveryGreen,
+                      CircleAvatar(
+                        radius: 10,
+                        backgroundColor: AppTheme.primaryDark,
+                        child: Text(
+                          currentUser.name.isNotEmpty
+                              ? currentUser.name[0].toUpperCase()
+                              : 'U',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        currentUser.userId == AppState.demoAlice.userId
-                            ? 'Alice'
-                            : 'Bob',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textMain,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 80),
+                        child: Text(
+                          currentUser.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textMain,
+                          ),
                         ),
                       ),
                       const Icon(
@@ -649,53 +765,94 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 20),
                     ],
 
-                    // Platform Metrics
-                    if (stats != null) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Lost Reported',
-                              value: '${stats.totalLost}',
-                              icon: Icons.search,
-                              color: AppTheme.lostRed,
-                            ),
+                    // Platform & Area Metrics
+                    Row(
+                      children: [
+                        Expanded(
+                          child: MetricCard(
+                            label: 'Lost Reported',
+                            value: '$_userLostCount',
+                            subtitle: 'By you • Tap to view',
+                            icon: Icons.search,
+                            color: AppTheme.lostRed,
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const DashboardScreen(initialTab: 0),
+                                    ),
+                                  )
+                                  .then((_) => _loadRecent());
+                            },
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Found Posted',
-                              value: '${stats.totalFound}',
-                              icon: Icons.check_circle_outline,
-                              color: AppTheme.recoveryGreen,
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: MetricCard(
+                            label: 'Found Posted',
+                            value: '$_areaFoundCount',
+                            subtitle:
+                                'In ${AppState.instance.currentLocation?.name ?? "this area"}',
+                            icon: Icons.check_circle_outline,
+                            color: AppTheme.recoveryGreen,
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const PublicBoardScreen(),
+                                    ),
+                                  )
+                                  .then((_) => _loadRecent());
+                            },
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: MetricCard(
-                              label: 'AI Matched',
-                              value: '${stats.totalMatched}',
-                              icon: Icons.auto_awesome,
-                              color: AppTheme.matchIndigo,
-                            ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: MetricCard(
+                            label: 'AI Matched',
+                            value: '$_areaMatchedCount',
+                            subtitle: 'Tap to view matches',
+                            icon: Icons.auto_awesome,
+                            color: AppTheme.matchIndigo,
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const MatchesScreen(),
+                                    ),
+                                  )
+                                  .then((_) => _loadRecent());
+                            },
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Items Returned',
-                              value: '${stats.totalReturned}',
-                              icon: Icons.handshake_outlined,
-                              color: const Color(0xFF0D9488),
-                            ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: MetricCard(
+                            label: 'Items Returned',
+                            value: '$_areaReturnedCount',
+                            subtitle: 'Resolved in area',
+                            icon: Icons.handshake_outlined,
+                            color: const Color(0xFF0D9488),
+                            onTap: () {
+                              Navigator.of(context)
+                                  .push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const DashboardScreen(initialTab: 4),
+                                    ),
+                                  )
+                                  .then((_) => _loadRecent());
+                            },
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                    ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
 
                     // Found Near You Header
                     Row(

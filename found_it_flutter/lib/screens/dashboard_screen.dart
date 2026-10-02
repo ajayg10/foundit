@@ -10,7 +10,8 @@ import '../widgets/match_card.dart';
 /// My Items Dashboard — shows all the user's activity in one place:
 /// Lost | Found | Matches | Claims | Returned
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final int initialTab;
+  const DashboardScreen({super.key, this.initialTab = 0});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -19,6 +20,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  bool _filterByCurrentLocation = false;
 
   List<ItemReport> _userReports = [];
   List<MatchDetailsDto> _matches = [];
@@ -38,7 +40,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(
+      length: 5,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 4),
+    );
     _loadAll();
   }
 
@@ -210,34 +216,84 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildReportList(
-    List<ItemReport> reports,
+    List<ItemReport> allReports,
     String emptyMessage,
     IconData emptyIcon,
   ) {
-    if (reports.isEmpty) {
-      return _emptyState(emptyMessage, emptyIcon);
-    }
-    return RefreshIndicator(
-      onRefresh: _loadAll,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: reports.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final report = reports[index];
-          return Stack(
-            children: [
-              ItemCard(report: report),
-              // Status badge
-              Positioned(
-                top: 10,
-                right: 10,
-                child: _statusBadge(report.status),
-              ),
-            ],
-          );
-        },
-      ),
+    final activeLoc = AppState.instance.currentLocation;
+    final filteredReports = _filterByCurrentLocation && activeLoc?.id != null
+        ? allReports.where((r) => r.locationId == activeLoc!.id).toList()
+        : allReports;
+
+    return Column(
+      children: [
+        if (activeLoc != null && allReports.isNotEmpty)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            color: Colors.white,
+            child: Row(
+              children: [
+                FilterChip(
+                  label: Text('All (${allReports.length})'),
+                  selected: !_filterByCurrentLocation,
+                  onSelected: (val) =>
+                      setState(() => _filterByCurrentLocation = false),
+                  selectedColor: AppTheme.primaryDark,
+                  labelStyle: TextStyle(
+                    color: !_filterByCurrentLocation
+                        ? Colors.white
+                        : AppTheme.textMain,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilterChip(
+                  avatar: const Icon(Icons.place, size: 14),
+                  label: Text(
+                    '${activeLoc.name} (${allReports.where((r) => r.locationId == activeLoc.id).length})',
+                  ),
+                  selected: _filterByCurrentLocation,
+                  onSelected: (val) =>
+                      setState(() => _filterByCurrentLocation = true),
+                  selectedColor: const Color(0xFF4F46E5),
+                  labelStyle: TextStyle(
+                    color: _filterByCurrentLocation
+                        ? Colors.white
+                        : AppTheme.textMain,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Expanded(
+          child: filteredReports.isEmpty
+              ? _emptyState(emptyMessage, emptyIcon)
+              : RefreshIndicator(
+                  onRefresh: _loadAll,
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: filteredReports.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final report = filteredReports[index];
+                      return Stack(
+                        children: [
+                          ItemCard(report: report),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: _statusBadge(report.status),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+        ),
+      ],
     );
   }
 

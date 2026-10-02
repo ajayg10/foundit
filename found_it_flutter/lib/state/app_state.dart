@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
+import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 import '../client.dart';
 
 /// App-wide state management for user session, real-time alerts, and demo mode.
@@ -28,6 +29,9 @@ class AppState extends ChangeNotifier {
   // Active current user
   AppUser _currentUser = demoAlice;
   AppUser get currentUser => _currentUser;
+
+  bool _isAuthenticated = false;
+  bool get isAuthenticated => _isAuthenticated;
 
   // Locations state
   Location? _currentLocation;
@@ -66,6 +70,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
+      if (client.auth.isAuthenticated) {
+        _isAuthenticated = true;
+      }
       await _syncUserWithServer();
       await fetchLocations();
       await refreshAll();
@@ -76,6 +83,73 @@ class AppState extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final cleanName = email.split('@').first;
+      final userId =
+          'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase()}';
+      final appUser = await client.user.getOrCreateUser(
+        userId: userId,
+        name: cleanName,
+        email: email.trim(),
+      );
+      _currentUser = appUser;
+      _isAuthenticated = true;
+      await refreshAll();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signUp({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final userId =
+          'user_${email.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_').toLowerCase()}';
+      final appUser = await client.user.getOrCreateUser(
+        userId: userId,
+        name: name.trim(),
+        email: email.trim(),
+      );
+      _currentUser = appUser;
+      _isAuthenticated = true;
+      await refreshAll();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loginAsDemo(AppUser demoUser) async {
+    _currentUser = demoUser;
+    _isAuthenticated = true;
+    notifyListeners();
+    await _syncUserWithServer();
+    await refreshAll();
+  }
+
+  Future<void> signOut() async {
+    try {
+      await client.auth.signOutDevice();
+    } catch (_) {}
+    _currentUser = demoAlice;
+    _isAuthenticated = false;
+    _notificationSubscription?.cancel();
+    _notificationSubscription = null;
+    notifyListeners();
   }
 
   /// Fetches available locations and defaults to IIT Delhi if none selected.

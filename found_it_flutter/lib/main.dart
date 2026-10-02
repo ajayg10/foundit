@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'client.dart';
 import 'screens/home_screen.dart';
+import 'screens/sign_in_screen.dart';
 import 'state/app_state.dart';
 import 'theme/app_theme.dart';
 
@@ -73,11 +74,18 @@ class FoundItApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Found It — AI-Powered Lost & Found',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      home: const HomeScreen(),
+    return ListenableBuilder(
+      listenable: AppState.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Found It — AI-Powered Lost & Found',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          home: AppState.instance.isAuthenticated
+              ? const HomeScreen()
+              : const SignInScreen(),
+        );
+      },
     );
   }
 }

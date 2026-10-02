@@ -1,56 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:serverpod_auth_idp_flutter/serverpod_auth_idp_flutter.dart';
 
-import '../client.dart';
+import '../state/app_state.dart';
 import '../theme/app_theme.dart';
 
-/// Branded sign-in gate. Shows a beautiful splash screen when not authenticated,
-/// and renders [child] once the user is signed in.
+/// Branded sign-in & sign-up screen for Found It.
 class SignInScreen extends StatefulWidget {
-  final Widget child;
-  const SignInScreen({super.key, required this.child});
+  const SignInScreen({super.key});
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
-  bool _isSignedIn = false;
-
-  @override
-  void initState() {
-    super.initState();
-    client.auth.authInfoListenable.addListener(_updateState);
-    _isSignedIn = client.auth.isAuthenticated;
-  }
-
-  @override
-  void dispose() {
-    client.auth.authInfoListenable.removeListener(_updateState);
-    super.dispose();
-  }
-
-  void _updateState() {
-    setState(() => _isSignedIn = client.auth.isAuthenticated);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _isSignedIn ? widget.child : const _AuthGateScreen();
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _AuthGateScreen extends StatefulWidget {
-  const _AuthGateScreen();
-
-  @override
-  State<_AuthGateScreen> createState() => _AuthGateScreenState();
-}
-
-class _AuthGateScreenState extends State<_AuthGateScreen>
+class _SignInScreenState extends State<SignInScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabCtrl;
   bool _obscurePassword = true;
@@ -89,12 +51,10 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
     if (!_signInForm.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
-      final controller = EmailAuthController(
-        client: client,
+      await AppState.instance.signIn(
+        email: _signInEmailCtrl.text.trim(),
+        password: _signInPassCtrl.text,
       );
-      controller.emailController.text = _signInEmailCtrl.text.trim();
-      controller.passwordController.text = _signInPassCtrl.text;
-      await controller.login();
     } catch (e) {
       if (mounted) {
         _showError('Sign-in failed: ${e.toString().split(':').last.trim()}');
@@ -112,21 +72,11 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
     }
     setState(() => _loading = true);
     try {
-      final controller = EmailAuthController(
-        client: client,
+      await AppState.instance.signUp(
+        name: _signUpNameCtrl.text.trim(),
+        email: _signUpEmailCtrl.text.trim(),
+        password: _signUpPassCtrl.text,
       );
-      controller.emailController.text = _signUpEmailCtrl.text.trim();
-      controller.legalNoticeAcceptedNotifier.value = true;
-      await controller.startRegistration();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Registration initiated! Check your email for verification.',
-            ),
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         _showError('Sign-up failed: ${e.toString().split(':').last.trim()}');
@@ -160,7 +110,7 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
             ),
           ),
 
-          // Decorative circles
+          // Decorative shapes
           Positioned(
             top: -60,
             right: -60,
@@ -188,150 +138,199 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
 
           SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 36),
 
-                  // Logo & headline
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6366F1),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4F46E5).withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.find_in_page_rounded,
-                      color: Colors.white,
-                      size: 36,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Found It',
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  Text(
-                    'Lost something? We\'ll help you find it.',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: Colors.white60,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Tab card
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 30,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Tab bar
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(12),
+                      // Logo & branding
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryDark,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4F46E5).withOpacity(0.4),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                            child: TabBar(
-                              controller: _tabCtrl,
-                              indicator: BoxDecoration(
-                                color: AppTheme.primaryDark,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              labelColor: Colors.white,
-                              unselectedLabelColor: AppTheme.textMuted,
-                              dividerColor: Colors.transparent,
-                              labelStyle: GoogleFonts.inter(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 14,
-                              ),
-                              unselectedLabelStyle: GoogleFonts.inter(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                              tabs: const [
-                                Tab(text: 'Sign In'),
-                                Tab(text: 'Sign Up'),
-                              ],
-                            ),
-                          ),
+                          ],
                         ),
-                        // Tab views
-                        SizedBox(
-                          height: 380,
-                          child: TabBarView(
-                            controller: _tabCtrl,
-                            children: [
-                              _buildSignInForm(),
-                              _buildSignUpForm(),
-                            ],
-                          ),
+                        child: const Icon(
+                          Icons.radar_rounded,
+                          color: Colors.white,
+                          size: 34,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Found It',
+                        style: GoogleFonts.outfit(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Campus & Workplace Lost-and-Found Network',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: Colors.white60,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
 
-                  // Demo note
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline_rounded,
+                      // Auth card
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            // Tab bar
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF1F5F9),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: TabBar(
+                                  controller: _tabCtrl,
+                                  indicator: BoxDecoration(
+                                    color: AppTheme.primaryDark,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor: AppTheme.textMuted,
+                                  dividerColor: Colors.transparent,
+                                  labelStyle: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                  unselectedLabelStyle: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                  ),
+                                  tabs: const [
+                                    Tab(text: 'Sign In'),
+                                    Tab(text: 'Sign Up'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Tab views
+                            SizedBox(
+                              height: 390,
+                              child: TabBarView(
+                                controller: _tabCtrl,
+                                children: [
+                                  _buildSignInForm(),
+                                  _buildSignUpForm(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Quick Demo Section
+                      Text(
+                        '— OR TEST WITH DEMO PERSONA —',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
                           color: Colors.white54,
-                          size: 16,
+                          letterSpacing: 1.0,
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'For demo: use any email + password. No real email verification required.',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.white60,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(color: Colors.white24),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.person,
+                                color: AppTheme.lostRed,
+                                size: 18,
+                              ),
+                              label: Text(
+                                'Alice (Lost)',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              onPressed: () => AppState.instance.loginAsDemo(
+                                AppState.demoAlice,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                side: const BorderSide(color: Colors.white24),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.person,
+                                color: AppTheme.recoveryGreen,
+                                size: 18,
+                              ),
+                              label: Text(
+                                'Bob (Found)',
+                                style: GoogleFonts.inter(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              onPressed: () => AppState.instance.loginAsDemo(
+                                AppState.demoBob,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   ),
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
             ),
           ),
@@ -348,11 +347,11 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _fieldLabel('Email'),
+            _fieldLabel('Email Address'),
             const SizedBox(height: 6),
             _textField(
               controller: _signInEmailCtrl,
-              hint: 'you@email.com',
+              hint: 'you@campus.edu',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (v) =>
@@ -378,7 +377,7 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
               validator: (v) =>
-                  (v != null && v.length >= 6) ? null : 'Min 6 characters',
+                  (v != null && v.length >= 4) ? null : 'Min 4 characters',
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -430,18 +429,18 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
             const SizedBox(height: 6),
             _textField(
               controller: _signUpNameCtrl,
-              hint: 'Ajay Kumar',
+              hint: 'Your Name',
               icon: Icons.person_outline_rounded,
               validator: (v) => (v != null && v.trim().length >= 2)
                   ? null
                   : 'Enter your name',
             ),
             const SizedBox(height: 12),
-            _fieldLabel('Email'),
+            _fieldLabel('Email Address'),
             const SizedBox(height: 6),
             _textField(
               controller: _signUpEmailCtrl,
-              hint: 'you@email.com',
+              hint: 'you@campus.edu',
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               validator: (v) =>
@@ -467,7 +466,7 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                     setState(() => _obscurePassword = !_obscurePassword),
               ),
               validator: (v) =>
-                  (v != null && v.length >= 6) ? null : 'Min 6 characters',
+                  (v != null && v.length >= 4) ? null : 'Min 4 characters',
             ),
             const SizedBox(height: 12),
             _fieldLabel('Confirm Password'),
@@ -489,7 +488,7 @@ class _AuthGateScreenState extends State<_AuthGateScreen>
                     setState(() => _obscureConfirm = !_obscureConfirm),
               ),
               validator: (v) =>
-                  (v != null && v.length >= 6) ? null : 'Min 6 characters',
+                  (v != null && v.length >= 4) ? null : 'Min 4 characters',
             ),
             const SizedBox(height: 18),
             SizedBox(
