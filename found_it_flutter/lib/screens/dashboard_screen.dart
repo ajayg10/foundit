@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
 import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/match_card.dart';
@@ -74,31 +72,29 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+    final colors = context.colors;
+
+    return AppScaffold(
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             expandedHeight: 200,
             floating: false,
             pinned: true,
-            backgroundColor: AppTheme.primaryDark,
-            foregroundColor: Colors.white,
+            backgroundColor: colors.brand,
+            foregroundColor: colors.onBrand,
             title: Text(
               'My Dashboard',
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
+              style: AppText.h3(colors.onBrand),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: _buildStatsHeader(),
+              background: _buildStatsHeader(colors),
             ),
             bottom: TabBar(
               controller: _tabController,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white60,
-              indicatorColor: Colors.white,
+              labelColor: colors.onBrand,
+              unselectedLabelColor: colors.onBrandMuted,
+              indicatorColor: colors.onBrand,
               indicatorWeight: 3,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
@@ -146,33 +142,41 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildStatsHeader() {
+  Widget _buildStatsHeader(AppSemantic colors) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF4F46E5),
+      decoration: BoxDecoration(
+        color: colors.brand,
       ),
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 60, 20, 0),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.s20,
+            60,
+            AppSpacing.s20,
+            0,
+          ),
           child: Row(
             children: [
               _statTile(
                 '${_lostCount + _foundCount}',
                 'Total\nReports',
                 Icons.article_outlined,
+                colors,
               ),
-              const SizedBox(width: 12),
+              AppSpacing.hGap12,
               _statTile(
                 '$_matchedCount',
                 'Matches\nFound',
                 Icons.auto_awesome_rounded,
+                colors,
               ),
-              const SizedBox(width: 12),
+              AppSpacing.hGap12,
               _statTile(
                 '$_returnedCount',
                 'Items\nReturned',
                 Icons.check_circle_rounded,
+                colors,
               ),
             ],
           ),
@@ -181,34 +185,37 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _statTile(String value, String label, IconData icon) {
+  Widget _statTile(
+    String value,
+    String label,
+    IconData icon,
+    AppSemantic colors,
+  ) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.s12,
+          horizontal: 10,
+        ),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.12),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+          color: colors.onBrand.withAlpha(30),
+          borderRadius: AppRadius.buttonBr,
+          border: Border.all(color: colors.onBrand.withAlpha(50), width: 1),
         ),
         child: Column(
           children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(height: 6),
+            Icon(icon, color: colors.onBrand, size: 22),
+            AppSpacing.gap4,
             Text(
               value,
-              style: GoogleFonts.outfit(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-              ),
+              style: AppText.h2(colors.onBrand),
             ),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                color: Colors.white70,
-              ),
+              style: AppText.caption(
+                colors.onBrandMuted,
+              ).copyWith(fontSize: 10),
             ),
           ],
         ),
@@ -230,41 +237,26 @@ class _DashboardScreenState extends State<DashboardScreen>
       children: [
         if (activeLoc != null && allReports.isNotEmpty)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            color: Colors.white,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.s16,
+              vertical: AppSpacing.s8,
+            ),
+            color: context.colors.surface,
             child: Row(
               children: [
-                FilterChip(
-                  label: Text('All (${allReports.length})'),
+                AppChip(
+                  label: 'All (${allReports.length})',
                   selected: !_filterByCurrentLocation,
                   onSelected: (val) =>
                       setState(() => _filterByCurrentLocation = false),
-                  selectedColor: AppTheme.primaryDark,
-                  labelStyle: TextStyle(
-                    color: !_filterByCurrentLocation
-                        ? Colors.white
-                        : AppTheme.textMain,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
-                const SizedBox(width: 8),
-                FilterChip(
-                  avatar: const Icon(Icons.place, size: 14),
-                  label: Text(
-                    '${activeLoc.name} (${allReports.where((r) => r.locationId == activeLoc.id).length})',
-                  ),
+                AppSpacing.hGap8,
+                AppChip(
+                  label:
+                      '${activeLoc.name} (${allReports.where((r) => r.locationId == activeLoc.id).length})',
                   selected: _filterByCurrentLocation,
                   onSelected: (val) =>
                       setState(() => _filterByCurrentLocation = true),
-                  selectedColor: const Color(0xFF4F46E5),
-                  labelStyle: TextStyle(
-                    color: _filterByCurrentLocation
-                        ? Colors.white
-                        : AppTheme.textMain,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
               ],
             ),
@@ -279,9 +271,9 @@ class _DashboardScreenState extends State<DashboardScreen>
               : RefreshIndicator(
                   onRefresh: _loadAll,
                   child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.s16),
                     itemCount: filteredReports.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    separatorBuilder: (_, __) => AppSpacing.gap12,
                     itemBuilder: (context, index) {
                       final report = filteredReports[index];
                       return Stack(
@@ -290,7 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           Positioned(
                             top: 10,
                             right: 10,
-                            child: _statusBadge(report.status),
+                            child: StatusBadge(status: report.status),
                           ),
                         ],
                       );
@@ -300,43 +292,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),
       ],
     );
-  }
-
-  Widget _statusBadge(String status) {
-    final config = _statusConfig(status);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: config.$1.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: config.$1.withOpacity(0.3)),
-      ),
-      child: Text(
-        config.$2,
-        style: GoogleFonts.inter(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: config.$1,
-        ),
-      ),
-    );
-  }
-
-  (Color, String) _statusConfig(String status) {
-    switch (status) {
-      case 'open':
-        return (Colors.blue, 'Open');
-      case 'matched':
-        return (Colors.orange, 'Matched');
-      case 'claimPending':
-        return (Colors.purple, 'Claim Pending');
-      case 'verified':
-        return (Colors.teal, 'Verified');
-      case 'returned':
-        return (AppTheme.recoveryGreen, 'Returned ✓');
-      default:
-        return (AppTheme.textMuted, status);
-    }
   }
 
   Widget _buildMatchesList() {
@@ -350,9 +305,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     return RefreshIndicator(
       onRefresh: _loadAll,
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.s16),
         itemCount: _matches.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, __) => AppSpacing.gap12,
         itemBuilder: (context, index) {
           final dto = _matches[index];
           return MatchCard(
