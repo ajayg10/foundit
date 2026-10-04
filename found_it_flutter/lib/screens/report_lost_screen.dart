@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/location_picker.dart';
 import '../widgets/photo_picker.dart';
 
@@ -130,44 +129,37 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: AppTheme.recoveryGreen.withOpacity(0.12),
+                  color: context.colors.success.withAlpha(30),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle,
-                  color: AppTheme.recoveryGreen,
+                  color: context.colors.success,
                   size: 40,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               Text(
                 'Lost Report Submitted!',
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
-                ),
+                style: AppText.h3(context.colors.ink),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
               Text(
                 'Serverpod is now automatically analyzing and matching this item with reported found items.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.body(context.colors.muted),
               ),
-              const SizedBox(height: 24),
+              AppSpacing.gap24,
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
+                  label: 'View Home & Matches',
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('View Home & Matches'),
                 ),
               ),
             ],
@@ -185,33 +177,31 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final colors = context.colors;
+
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           'I Lost Something',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+          style: AppText.h3(colors.ink),
         ),
         actions: [
           TextButton.icon(
             onPressed: _fillSampleLostBackpack,
-            icon: const Icon(
+            icon: Icon(
               Icons.flash_on,
               size: 16,
-              color: AppTheme.warningAmber,
+              color: colors.warning,
             ),
             label: Text(
               'Fill Demo',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.warningAmber,
-              ),
+              style: AppText.label(colors.warning),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.s20),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
@@ -221,101 +211,92 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(AppSpacing.s12),
                     decoration: BoxDecoration(
-                      color: AppTheme.lostRed.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.lostRed.withOpacity(0.2),
-                      ),
+                      color: colors.lostSoft,
+                      borderRadius: AppRadius.panelBr,
+                      border: Border.all(color: colors.lost.withAlpha(50)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
-                          color: AppTheme.lostRed,
+                          color: colors.lost,
                           size: 20,
                         ),
-                        const SizedBox(width: 10),
+                        AppSpacing.hGap8,
                         Expanded(
                           child: Text(
                             'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppTheme.textMain,
-                            ),
+                            style: AppText.caption(colors.ink),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.gap24,
 
                   // Title
-                  Text(
-                    'Item Title *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
+                  AppTextField(
+                    label: 'Item Title *',
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. Black Wildcraft Backpack, Blue iPhone 13',
-                      prefixIcon: Icon(Icons.title, size: 18),
-                    ),
+                    hint: 'e.g. Black Wildcraft Backpack, Blue iPhone 13',
+                    prefixIcon: const Icon(Icons.title, size: 18),
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Please enter item title'
                         : null,
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Description
-                  Text(
-                    'Description & Distinguishing Features *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
+                  AppTextField(
+                    label: 'Description & Distinguishing Features *',
                     controller: _descController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Describe color, brand, stickers, scratches, or attachments...',
-                    ),
+                    hint:
+                        'Describe color, brand, stickers, scratches, or attachments...',
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Please enter a description'
                         : null,
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Category
                   Text(
                     'Category *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppText.label(colors.ink),
                   ),
-                  const SizedBox(height: 6),
+                  AppSpacing.gap8,
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.category_outlined, size: 18),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.category_outlined, size: 18),
+                      filled: true,
+                      fillColor: colors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.line),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.line),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.brand, width: 2),
+                      ),
                     ),
                     items: _categories.map((c) {
-                      return DropdownMenuItem(value: c, child: Text(c));
+                      return DropdownMenuItem(
+                        value: c,
+                        child: Text(c, style: AppText.body(colors.ink)),
+                      );
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _selectedCategory = v);
                     },
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Location Picker
                   LocationPickerWidget(
@@ -332,17 +313,14 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Date and Time
                   Text(
                     'Approximate Date & Time Lost *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppText.label(colors.ink),
                   ),
-                  const SizedBox(height: 6),
+                  AppSpacing.gap8,
                   InkWell(
                     onTap: () async {
                       final pickedDate = await showDatePicker(
@@ -371,45 +349,42 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                         }
                       }
                     },
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.buttonBr,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
+                        horizontal: AppSpacing.s16,
+                        vertical: AppSpacing.s12,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.borderLight),
+                        color: colors.surface,
+                        borderRadius: AppRadius.buttonBr,
+                        border: Border.all(color: colors.line),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.calendar_today,
                             size: 18,
-                            color: AppTheme.primaryBlue,
+                            color: colors.brand,
                           ),
-                          const SizedBox(width: 12),
+                          AppSpacing.hGap12,
                           Text(
                             DateFormat(
                               'EEEE, MMM d, yyyy • h:mm a',
                             ).format(_eventTime),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppTheme.textMain,
-                            ),
+                            style: AppText.body(colors.ink),
                           ),
                           const Spacer(),
-                          const Icon(
+                          Icon(
                             Icons.edit,
                             size: 16,
-                            color: AppTheme.textMuted,
+                            color: colors.muted,
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Photo Picker (Camera + Gallery)
                   PhotoPickerWidget(
@@ -418,33 +393,15 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                       setState(() => _imageUrl = url);
                     },
                   ),
-                  const SizedBox(height: 28),
+                  AppSpacing.gap24,
 
                   // Submit Button
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: AppButton(
+                      label: 'Submit Lost Report & Find Matches',
                       onPressed: _isSubmitting ? null : _submitReport,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryDark,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Submit Lost Report & Find Matches',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                      loading: _isSubmitting,
                     ),
                   ),
                 ],
