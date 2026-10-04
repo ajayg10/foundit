@@ -17,6 +17,7 @@ class _MyReportsScreenState extends State<MyReportsScreen>
   late TabController _tabController;
   List<ItemReport> _userReports = [];
   bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
@@ -32,13 +33,17 @@ class _MyReportsScreenState extends State<MyReportsScreen>
   }
 
   Future<void> _loadUserReports() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final reports = await client.report.listUserReports(
         AppState.instance.currentUser.userId,
       );
       setState(() => _userReports = reports);
     } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
       debugPrint('Error loading user reports: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -57,40 +62,52 @@ class _MyReportsScreenState extends State<MyReportsScreen>
     final colors = context.colors;
 
     return AppScaffold(
-      appBar: AppBar(
-        title: Text(
-          'My Activity & Reports',
-          style: AppText.h3(colors.ink),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: colors.brand,
-          unselectedLabelColor: colors.muted,
-          indicatorColor: colors.brand,
-          indicatorWeight: 3,
-          labelStyle: AppText.label(colors.brand),
-          unselectedLabelStyle: AppText.label(colors.muted),
-          tabs: [
-            Tab(text: 'Lost Items (${lostReports.length})'),
-            Tab(text: 'Found Items (${foundReports.length})'),
-          ],
-        ),
+      appBar: AppTopBar(
+        title: 'My Activity & Reports',
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
+      body: Column(
+        children: [
+          Container(
+            color: colors.surface,
+            child: TabBar(
               controller: _tabController,
-              children: [
-                _buildReportList(
-                  lostReports,
-                  'You haven\'t reported any lost items yet.',
-                ),
-                _buildReportList(
-                  foundReports,
-                  'You haven\'t posted any found items yet.',
-                ),
+              labelColor: colors.brand,
+              unselectedLabelColor: colors.muted,
+              indicatorColor: colors.brand,
+              indicatorWeight: 3,
+              labelStyle: AppText.label(colors.brand),
+              unselectedLabelStyle: AppText.label(colors.muted),
+              tabs: [
+                Tab(text: 'Lost Items (${lostReports.length})'),
+                Tab(text: 'Found Items (${foundReports.length})'),
               ],
             ),
+          ),
+          Divider(height: 1, color: colors.line),
+          Expanded(
+            child: _isLoading && _userReports.isEmpty
+                ? const SkeletonList()
+                : _error != null && _userReports.isEmpty
+                ? ErrorState(
+                    message: _error!,
+                    onRetry: _loadUserReports,
+                  )
+                : TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildReportList(
+                        lostReports,
+                        'You haven\'t reported any lost items yet.',
+                      ),
+                      _buildReportList(
+                        foundReports,
+                        'You haven\'t posted any found items yet.',
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 

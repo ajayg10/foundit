@@ -226,7 +226,7 @@ class _SignInScreenState extends State<SignInScreen>
                                   indicatorSize: TabBarIndicatorSize.tab,
                                   labelColor: colors.ink,
                                   unselectedLabelColor: colors.muted,
-                                  dividerColor: Colors.transparent,
+                                  dividerColor: const Color(0x00000000),
                                   labelStyle: AppText.label(
                                     colors.ink,
                                   ).copyWith(fontWeight: FontWeight.w700),
