@@ -7,6 +7,7 @@ import 'ui/ui.dart'; // new design-system
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ThemeModeController.instance.init();
 
   // Global error handler to catch and display any render errors clearly
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -15,59 +16,52 @@ void main() async {
     debugPrint('FLUTTER_STACK: ${details.stack}');
   };
 
-  // Keep the error widget surface readable without hardcoded colors.
-  // We read brightness from the View instead of a context here, so
-  // raw constant colors are the only option — exempt from the no-hardcoded rule.
   ErrorWidget.builder = (FlutterErrorDetails details) {
-    const errorBg = Color(0xFFFEF2F2);
-    const errorFg = Color(0xFF991B1B);
-    const errorStack = Color(0xFF7F1D1D);
+    return Builder(
+      builder: (context) {
+        final ext = Theme.of(context).extension<AppSemantic>();
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        final colors = ext ?? (isDark ? AppSemantic.dark : AppSemantic.light);
 
-    return Material(
-      color: errorBg,
-      child: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
+        return Material(
+          color: colors.errorSoft,
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.s24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red, size: 28),
-                  SizedBox(width: 8),
-                  Text(
-                    'Render Error Encountered',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                  Row(
+                    children: [
+                      Icon(Icons.error_outline, color: colors.error, size: 28),
+                      AppSpacing.hGap8,
+                      Text(
+                        'Render Error Encountered',
+                        style: AppText.h3(colors.error),
+                      ),
+                    ],
+                  ),
+                  AppSpacing.gap12,
+                  SelectableText(
+                    details.exceptionAsString(),
+                    style: AppText.body(colors.error).copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  AppSpacing.gap12,
+                  SelectableText(
+                    details.stack?.toString() ?? 'No stack trace available',
+                    style: AppText.caption(colors.error).copyWith(
+                      fontFamily: 'monospace',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SelectableText(
-                details.exceptionAsString(),
-                style: const TextStyle(
-                  color: errorFg,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SelectableText(
-                details.stack?.toString() ?? 'No stack trace available',
-                style: const TextStyle(
-                  color: errorStack,
-                  fontFamily: 'monospace',
-                  fontSize: 11,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   };
 

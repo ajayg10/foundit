@@ -87,7 +87,7 @@ class _SignInScreenState extends State<SignInScreen>
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg, style: AppText.body(Colors.white)),
+        content: Text(msg, style: AppText.body(context.colors.surface)),
         backgroundColor: context.colors.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: AppRadius.tileBr),

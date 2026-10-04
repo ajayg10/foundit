@@ -75,7 +75,9 @@ class AppNavRail extends StatelessWidget {
                           horizontal: extended ? AppSpacing.s16 : 0,
                         ),
                         decoration: BoxDecoration(
-                          color: isSelected ? colors.brand.withAlpha(25) : Colors.transparent,
+                          color: isSelected
+                              ? colors.brand.withAlpha(25)
+                              : Colors.transparent,
                           borderRadius: AppRadius.tileBr,
                         ),
                         child: extended
@@ -83,19 +85,32 @@ class AppNavRail extends StatelessWidget {
                                 children: [
                                   Icon(
                                     isSelected ? dest.selectedIcon : dest.icon,
-                                    color: isSelected ? colors.brand : colors.muted,
+                                    color: isSelected
+                                        ? colors.brand
+                                        : colors.muted,
                                   ),
                                   AppSpacing.hGap16,
                                   Expanded(
                                     child: Text(
                                       dest.label,
-                                      style: AppText.body(isSelected ? colors.brand : colors.muted)
-                                          .copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
+                                      style:
+                                          AppText.body(
+                                            isSelected
+                                                ? colors.brand
+                                                : colors.muted,
+                                          ).copyWith(
+                                            fontWeight: isSelected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
+                                          ),
                                     ),
                                   ),
                                   if (dest.badgeCount > 0)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: colors.brand,
                                         borderRadius: BorderRadius.circular(10),
@@ -115,8 +130,12 @@ class AppNavRail extends StatelessWidget {
                                     label: Text('${dest.badgeCount}'),
                                     backgroundColor: colors.brand,
                                     child: Icon(
-                                      isSelected ? dest.selectedIcon : dest.icon,
-                                      color: isSelected ? colors.brand : colors.muted,
+                                      isSelected
+                                          ? dest.selectedIcon
+                                          : dest.icon,
+                                      color: isSelected
+                                          ? colors.brand
+                                          : colors.muted,
                                     ),
                                   ),
                                   AppSpacing.gap4,
@@ -124,8 +143,12 @@ class AppNavRail extends StatelessWidget {
                                     dest.label,
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: isSelected ? colors.brand : colors.muted,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                      color: isSelected
+                                          ? colors.brand
+                                          : colors.muted,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
                                     ),
                                     textAlign: TextAlign.center,
                                     maxLines: 1,

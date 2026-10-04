@@ -143,7 +143,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: context.colors.line,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -350,17 +350,17 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                 // Upload progress overlay
                 if (_isUploading)
                   Container(
-                    color: Colors.black.withOpacity(0.45),
+                    color: colors.scrim,
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 32,
                             height: 32,
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
-                              color: Colors.white,
+                              color: colors.onImage,
                             ),
                           ),
                           AppSpacing.gap8,
@@ -390,7 +390,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         borderRadius: AppRadius.pillBr,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: colors.scrim.withAlpha(50),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -430,12 +430,12 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
+                            color: colors.scrim,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
-                            color: Colors.white,
+                            color: colors.onImage,
                             size: 18,
                           ),
                         ),
@@ -459,21 +459,21 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
+                            color: colors.scrim,
                             borderRadius: AppRadius.pillBr,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.refresh,
-                                color: Colors.white,
+                                color: colors.onImage,
                                 size: 16,
                               ),
                               AppSpacing.hGap4,
                               Text(
                                 'Replace',
-                                style: AppText.caption(Colors.white).copyWith(
+                                style: AppText.caption(colors.onImage).copyWith(
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),

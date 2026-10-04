@@ -331,250 +331,265 @@ class _HomeScreenState extends State<HomeScreen> {
 
         void handleNav(int index) {
           if (index == 1) {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PublicBoardScreen())).then((_) => _loadRecent());
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(builder: (_) => const PublicBoardScreen()),
+                )
+                .then((_) => _loadRecent());
           } else if (index == 2) {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const MatchesScreen())).then((_) => _loadRecent());
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const MatchesScreen()))
+                .then((_) => _loadRecent());
           } else if (index == 3) {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const DashboardScreen())).then((_) => _loadRecent());
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                )
+                .then((_) => _loadRecent());
           }
         }
 
         Widget content = SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: isTablet ? 32 : 20, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 32 : 20,
+            vertical: 12,
+          ),
           child: ContentConstraint(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: MediaQuery.of(context).padding.top),
                 BrandHeader(
-                      onUserSwitch: _showUserSwitcherSheet,
-                      onLocationChanged: () {
-                        if (mounted) _loadRecent();
-                      },
-                      onDemoSeed: () async {
-                        await AppState.instance.resetDemoData();
-                        _loadRecent();
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Demo scenario seeded! Check Public Board & Matches.',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    AppSpacing.gap24,
-                    TicketHero(
-                      onLostTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const ReportLostScreen(),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                      onFoundTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const ReportFoundScreen(),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                    ),
-                    const SizedBox(height: 20),
+                  onUserSwitch: _showUserSwitcherSheet,
+                  onLocationChanged: () {
+                    if (mounted) _loadRecent();
+                  },
+                  onDemoSeed: () async {
+                    await AppState.instance.resetDemoData();
+                    _loadRecent();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Demo scenario seeded! Check Public Board & Matches.',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                AppSpacing.gap24,
+                TicketHero(
+                  onLostTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => const ReportLostScreen(),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                  onFoundTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => const ReportFoundScreen(),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                ),
+                const SizedBox(height: 20),
 
-                    // Live Match Discovery Banner (if matches exist)
-                    if (matches.isNotEmpty) ...[
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const MatchesScreen(),
-                            ),
-                          );
-                        },
+                // Live Match Discovery Banner (if matches exist)
+                if (matches.isNotEmpty) ...[
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const MatchesScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: AppRadius.tileBr,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.s16),
+                      decoration: BoxDecoration(
+                        color: colors.brand.withAlpha(20),
                         borderRadius: AppRadius.tileBr,
-                        child: Container(
-                          padding: const EdgeInsets.all(AppSpacing.s16),
-                          decoration: BoxDecoration(
-                            color: colors.brand.withAlpha(20),
-                            borderRadius: AppRadius.tileBr,
-                            border: Border.all(
-                              color: colors.brand.withAlpha(50),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(AppSpacing.s8),
-                                decoration: BoxDecoration(
-                                  color: colors.brand,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  Icons.auto_awesome,
-                                  color: colors.onBrand,
-                                  size: 22,
-                                ),
-                              ),
-                              AppSpacing.hGap12,
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${matches.length} Potential Match${matches.length == 1 ? '' : 'es'} Discovered!',
-                                      style: AppText.h3(colors.ink),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Top match: ${(matches.first.match.confidenceScore * 100).round()}% confidence (${matches.first.lostReport.title} & ${matches.first.foundReport.title})',
-                                      style: AppText.caption(colors.brand),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color: colors.brand,
-                              ),
-                            ],
-                          ),
+                        border: Border.all(
+                          color: colors.brand.withAlpha(50),
                         ),
                       ),
-                      const SizedBox(height: 20),
-                    ],
-
-                    // Platform & Area Metrics
-                    StatBento(
-                      matchedCount: _areaMatchedCount,
-                      lostCount: _userLostCount,
-                      foundCount: _areaFoundCount,
-                      returnedCount: _areaReturnedCount,
-                      locationName: AppState.instance.currentLocation?.name ?? "this area",
-                      onMatchesTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const MatchesScreen(),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                      onLostTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const DashboardScreen(initialTab: 0),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                      onFoundTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const PublicBoardScreen(),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                      onReturnedTap: () {
-                        Navigator.of(context)
-                            .push(
-                              MaterialPageRoute(
-                                builder: (_) => const DashboardScreen(initialTab: 4),
-                              ),
-                            )
-                            .then((_) => _loadRecent());
-                      },
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Found Near You Header
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Found at ${AppState.instance.currentLocation?.name ?? "Campus"}',
-                                style: AppText.h2(colors.ink),
-                              ),
-                              Text(
-                                'Recently posted found items in this location',
-                                style: AppText.caption(colors.muted),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 120),
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .push(
-                                    MaterialPageRoute(
-                                      builder: (_) => const PublicBoardScreen(),
-                                    ),
-                                  )
-                                  .then((_) => _loadRecent());
-                            },
-                            child: const Text(
-                              'View All Board',
-                              textAlign: TextAlign.center,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.s8),
+                            decoration: BoxDecoration(
+                              color: colors.brand,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.auto_awesome,
+                              color: colors.onBrand,
+                              size: 22,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    AppSpacing.gap12,
-
-                    // Found Items Cards
-                    if (_isLoadingRecent)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(32),
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    else if (_recentFoundItems.isEmpty)
-                      const EmptyState(
-                        title: 'No Items',
-                        body:
-                            'No items currently on the board. Post one or click Seed Demo Data!',
-                        icon: Icons.inventory_2_outlined,
-                      )
-                    else
-                      Column(
-                        children: _recentFoundItems
-                            .map(
-                              (item) => Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: ItemCard(
-                                  report: item,
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (_) =>
-                                            const PublicBoardScreen(),
-                                      ),
-                                    );
-                                  },
+                          AppSpacing.hGap12,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${matches.length} Potential Match${matches.length == 1 ? '' : 'es'} Discovered!',
+                                  style: AppText.h3(colors.ink),
                                 ),
-                              ),
-                            )
-                            .toList(),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Top match: ${(matches.first.match.confidenceScore * 100).round()}% confidence (${matches.first.lostReport.title} & ${matches.first.foundReport.title})',
+                                  style: AppText.caption(colors.brand),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
+                            color: colors.brand,
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+
+                // Platform & Area Metrics
+                StatBento(
+                  matchedCount: _areaMatchedCount,
+                  lostCount: _userLostCount,
+                  foundCount: _areaFoundCount,
+                  returnedCount: _areaReturnedCount,
+                  locationName:
+                      AppState.instance.currentLocation?.name ?? "this area",
+                  onMatchesTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => const MatchesScreen(),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                  onLostTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const DashboardScreen(initialTab: 0),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                  onFoundTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) => const PublicBoardScreen(),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                  onReturnedTap: () {
+                    Navigator.of(context)
+                        .push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                const DashboardScreen(initialTab: 4),
+                          ),
+                        )
+                        .then((_) => _loadRecent());
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Found Near You Header
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Found at ${AppState.instance.currentLocation?.name ?? "Campus"}',
+                            style: AppText.h2(colors.ink),
+                          ),
+                          Text(
+                            'Recently posted found items in this location',
+                            style: AppText.caption(colors.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 120),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context)
+                              .push(
+                                MaterialPageRoute(
+                                  builder: (_) => const PublicBoardScreen(),
+                                ),
+                              )
+                              .then((_) => _loadRecent());
+                        },
+                        child: const Text(
+                          'View All Board',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                AppSpacing.gap12,
+
+                // Found Items Cards
+                if (_isLoadingRecent)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(32),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (_recentFoundItems.isEmpty)
+                  const EmptyState(
+                    title: 'No Items',
+                    body:
+                        'No items currently on the board. Post one or click Seed Demo Data!',
+                    icon: Icons.inventory_2_outlined,
+                  )
+                else
+                  Column(
+                    children: _recentFoundItems
+                        .map(
+                          (item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: ItemCard(
+                              report: item,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const PublicBoardScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
               ],
             ),
           ),

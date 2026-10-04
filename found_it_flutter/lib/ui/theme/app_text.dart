@@ -82,6 +82,14 @@ abstract final class AppText {
     color: ink,
   );
 
+  static TextStyle micro(Color ink) => GoogleFonts.hankenGrotesk(
+    fontSize: 10,
+    height: 1.2,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.5,
+    color: ink,
+  );
+
   // ── Helper: build a full TextTheme for ThemeData ─────────────────────
   static TextTheme buildTextTheme(Color ink, Color muted) {
     return TextTheme(

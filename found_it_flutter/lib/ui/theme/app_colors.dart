@@ -22,6 +22,8 @@ abstract final class AppColorsLight {
   static const warningSoft = Color(0xFFFFF3D9);
   static const error = Color(0xFF8B1C2E); // darker than lost to differentiate
   static const errorSoft = Color(0xFFFAE4E8);
+  static const scrim = Color(0x66000000); // 40% black
+  static const onImage = Color(0xFFFFFFFF);
 }
 
 abstract final class AppColorsDark {
@@ -44,4 +46,6 @@ abstract final class AppColorsDark {
   static const warningSoft = Color(0xFF2A1F00);
   static const error = Color(0xFFFF8F9E); // lighter than lost for dark bg
   static const errorSoft = Color(0xFF32141A);
+  static const scrim = Color(0xB3000000); // 70% black
+  static const onImage = Color(0xFFE8EDEE);
 }

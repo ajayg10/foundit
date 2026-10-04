@@ -37,25 +37,28 @@ void main() {
     );
   }
 
-
   group('Responsive component tests', () {
     for (final sizeEntry in sizes.entries) {
       for (final scaleEntry in scales.entries) {
         final desc = '${sizeEntry.key} at ${scaleEntry.key}';
 
-        testWidgets('AppButton responsive - $desc', (WidgetTester tester) async {
+        testWidgets('AppButton responsive - $desc', (
+          WidgetTester tester,
+        ) async {
           tester.view.physicalSize = sizeEntry.value;
           tester.view.devicePixelRatio = 1.0;
 
-          await tester.pumpWidget(wrap(
-            AppButton(
-              onPressed: () {},
-              label: 'Test Button',
-              icon: Icons.check,
+          await tester.pumpWidget(
+            wrap(
+              AppButton(
+                onPressed: () {},
+                label: 'Test Button',
+                icon: Icons.check,
+              ),
+              sizeEntry.value,
+              scaleEntry.value,
             ),
-            sizeEntry.value,
-            scaleEntry.value,
-          ));
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           addTearDown(tester.view.resetPhysicalSize);
@@ -65,74 +68,88 @@ void main() {
           tester.view.physicalSize = sizeEntry.value;
           tester.view.devicePixelRatio = 1.0;
 
-          await tester.pumpWidget(wrap(
-            AppChip(
-              label: 'Test Chip',
-              selected: false,
-              onSelected: (v) {},
+          await tester.pumpWidget(
+            wrap(
+              AppChip(
+                label: 'Test Chip',
+                selected: false,
+                onSelected: (v) {},
+              ),
+              sizeEntry.value,
+              scaleEntry.value,
             ),
-            sizeEntry.value,
-            scaleEntry.value,
-          ));
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           addTearDown(tester.view.resetPhysicalSize);
         });
 
-        testWidgets('BrandHeader responsive - $desc', (WidgetTester tester) async {
+        testWidgets('BrandHeader responsive - $desc', (
+          WidgetTester tester,
+        ) async {
           tester.view.physicalSize = sizeEntry.value;
           tester.view.devicePixelRatio = 1.0;
 
-          await tester.pumpWidget(wrap(
-            BrandHeader(
-              onUserSwitch: () {},
-              onDemoSeed: () {},
-              onLocationChanged: () {},
+          await tester.pumpWidget(
+            wrap(
+              BrandHeader(
+                onUserSwitch: () {},
+                onDemoSeed: () {},
+                onLocationChanged: () {},
+              ),
+              sizeEntry.value,
+              scaleEntry.value,
             ),
-            sizeEntry.value,
-            scaleEntry.value,
-          ));
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           addTearDown(tester.view.resetPhysicalSize);
         });
 
-        testWidgets('TicketHero responsive - $desc', (WidgetTester tester) async {
+        testWidgets('TicketHero responsive - $desc', (
+          WidgetTester tester,
+        ) async {
           tester.view.physicalSize = sizeEntry.value;
           tester.view.devicePixelRatio = 1.0;
 
-          await tester.pumpWidget(wrap(
-            TicketHero(
-              onLostTap: () {},
-              onFoundTap: () {},
+          await tester.pumpWidget(
+            wrap(
+              TicketHero(
+                onLostTap: () {},
+                onFoundTap: () {},
+              ),
+              sizeEntry.value,
+              scaleEntry.value,
             ),
-            sizeEntry.value,
-            scaleEntry.value,
-          ));
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           addTearDown(tester.view.resetPhysicalSize);
         });
 
-        testWidgets('StatBento responsive - $desc', (WidgetTester tester) async {
+        testWidgets('StatBento responsive - $desc', (
+          WidgetTester tester,
+        ) async {
           tester.view.physicalSize = sizeEntry.value;
           tester.view.devicePixelRatio = 1.0;
 
-          await tester.pumpWidget(wrap(
-            StatBento(
-              matchedCount: 10,
-              lostCount: 5,
-              foundCount: 5,
-              returnedCount: 5,
-              locationName: 'Test Location',
-              onMatchesTap: () {},
-              onLostTap: () {},
-              onFoundTap: () {},
-              onReturnedTap: () {},
+          await tester.pumpWidget(
+            wrap(
+              StatBento(
+                matchedCount: 10,
+                lostCount: 5,
+                foundCount: 5,
+                returnedCount: 5,
+                locationName: 'Test Location',
+                onMatchesTap: () {},
+                onLostTap: () {},
+                onFoundTap: () {},
+                onReturnedTap: () {},
+              ),
+              sizeEntry.value,
+              scaleEntry.value,
             ),
-            sizeEntry.value,
-            scaleEntry.value,
-          ));
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           addTearDown(tester.view.resetPhysicalSize);

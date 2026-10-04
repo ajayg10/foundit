@@ -498,7 +498,7 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
+                    color: colors.scrim.withAlpha(30),
                     blurRadius: 20,
                     offset: const Offset(0, -4),
                   ),

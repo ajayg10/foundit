@@ -67,18 +67,19 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
     }
   }
 
-  Color _getTypeColor(String type) {
+  Color _getTypeColor(BuildContext context, String type) {
+    final colors = context.colors;
     switch (type.toLowerCase()) {
       case 'campus':
-        return const Color(0xFF4F46E5);
+        return colors.brand;
       case 'airport':
-        return const Color(0xFF0284C7);
+        return colors.found;
       case 'office':
-        return const Color(0xFF059669);
+        return colors.found;
       case 'metro':
-        return const Color(0xFFD97706);
+        return colors.warning;
       default:
-        return const Color(0xFF7C3AED);
+        return colors.lost;
     }
   }
 
@@ -91,7 +92,7 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -99,10 +100,10 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
         builder: (context, setModalState) {
           return Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              top: 24,
-              left: 20,
-              right: 20,
+              bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.s24,
+              top: AppSpacing.s24,
+              left: AppSpacing.s20,
+              right: AppSpacing.s20,
             ),
             child: SingleChildScrollView(
               child: Column(
@@ -421,7 +422,7 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                         itemBuilder: (context, index) {
                           final loc = locations[index];
                           final isCurrent = currentLoc?.id == loc.id;
-                          final typeColor = _getTypeColor(loc.type);
+                          final typeColor = _getTypeColor(context, loc.type);
 
                           return InkWell(
                             onTap: () async {
@@ -448,7 +449,7 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.02),
+                                    color: context.colors.ink.withAlpha(5),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -503,15 +504,7 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                                               ),
                                               child: Text(
                                                 loc.type.toUpperCase(),
-                                                style:
-                                                    AppText.caption(
-                                                      typeColor,
-                                                    ).copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      letterSpacing: 0.5,
-                                                      fontSize: 10,
-                                                    ),
+                                                style: AppText.micro(typeColor),
                                               ),
                                             ),
                                           ],

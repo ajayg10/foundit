@@ -102,7 +102,8 @@ class TicketHero extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (shouldStack) lostBtn else Expanded(child: lostBtn),
-        if (!shouldStack) VerticalDivider(width: 1, thickness: 1, color: colors.line),
+        if (!shouldStack)
+          VerticalDivider(width: 1, thickness: 1, color: colors.line),
         if (shouldStack) Divider(height: 1, thickness: 1, color: colors.line),
         if (shouldStack) foundBtn else Expanded(child: foundBtn),
       ],
@@ -236,13 +237,21 @@ class _DashedLinePainter extends CustomPainter {
     if (isHorizontal) {
       double startX = 0;
       while (startX < size.width) {
-        canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
+        canvas.drawLine(
+          Offset(startX, 0),
+          Offset(startX + dashWidth, 0),
+          paint,
+        );
         startX += dashWidth + dashSpace;
       }
     } else {
       double startY = 0;
       while (startY < size.height) {
-        canvas.drawLine(Offset(0, startY), Offset(0, startY + dashWidth), paint);
+        canvas.drawLine(
+          Offset(0, startY),
+          Offset(0, startY + dashWidth),
+          paint,
+        );
         startY += dashWidth + dashSpace;
       }
     }

@@ -23,6 +23,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
     required this.warningSoft,
     required this.error,
     required this.errorSoft,
+    required this.scrim,
+    required this.onImage,
   });
 
   final Color bg;
@@ -42,6 +44,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
   final Color warningSoft;
   final Color error;
   final Color errorSoft;
+  final Color scrim;
+  final Color onImage;
 
   // ── Pre-built instances ───────────────────────────────────────────────
 
@@ -63,6 +67,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
     warningSoft: AppColorsLight.warningSoft,
     error: AppColorsLight.error,
     errorSoft: AppColorsLight.errorSoft,
+    scrim: AppColorsLight.scrim,
+    onImage: AppColorsLight.onImage,
   );
 
   static const dark = AppSemantic(
@@ -83,6 +89,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
     warningSoft: AppColorsDark.warningSoft,
     error: AppColorsDark.error,
     errorSoft: AppColorsDark.errorSoft,
+    scrim: AppColorsDark.scrim,
+    onImage: AppColorsDark.onImage,
   );
 
   // ── ThemeExtension boilerplate ────────────────────────────────────────
@@ -106,6 +114,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
     Color? warningSoft,
     Color? error,
     Color? errorSoft,
+    Color? scrim,
+    Color? onImage,
   }) {
     return AppSemantic(
       bg: bg ?? this.bg,
@@ -125,6 +135,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
       warningSoft: warningSoft ?? this.warningSoft,
       error: error ?? this.error,
       errorSoft: errorSoft ?? this.errorSoft,
+      scrim: scrim ?? this.scrim,
+      onImage: onImage ?? this.onImage,
     );
   }
 
@@ -149,6 +161,8 @@ class AppSemantic extends ThemeExtension<AppSemantic> {
       warningSoft: Color.lerp(warningSoft, other.warningSoft, t)!,
       error: Color.lerp(error, other.error, t)!,
       errorSoft: Color.lerp(errorSoft, other.errorSoft, t)!,
+      scrim: Color.lerp(scrim, other.scrim, t)!,
+      onImage: Color.lerp(onImage, other.onImage, t)!,
     );
   }
 }

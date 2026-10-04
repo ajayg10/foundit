@@ -267,15 +267,15 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.auto_awesome,
-                      color: Colors.white,
+                      color: colors.onImage,
                       size: 13,
                     ),
                     AppSpacing.hGap4,
                     Text(
                       '${widget.percent}%',
-                      style: AppText.caption(Colors.white).copyWith(
+                      style: AppText.caption(colors.onImage).copyWith(
                         fontWeight: FontWeight.w800,
                       ),
                     ),
