@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
 import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/metric_card.dart';
@@ -84,15 +82,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showUserSwitcherSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: AppRadius.sheetBr,
       ),
       builder: (ctx) {
         final current = AppState.instance.currentUser;
+        final colors = ctx.colors;
 
         return Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,40 +99,33 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: AppTheme.primaryDark,
+                    backgroundColor: colors.brand,
                     radius: 20,
                     child: Text(
                       current.name.isNotEmpty
                           ? current.name[0].toUpperCase()
                           : 'U',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: colors.onBrand,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  AppSpacing.hGap12,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           current.name,
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
-                          ),
+                          style: AppText.h3(colors.ink),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
                           current.email,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: AppTheme.textMuted,
-                          ),
+                          style: AppText.caption(colors.muted),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -142,43 +134,94 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 8),
+              AppSpacing.gap16,
+              Divider(color: colors.line),
+              AppSpacing.gap8,
 
+              // Appearance toggle
               Text(
-                'Demo Personas (Quick Switch)',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
+                'Appearance',
+                style: AppText.caption(colors.muted).copyWith(
                   fontWeight: FontWeight.w700,
-                  color: AppTheme.textMuted,
                   letterSpacing: 0.5,
                 ),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
+              ListenableBuilder(
+                listenable: ThemeModeController.instance,
+                builder: (context, _) {
+                  final mode = ThemeModeController.instance.mode;
+                  return SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ThemeMode.system,
+                        label: Text('System'),
+                        icon: Icon(Icons.brightness_auto),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.light,
+                        label: Text('Light'),
+                        icon: Icon(Icons.light_mode),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.dark,
+                        label: Text('Dark'),
+                        icon: Icon(Icons.dark_mode),
+                      ),
+                    ],
+                    selected: {mode},
+                    onSelectionChanged: (set) =>
+                        ThemeModeController.instance.setMode(set.first),
+                    style: SegmentedButton.styleFrom(
+                      backgroundColor: colors.surface,
+                      selectedBackgroundColor: colors.brand.withAlpha(20),
+                      foregroundColor: colors.muted,
+                      selectedForegroundColor: colors.brand,
+                    ),
+                  );
+                },
+              ),
+
+              AppSpacing.gap16,
+              Divider(color: colors.line),
+              AppSpacing.gap8,
+
+              Text(
+                'Demo Personas (Quick Switch)',
+                style: AppText.caption(colors.muted).copyWith(
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              AppSpacing.gap8,
 
               // Alice
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: AppTheme.lostRed.withOpacity(0.12),
-                  child: const Text(
+                  backgroundColor: colors.error.withAlpha(25),
+                  child: Text(
                     'A',
                     style: TextStyle(
-                      color: AppTheme.lostRed,
+                      color: colors.error,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 title: Text(
                   'Alice Johnson (Phone A: Lost Backpack)',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  style: AppText.body(
+                    colors.ink,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text('alice@campus.edu'),
+                subtitle: Text(
+                  'alice@campus.edu',
+                  style: AppText.caption(colors.muted),
+                ),
                 trailing: current.userId == AppState.demoAlice.userId
-                    ? const Icon(
+                    ? Icon(
                         Icons.check_circle,
-                        color: AppTheme.recoveryGreen,
+                        color: colors.success,
                       )
                     : null,
                 onTap: () {
@@ -187,30 +230,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   _loadRecent();
                 },
               ),
-              const Divider(),
+              Divider(color: colors.line),
 
               // Bob
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: CircleAvatar(
-                  backgroundColor: AppTheme.recoveryGreen.withOpacity(0.12),
-                  child: const Text(
+                  backgroundColor: colors.success.withAlpha(25),
+                  child: Text(
                     'B',
                     style: TextStyle(
-                      color: AppTheme.recoveryGreen,
+                      color: colors.success,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 title: Text(
                   'Bob Martinez (Phone B: Found Backpack)',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                  style: AppText.body(
+                    colors.ink,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text('bob@campus.edu'),
+                subtitle: Text(
+                  'bob@campus.edu',
+                  style: AppText.caption(colors.muted),
+                ),
                 trailing: current.userId == AppState.demoBob.userId
-                    ? const Icon(
+                    ? Icon(
                         Icons.check_circle,
-                        color: AppTheme.recoveryGreen,
+                        color: colors.success,
                       )
                     : null,
                 onTap: () {
@@ -219,25 +267,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   _loadRecent();
                 },
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
 
               // Sign Out Button
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTheme.lostRed,
-                    side: const BorderSide(color: Color(0xFFFCA5A5)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.logout_rounded, size: 18),
-                  label: const Text(
-                    'Sign Out',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                child: AppButton(
+                  label: 'Sign Out',
+                  icon: Icons.logout_rounded,
+                  variant: AppButtonVariant.secondary,
                   onPressed: () async {
                     Navigator.of(ctx).pop();
                     await AppState.instance.signOut();
@@ -259,6 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final currentUser = AppState.instance.currentUser;
         final unreadCount = AppState.instance.unreadNotificationCount;
         final matches = AppState.instance.userMatches;
+        final colors = context.colors;
 
         if (AppState.instance.currentLocation?.id != _lastLocationId) {
           _lastLocationId = AppState.instance.currentLocation?.id;
@@ -267,41 +306,35 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         }
 
-        return Scaffold(
+        return AppScaffold(
           appBar: AppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: colors.surface,
             elevation: 0.5,
+            surfaceTintColor: Colors.transparent,
             toolbarHeight: 65,
             title: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(AppSpacing.s8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryDark,
+                    color: colors.brand,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.radar, color: Colors.white, size: 20),
+                  child: Icon(Icons.radar, color: colors.onBrand, size: 20),
                 ),
-                const SizedBox(width: 10),
+                AppSpacing.hGap12,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Found It',
-                      style: GoogleFonts.outfit(
-                        fontSize: 19,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                        color: AppTheme.textMain,
-                      ),
+                      style: AppText.h2(
+                        colors.ink,
+                      ).copyWith(letterSpacing: -0.5),
                     ),
                     Text(
                       'Serverpod Hackathon MVP',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                        color: AppTheme.textMuted,
-                      ),
+                      style: AppText.caption(colors.muted),
                     ),
                   ],
                 ),
@@ -320,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     _loadRecent();
                   }
                 },
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.pillBr,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   padding: const EdgeInsets.symmetric(
@@ -328,16 +361,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2FF),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFC7D2FE)),
+                    color: colors.brand.withAlpha(20),
+                    borderRadius: AppRadius.pillBr,
+                    border: Border.all(color: colors.brand.withAlpha(50)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.place_rounded,
                         size: 15,
-                        color: Color(0xFF4F46E5),
+                        color: colors.brand,
                       ),
                       const SizedBox(width: 4),
                       ConstrainedBox(
@@ -346,18 +379,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           AppState.instance.currentLocation?.name ?? 'Location',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
+                          style: AppText.caption(colors.brand).copyWith(
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF4338CA),
                           ),
                         ),
                       ),
                       const SizedBox(width: 2),
-                      const Icon(
+                      Icon(
                         Icons.arrow_drop_down,
                         size: 16,
-                        color: Color(0xFF6366F1),
+                        color: colors.brand,
                       ),
                     ],
                   ),
@@ -368,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Active Identity Pill
               InkWell(
                 onTap: _showUserSwitcherSheet,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.pillBr,
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   padding: const EdgeInsets.symmetric(
@@ -376,22 +407,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTheme.borderLight),
+                    color: colors.surface,
+                    borderRadius: AppRadius.pillBr,
+                    border: Border.all(color: colors.line),
                   ),
                   child: Row(
                     children: [
                       CircleAvatar(
                         radius: 10,
-                        backgroundColor: AppTheme.primaryDark,
+                        backgroundColor: colors.brand,
                         child: Text(
                           currentUser.name.isNotEmpty
                               ? currentUser.name[0].toUpperCase()
                               : 'U',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: Colors.white,
+                            color: colors.onBrand,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -403,17 +434,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           currentUser.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
+                          style: AppText.caption(colors.ink).copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.textMain,
                           ),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.arrow_drop_down,
                         size: 16,
-                        color: AppTheme.textMuted,
+                        color: colors.muted,
                       ),
                     ],
                   ),
@@ -442,8 +471,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       top: 10,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.lostRed,
+                        decoration: BoxDecoration(
+                          color: colors.error,
                           shape: BoxShape.circle,
                         ),
                         constraints: const BoxConstraints(
@@ -466,9 +495,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Seed Demo Data Button
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.bolt,
-                  color: AppTheme.warningAmber,
+                  color: colors.warning,
                   size: 22,
                 ),
                 tooltip: 'Seed Hackathon Demo Data',
@@ -500,13 +529,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Hero Section
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(AppSpacing.s24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF0F172A),
-                        borderRadius: BorderRadius.circular(24),
+                        color: colors.bg,
+                        borderRadius: AppRadius.panelBr,
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0F172A).withOpacity(0.15),
+                            color: colors.ink.withAlpha(15),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),
@@ -517,35 +546,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'FOUND IT',
-                            style: GoogleFonts.outfit(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                            style: AppText.label(colors.muted).copyWith(
                               letterSpacing: 2.0,
-                              color: const Color(0xFF94A3B8),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          AppSpacing.gap8,
                           Text(
                             'Lost something? Let\'s get it back.',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                            style: AppText.h1(colors.ink).copyWith(
                               letterSpacing: -0.5,
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          AppSpacing.gap8,
                           Text(
                             'AI-powered multi-signal matching for ${AppState.instance.currentLocation?.name ?? "campuses & offices"}. Reports are automatically matched in real time.',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: const Color(0xFFCBD5E1),
-                              height: 1.4,
-                            ),
+                            style: AppText.body(colors.muted),
                           ),
-                          const SizedBox(height: 24),
+                          AppSpacing.gap24,
 
                           // The Two Primary Action Cards (Prompt Section 16)
                           Row(
@@ -563,18 +582,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         )
                                         .then((_) => _loadRecent());
                                   },
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: AppRadius.tileBr,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 16,
+                                      vertical: AppSpacing.s20,
+                                      horizontal: AppSpacing.s16,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
+                                      color: colors.surface,
+                                      borderRadius: AppRadius.tileBr,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
+                                          color: colors.ink.withAlpha(8),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -583,36 +602,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Column(
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.all(
+                                            AppSpacing.s12,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: AppTheme.lostRed.withOpacity(
-                                              0.12,
-                                            ),
+                                            color: colors.error.withAlpha(25),
                                             shape: BoxShape.circle,
                                           ),
-                                          child: const Icon(
+                                          child: Icon(
                                             Icons.search,
-                                            color: AppTheme.lostRed,
+                                            color: colors.error,
                                             size: 26,
                                           ),
                                         ),
-                                        const SizedBox(height: 12),
+                                        AppSpacing.gap12,
                                         Text(
                                           'I LOST',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppTheme.textMain,
-                                            letterSpacing: 0.5,
-                                          ),
+                                          style: AppText.h3(colors.ink)
+                                              .copyWith(
+                                                letterSpacing: 0.5,
+                                              ),
                                         ),
                                         Text(
                                           'SOMETHING',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppTheme.lostRed,
-                                          ),
+                                          style: AppText.caption(colors.error)
+                                              .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -634,18 +650,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                         )
                                         .then((_) => _loadRecent());
                                   },
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: AppRadius.tileBr,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 20,
-                                      horizontal: 16,
+                                      vertical: AppSpacing.s20,
+                                      horizontal: AppSpacing.s16,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(16),
+                                      color: colors.surface,
+                                      borderRadius: AppRadius.tileBr,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.08),
+                                          color: colors.ink.withAlpha(8),
                                           blurRadius: 12,
                                           offset: const Offset(0, 4),
                                         ),
@@ -654,35 +670,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Column(
                                       children: [
                                         Container(
-                                          padding: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.all(
+                                            AppSpacing.s12,
+                                          ),
                                           decoration: BoxDecoration(
-                                            color: AppTheme.recoveryGreen
-                                                .withOpacity(0.12),
+                                            color: colors.success.withAlpha(25),
                                             shape: BoxShape.circle,
                                           ),
-                                          child: const Icon(
+                                          child: Icon(
                                             Icons.check_circle_outline,
-                                            color: AppTheme.recoveryGreen,
+                                            color: colors.success,
                                             size: 26,
                                           ),
                                         ),
-                                        const SizedBox(height: 12),
+                                        AppSpacing.gap12,
                                         Text(
                                           'I FOUND',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppTheme.textMain,
-                                            letterSpacing: 0.5,
-                                          ),
+                                          style: AppText.h3(colors.ink)
+                                              .copyWith(
+                                                letterSpacing: 0.5,
+                                              ),
                                         ),
                                         Text(
                                           'SOMETHING',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppTheme.recoveryGreen,
-                                          ),
+                                          style: AppText.caption(colors.success)
+                                              .copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -706,58 +720,53 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadius.tileBr,
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(AppSpacing.s16),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEEF2FF),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFC7D2FE)),
+                            color: colors.brand.withAlpha(20),
+                            borderRadius: AppRadius.tileBr,
+                            border: Border.all(
+                              color: colors.brand.withAlpha(50),
+                            ),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(AppSpacing.s8),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.matchIndigo,
+                                  color: colors.brand,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.auto_awesome,
-                                  color: Colors.white,
+                                  color: colors.onBrand,
                                   size: 22,
                                 ),
                               ),
-                              const SizedBox(width: 14),
+                              AppSpacing.hGap12,
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       '${matches.length} Potential Match${matches.length == 1 ? '' : 'es'} Discovered!',
-                                      style: GoogleFonts.outfit(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF312E81),
-                                      ),
+                                      style: AppText.h3(colors.ink),
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
                                       'Top match: ${(matches.first.match.confidenceScore * 100).round()}% confidence (${matches.first.lostReport.title} & ${matches.first.foundReport.title})',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: const Color(0xFF4338CA),
-                                      ),
+                                      style: AppText.caption(colors.brand),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ],
                                 ),
                               ),
-                              const Icon(
+                              Icon(
                                 Icons.arrow_forward_ios,
                                 size: 14,
-                                color: AppTheme.matchIndigo,
+                                color: colors.brand,
                               ),
                             ],
                           ),
@@ -775,7 +784,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             value: '$_userLostCount',
                             subtitle: 'By you • Tap to view',
                             icon: Icons.search,
-                            color: AppTheme.lostRed,
+                            color: colors.error,
                             onTap: () {
                               Navigator.of(context)
                                   .push(
@@ -788,7 +797,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        AppSpacing.hGap12,
                         Expanded(
                           child: MetricCard(
                             label: 'Found Posted',
@@ -796,7 +805,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             subtitle:
                                 'In ${AppState.instance.currentLocation?.name ?? "this area"}',
                             icon: Icons.check_circle_outline,
-                            color: AppTheme.recoveryGreen,
+                            color: colors.success,
                             onTap: () {
                               Navigator.of(context)
                                   .push(
@@ -810,7 +819,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.gap12,
                     Row(
                       children: [
                         Expanded(
@@ -819,7 +828,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             value: '$_areaMatchedCount',
                             subtitle: 'Tap to view matches',
                             icon: Icons.auto_awesome,
-                            color: AppTheme.matchIndigo,
+                            color: colors.brand,
                             onTap: () {
                               Navigator.of(context)
                                   .push(
@@ -831,14 +840,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        AppSpacing.hGap12,
                         Expanded(
                           child: MetricCard(
                             label: 'Items Returned',
                             value: '$_areaReturnedCount',
                             subtitle: 'Resolved in area',
                             icon: Icons.handshake_outlined,
-                            color: const Color(0xFF0D9488),
+                            color: colors.success,
                             onTap: () {
                               Navigator.of(context)
                                   .push(
@@ -863,18 +872,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Text(
                               'Found at ${AppState.instance.currentLocation?.name ?? "Campus"}',
-                              style: GoogleFonts.outfit(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.textMain,
-                              ),
+                              style: AppText.h2(colors.ink),
                             ),
                             Text(
                               'Recently posted found items in this location',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: AppTheme.textMuted,
-                              ),
+                              style: AppText.caption(colors.muted),
                             ),
                           ],
                         ),
@@ -893,7 +895,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    AppSpacing.gap12,
 
                     // Found Items Cards
                     if (_isLoadingRecent)
@@ -937,10 +939,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          bottomNavigationBar: NavigationBar(
-            backgroundColor: Colors.white,
-            elevation: 2,
-            indicatorColor: const Color(0xFFF1F5F9),
+          bottomNavigationBar: AppBottomNav(
             selectedIndex: 0,
             onDestinationSelected: (index) {
               if (index == 1) {
@@ -968,34 +967,25 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
             destinations: [
-              const NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home, color: AppTheme.primaryDark),
+              const AppNavDestination(
+                icon: Icons.home_outlined,
+                selectedIcon: Icons.home,
                 label: 'Home',
               ),
-              const NavigationDestination(
-                icon: Icon(Icons.grid_view_outlined),
-                selectedIcon: Icon(
-                  Icons.grid_view,
-                  color: AppTheme.primaryDark,
-                ),
+              const AppNavDestination(
+                icon: Icons.grid_view_outlined,
+                selectedIcon: Icons.grid_view,
                 label: 'Public Board',
               ),
-              NavigationDestination(
-                icon: Badge(
-                  isLabelVisible: matches.isNotEmpty,
-                  label: Text('${matches.length}'),
-                  child: const Icon(Icons.auto_awesome_outlined),
-                ),
-                selectedIcon: const Icon(
-                  Icons.auto_awesome,
-                  color: AppTheme.matchIndigo,
-                ),
+              AppNavDestination(
+                icon: Icons.auto_awesome_outlined,
+                selectedIcon: Icons.auto_awesome,
                 label: 'Matches',
+                badgeCount: matches.length,
               ),
-              const NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person, color: AppTheme.primaryDark),
+              const AppNavDestination(
+                icon: Icons.person_outline,
+                selectedIcon: Icons.person,
                 label: 'My Activity',
               ),
             ],
