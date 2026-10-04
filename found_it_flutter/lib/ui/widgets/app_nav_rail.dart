@@ -93,7 +93,7 @@ class AppNavRail extends StatelessWidget {
                                           .copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
                                     ),
                                   ),
-                                  if (dest.badgeCount != null && dest.badgeCount! > 0)
+                                  if (dest.badgeCount > 0)
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
@@ -111,8 +111,8 @@ class AppNavRail extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Badge(
-                                    isLabelVisible: dest.badgeCount != null && dest.badgeCount! > 0,
-                                    label: Text('${dest.badgeCount ?? ""}'),
+                                    isLabelVisible: dest.badgeCount > 0,
+                                    label: Text('${dest.badgeCount}'),
                                     backgroundColor: colors.brand,
                                     child: Icon(
                                       isSelected ? dest.selectedIcon : dest.icon,

@@ -90,55 +90,60 @@ class _AppButtonState extends State<AppButton>
         fg = colors.brand;
     }
 
-    return GestureDetector(
-      onTapDown: isDisabled || widget.loading ? null : _onTapDown,
-      onTapUp: isDisabled || widget.loading ? null : _onTapUp,
-      onTapCancel: isDisabled || widget.loading ? null : _onTapCancel,
-      onTap: isDisabled || widget.loading ? null : widget.onPressed,
-      child: AnimatedBuilder(
-        animation: _scale,
-        builder: (_, child) => Transform.scale(
-          scale: _scale.value,
-          child: child,
-        ),
-        child: Opacity(
-          opacity: isDisabled ? 0.38 : 1.0,
-          child: Container(
-            height: height,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: AppRadius.buttonBr,
-              border: border,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (widget.loading)
-                  SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation(fg),
+    return Semantics(
+      button: true,
+      label: widget.label,
+      enabled: !isDisabled,
+      child: GestureDetector(
+        onTapDown: isDisabled || widget.loading ? null : _onTapDown,
+        onTapUp: isDisabled || widget.loading ? null : _onTapUp,
+        onTapCancel: isDisabled || widget.loading ? null : _onTapCancel,
+        onTap: isDisabled || widget.loading ? null : widget.onPressed,
+        child: AnimatedBuilder(
+          animation: _scale,
+          builder: (_, child) => Transform.scale(
+            scale: _scale.value,
+            child: child,
+          ),
+          child: Opacity(
+            opacity: isDisabled ? 0.38 : 1.0,
+            child: Container(
+              height: height,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s24),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: AppRadius.buttonBr,
+                border: border,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.loading)
+                    SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation(fg),
+                      ),
+                    )
+                  else ...[
+                    if (widget.icon != null) ...[
+                      Icon(widget.icon, color: fg, size: 18),
+                      AppSpacing.hGap8,
+                    ],
+                    Flexible(
+                      child: Text(
+                        widget.label,
+                        style: AppText.label(fg),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  )
-                else ...[
-                  if (widget.icon != null) ...[
-                    Icon(widget.icon, color: fg, size: 18),
-                    AppSpacing.hGap8,
                   ],
-                  Flexible(
-                    child: Text(
-                      widget.label,
-                      style: AppText.label(fg),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
                 ],
-              ],
+              ),
             ),
           ),
         ),

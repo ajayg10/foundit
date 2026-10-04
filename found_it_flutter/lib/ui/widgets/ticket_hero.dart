@@ -18,73 +18,81 @@ class TicketHero extends StatelessWidget {
     // Use MediaQuery width + text scale — avoids LayoutBuilder unbounded-height issues.
     final shouldStack = mq.size.width < 350 || mq.textScaler.scale(1) > 1.2;
 
-    final lostBtn = InkWell(
-      onTap: onLostTap,
-      borderRadius: shouldStack
-          ? BorderRadius.zero
-          : const BorderRadius.only(bottomLeft: Radius.circular(24)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.s20,
-          horizontal: AppSpacing.s16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.s12),
-              decoration: BoxDecoration(
-                color: colors.error.withAlpha(25),
-                shape: BoxShape.circle,
+    final lostBtn = Semantics(
+      label: 'Report a lost item',
+      button: true,
+      child: InkWell(
+        onTap: onLostTap,
+        borderRadius: shouldStack
+            ? BorderRadius.zero
+            : const BorderRadius.only(bottomLeft: Radius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.s20,
+            horizontal: AppSpacing.s16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.s12),
+                decoration: BoxDecoration(
+                  color: colors.error.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.search, color: colors.error, size: 26),
               ),
-              child: Icon(Icons.search, color: colors.error, size: 26),
-            ),
-            AppSpacing.gap12,
-            Text(
-              'I lost something',
-              textAlign: TextAlign.center,
-              style: AppText.h3(colors.ink),
-            ),
-          ],
+              AppSpacing.gap12,
+              Text(
+                'I lost something',
+                textAlign: TextAlign.center,
+                style: AppText.h3(colors.ink),
+              ),
+            ],
+          ),
         ),
       ),
     );
 
-    final foundBtn = InkWell(
-      onTap: onFoundTap,
-      borderRadius: shouldStack
-          ? const BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24),
-            )
-          : const BorderRadius.only(bottomRight: Radius.circular(24)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.s20,
-          horizontal: AppSpacing.s16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.s12),
-              decoration: BoxDecoration(
-                color: colors.success.withAlpha(25),
-                shape: BoxShape.circle,
+    final foundBtn = Semantics(
+      label: 'Report a found item',
+      button: true,
+      child: InkWell(
+        onTap: onFoundTap,
+        borderRadius: shouldStack
+            ? const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
+              )
+            : const BorderRadius.only(bottomRight: Radius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.s20,
+            horizontal: AppSpacing.s16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.s12),
+                decoration: BoxDecoration(
+                  color: colors.success.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: colors.success,
+                  size: 26,
+                ),
               ),
-              child: Icon(
-                Icons.check_circle_outline,
-                color: colors.success,
-                size: 26,
+              AppSpacing.gap12,
+              Text(
+                'I found something',
+                textAlign: TextAlign.center,
+                style: AppText.h3(colors.ink),
               ),
-            ),
-            AppSpacing.gap12,
-            Text(
-              'I found something',
-              textAlign: TextAlign.center,
-              style: AppText.h3(colors.ink),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
