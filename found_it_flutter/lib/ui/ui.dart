@@ -25,3 +25,5 @@ export 'widgets/brand_header.dart';
 export 'widgets/ticket_hero.dart';
 export 'widgets/stat_bento.dart';
 export 'widgets/app_nav_rail.dart';
+export 'widgets/summary_panel.dart';
+export 'widgets/app_tab_bar.dart';

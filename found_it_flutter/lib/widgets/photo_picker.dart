@@ -128,7 +128,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
   void _showPickerSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -409,7 +409,6 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                             'Photo Added',
                             style: AppText.caption(colors.surface).copyWith(
                               fontWeight: FontWeight.w600,
-                              fontSize: 11,
                             ),
                           ),
                         ],

@@ -115,16 +115,15 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
 
       if (!mounted) return;
 
-      // Show success bottom sheet
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         backgroundColor: context.colors.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: AppRadius.sheetBr,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -143,7 +142,7 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
               AppSpacing.gap16,
               Text(
                 'Lost Report Submitted!',
-                style: AppText.h3(context.colors.ink),
+                style: AppText.h2(context.colors.ink),
               ),
               AppSpacing.gap8,
               Text(
@@ -155,11 +154,11 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
               SizedBox(
                 width: double.infinity,
                 child: AppButton(
-                  label: 'View Home & Matches',
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Navigator.of(context).pop();
                   },
+                  label: 'View Home & Matches',
                 ),
               ),
             ],
@@ -197,215 +196,230 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.s20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.s12),
-                    decoration: BoxDecoration(
-                      color: colors.lostSoft,
-                      borderRadius: AppRadius.panelBr,
-                      border: Border.all(color: colors.lost.withAlpha(50)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: colors.lost,
-                          size: 20,
-                        ),
-                        AppSpacing.hGap8,
-                        Expanded(
-                          child: Text(
-                            'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
-                            style: AppText.caption(colors.ink),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AppSpacing.gap24,
-
-                  // Title
-                  AppTextField(
-                    label: 'Item Title *',
-                    controller: _titleController,
-                    hint: 'e.g. Black Wildcraft Backpack, Blue iPhone 13',
-                    prefixIcon: const Icon(Icons.title, size: 18),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter item title'
-                        : null,
-                  ),
-                  AppSpacing.gap16,
-
-                  // Description
-                  AppTextField(
-                    label: 'Description & Distinguishing Features *',
-                    controller: _descController,
-                    maxLines: 3,
-                    hint:
-                        'Describe color, brand, stickers, scratches, or attachments...',
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter a description'
-                        : null,
-                  ),
-                  AppSpacing.gap16,
-
-                  // Category
-                  Text(
-                    'Category *',
-                    style: AppText.label(colors.ink),
-                  ),
-                  AppSpacing.gap8,
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.category_outlined, size: 18),
-                      filled: true,
-                      fillColor: colors.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: AppRadius.buttonBr,
-                        borderSide: BorderSide(color: colors.line),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.buttonBr,
-                        borderSide: BorderSide(color: colors.line),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: AppRadius.buttonBr,
-                        borderSide: BorderSide(color: colors.brand, width: 2),
-                      ),
-                    ),
-                    items: _categories.map((c) {
-                      return DropdownMenuItem(
-                        value: c,
-                        child: Text(c, style: AppText.body(colors.ink)),
-                      );
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _selectedCategory = v);
-                    },
-                  ),
-                  AppSpacing.gap16,
-
-                  // Location Picker
-                  LocationPickerWidget(
-                    selectedLabel: _locationLabel,
-                    selectedAreaId: _locationAreaId,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                    onLocationChanged: (areaId, label, lat, lon) {
-                      setState(() {
-                        _locationAreaId = areaId;
-                        _locationLabel = label;
-                        _latitude = lat;
-                        _longitude = lon;
-                      });
-                    },
-                  ),
-                  AppSpacing.gap16,
-
-                  // Date and Time
-                  Text(
-                    'Approximate Date & Time Lost *',
-                    style: AppText.label(colors.ink),
-                  ),
-                  AppSpacing.gap8,
-                  InkWell(
-                    onTap: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _eventTime,
-                        firstDate: DateTime.now().subtract(
-                          const Duration(days: 365),
-                        ),
-                        lastDate: DateTime.now(),
-                      );
-                      if (pickedDate != null && mounted) {
-                        final pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(_eventTime),
-                        );
-                        if (pickedTime != null) {
-                          setState(() {
-                            _eventTime = DateTime(
-                              pickedDate.year,
-                              pickedDate.month,
-                              pickedDate.day,
-                              pickedTime.hour,
-                              pickedTime.minute,
-                            );
-                          });
-                        }
-                      }
-                    },
-                    borderRadius: AppRadius.buttonBr,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.s16,
-                        vertical: AppSpacing.s12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.surface,
-                        borderRadius: AppRadius.buttonBr,
-                        border: Border.all(color: colors.line),
-                      ),
-                      child: Row(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.s20),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.calendar_today,
-                            size: 18,
-                            color: colors.brand,
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.s16),
+                            decoration: BoxDecoration(
+                              color: colors.lostSoft,
+                              borderRadius: AppRadius.tileBr,
+                              border: Border.all(
+                                color: colors.lost.withAlpha(50),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: colors.lost,
+                                  size: 20,
+                                ),
+                                AppSpacing.hGap12,
+                                Expanded(
+                                  child: Text(
+                                    'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
+                                    style: AppText.body(colors.ink),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                          AppSpacing.hGap12,
-                          Text(
-                            DateFormat(
-                              'EEEE, MMM d, yyyy • h:mm a',
-                            ).format(_eventTime),
-                            style: AppText.body(colors.ink),
+                          AppSpacing.gap24,
+
+                          const SectionHeader(title: 'Item Title *'),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            label: 'Item Title',
+                            controller: _titleController,
+                            hint:
+                                'e.g. Black Wildcraft Backpack, Blue iPhone 13',
+                            prefixIcon: Icon(
+                              Icons.title,
+                              size: 18,
+                              color: colors.muted,
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter item title'
+                                : null,
                           ),
-                          const Spacer(),
-                          Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: colors.muted,
+                          AppSpacing.gap16,
+
+                          const SectionHeader(
+                            title: 'Description & Features *',
+                          ),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            label: 'Description',
+                            controller: _descController,
+                            maxLines: 3,
+                            hint:
+                                'Describe color, brand, stickers, scratches...',
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter a description'
+                                : null,
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Category *'),
+                          AppSpacing.gap8,
+                          Wrap(
+                            spacing: AppSpacing.s8,
+                            runSpacing: AppSpacing.s8,
+                            children: _categories.map((c) {
+                              return AppChip(
+                                label: c,
+                                selected: _selectedCategory == c,
+                                onSelected: (val) {
+                                  if (val) {
+                                    setState(() => _selectedCategory = c);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Location *'),
+                          AppSpacing.gap8,
+                          LocationPickerWidget(
+                            selectedLabel: _locationLabel,
+                            selectedAreaId: _locationAreaId,
+                            latitude: _latitude,
+                            longitude: _longitude,
+                            onLocationChanged: (areaId, label, lat, lon) {
+                              setState(() {
+                                _locationAreaId = areaId;
+                                _locationLabel = label;
+                                _latitude = lat;
+                                _longitude = lon;
+                              });
+                            },
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(
+                            title: 'Approximate Date & Time Lost *',
+                          ),
+                          AppSpacing.gap8,
+                          InkWell(
+                            onTap: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: _eventTime,
+                                firstDate: DateTime.now().subtract(
+                                  const Duration(days: 365),
+                                ),
+                                lastDate: DateTime.now(),
+                              );
+                              if (pickedDate != null && mounted) {
+                                final pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(
+                                    _eventTime,
+                                  ),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _eventTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                  });
+                                }
+                              }
+                            },
+                            borderRadius: AppRadius.buttonBr,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.s16,
+                                vertical: AppSpacing.s12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius: AppRadius.buttonBr,
+                                border: Border.all(color: colors.line),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 18,
+                                    color: colors.brand,
+                                  ),
+                                  AppSpacing.hGap12,
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat(
+                                        'EEEE, MMM d, yyyy • h:mm a',
+                                      ).format(_eventTime),
+                                      style: AppText.body(colors.ink),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: colors.muted,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Photo (Optional)'),
+                          AppSpacing.gap8,
+                          PhotoPickerWidget(
+                            initialImageUrl: _imageUrl,
+                            onImageChanged: (url) {
+                              setState(() => _imageUrl = url);
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  AppSpacing.gap16,
-
-                  // Photo Picker (Camera + Gallery)
-                  PhotoPickerWidget(
-                    initialImageUrl: _imageUrl,
-                    onImageChanged: (url) {
-                      setState(() => _imageUrl = url);
-                    },
-                  ),
-                  AppSpacing.gap24,
-
-                  // Submit Button
-                  SizedBox(
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.s20),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                border: Border(top: BorderSide(color: colors.line)),
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: SizedBox(
                     width: double.infinity,
                     child: AppButton(
-                      label: 'Submit Lost Report & Find Matches',
                       onPressed: _isSubmitting ? null : _submitReport,
+                      label: 'Submit Lost Report & Find Matches',
                       variant: AppButtonVariant.lost,
                       loading: _isSubmitting,
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

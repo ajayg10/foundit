@@ -327,69 +327,72 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                         children: [
                           // Search Bar
 
-              Container(
-                color: colors.bg,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.s16,
-                  AppSpacing.s8,
-                  AppSpacing.s16,
-                  AppSpacing.s12,
-                ),
-                child: AppTextField(
-                  label: '',
-                  controller: _searchController,
-                  hint: 'Search college, airport, or workplace...',
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: colors.muted,
-                  ),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: Icon(
-                            Icons.clear_rounded,
-                            color: colors.muted,
+                          Container(
+                            color: colors.bg,
+                            padding: const EdgeInsets.fromLTRB(
+                              AppSpacing.s16,
+                              AppSpacing.s8,
+                              AppSpacing.s16,
+                              AppSpacing.s12,
+                            ),
+                            child: AppTextField(
+                              label: '',
+                              controller: _searchController,
+                              hint: 'Search college, airport, or workplace...',
+                              prefixIcon: Icon(
+                                Icons.search_rounded,
+                                color: colors.muted,
+                              ),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: Icon(
+                                        Icons.clear_rounded,
+                                        color: colors.muted,
+                                      ),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _loadLocations();
+                                      },
+                                    )
+                                  : null,
+                              onChanged: (_) => _loadLocations(),
+                            ),
                           ),
-                          onPressed: () {
-                            _searchController.clear();
-                            _loadLocations();
-                          },
-                        )
-                      : null,
-                  onChanged: (_) => _loadLocations(),
-                ),
-              ),
 
-              // Filter Chips
-              Container(
-                color: colors.bg,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s16,
-                    vertical: AppSpacing.s8,
-                  ),
-                  child: Row(
-                    children: _types.map((type) {
-                      final isSelected = _selectedType == type;
-                      final label = type == 'all'
-                          ? 'All Places'
-                          : type[0].toUpperCase() + type.substring(1);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.s8),
-                        child: AppChip(
-                          label: label,
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            setState(() => _selectedType = type);
-                            _loadLocations();
-                          },
-                        ),
-                      );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                  Divider(height: 1, color: colors.line),
+                          // Filter Chips
+                          Container(
+                            color: colors.bg,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.s16,
+                                vertical: AppSpacing.s8,
+                              ),
+                              child: Row(
+                                children: _types.map((type) {
+                                  final isSelected = _selectedType == type;
+                                  final label = type == 'all'
+                                      ? 'All Places'
+                                      : type[0].toUpperCase() +
+                                            type.substring(1);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: AppSpacing.s8,
+                                    ),
+                                    child: AppChip(
+                                      label: label,
+                                      selected: isSelected,
+                                      onSelected: (selected) {
+                                        setState(() => _selectedType = type);
+                                        _loadLocations();
+                                      },
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                          Divider(height: 1, color: colors.line),
                         ],
                       ),
                     ),
@@ -407,7 +410,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                         : locations.isEmpty
                         ? EmptyState(
                             title: 'No Locations',
-                            body: 'No places found for "${_searchController.text}"',
+                            body:
+                                'No places found for "${_searchController.text}"',
                             icon: Icons.location_off_rounded,
                             actionLabel: 'Add This Location',
                             onAction: _showAddLocationDialog,
@@ -417,151 +421,178 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                             child: ListView.separated(
                               padding: const EdgeInsets.all(AppSpacing.s16),
                               itemCount: locations.length,
-                        separatorBuilder: (_, __) => AppSpacing.gap12,
-                        itemBuilder: (context, index) {
-                          final loc = locations[index];
-                          final isCurrent = currentLoc?.id == loc.id;
-                          final typeColor = _getTypeColor(context, loc.type);
-
-                          return InkWell(
-                            onTap: () async {
-                              await AppState.instance.selectLocation(loc);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Switched to ${loc.name}'),
-                                    duration: const Duration(seconds: 2),
-                                  ),
+                              separatorBuilder: (_, __) => AppSpacing.gap12,
+                              itemBuilder: (context, index) {
+                                final loc = locations[index];
+                                final isCurrent = currentLoc?.id == loc.id;
+                                final typeColor = _getTypeColor(
+                                  context,
+                                  loc.type,
                                 );
-                                Navigator.pop(context, true);
-                              }
-                            },
-                            borderRadius: AppRadius.panelBr,
-                            child: Container(
-                              padding: const EdgeInsets.all(AppSpacing.s16),
-                              decoration: BoxDecoration(
-                                color: colors.surface,
-                                borderRadius: AppRadius.panelBr,
-                                border: Border.all(
-                                  color: isCurrent ? colors.brand : colors.line,
-                                  width: isCurrent ? 2 : 1,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: context.colors.ink.withAlpha(5),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  // Type Icon badge
-                                  Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: typeColor.withOpacity(0.12),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      _getTypeIcon(loc.type),
-                                      color: typeColor,
-                                      size: 24,
-                                    ),
-                                  ),
-                                  AppSpacing.hGap16,
 
-                                  // Location Info
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                loc.name,
-                                                style: AppText.label(
-                                                  colors.ink,
-                                                ),
-                                              ),
-                                            ),
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: AppSpacing.s8,
-                                                    vertical: 2,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: typeColor.withOpacity(
-                                                  0.12,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(6),
-                                              ),
-                                              child: Text(
-                                                loc.type.toUpperCase(),
-                                                style: AppText.micro(typeColor),
-                                              ),
-                                            ),
-                                          ],
+                                return InkWell(
+                                  onTap: () async {
+                                    await AppState.instance.selectLocation(loc);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Switched to ${loc.name}',
+                                          ),
+                                          duration: const Duration(seconds: 2),
                                         ),
-                                        if (loc.address != null &&
-                                            loc.address!.isNotEmpty) ...[
-                                          AppSpacing.gap4,
-                                          Text(
-                                            loc.address!,
-                                            style: AppText.caption(
-                                              colors.muted,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                      );
+                                      Navigator.pop(context, true);
+                                    }
+                                  },
+                                  borderRadius: AppRadius.panelBr,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(
+                                      AppSpacing.s16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: colors.surface,
+                                      borderRadius: AppRadius.panelBr,
+                                      border: Border.all(
+                                        color: isCurrent
+                                            ? colors.brand
+                                            : colors.line,
+                                        width: isCurrent ? 2 : 1,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: context.colors.ink.withAlpha(
+                                            5,
                                           ),
-                                        ],
-                                        if (loc.description != null &&
-                                            loc.description!.isNotEmpty) ...[
-                                          AppSpacing.gap4,
-                                          Text(
-                                            loc.description!,
-                                            style: AppText.caption(
-                                              colors.muted.withOpacity(0.7),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        // Type Icon badge
+                                        Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            color: typeColor.withOpacity(0.12),
+                                            borderRadius: BorderRadius.circular(
+                                              14,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ],
+                                          child: Icon(
+                                            _getTypeIcon(loc.type),
+                                            color: typeColor,
+                                            size: 24,
+                                          ),
+                                        ),
+                                        AppSpacing.hGap16,
+
+                                        // Location Info
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      loc.name,
+                                                      style: AppText.label(
+                                                        colors.ink,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal:
+                                                              AppSpacing.s8,
+                                                          vertical: 2,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: typeColor
+                                                          .withOpacity(
+                                                            0.12,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            6,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      loc.type.toUpperCase(),
+                                                      style: AppText.micro(
+                                                        typeColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              if (loc.address != null &&
+                                                  loc.address!.isNotEmpty) ...[
+                                                AppSpacing.gap4,
+                                                Text(
+                                                  loc.address!,
+                                                  style: AppText.caption(
+                                                    colors.muted,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                              if (loc.description != null &&
+                                                  loc
+                                                      .description!
+                                                      .isNotEmpty) ...[
+                                                AppSpacing.gap4,
+                                                Text(
+                                                  loc.description!,
+                                                  style: AppText.caption(
+                                                    colors.muted.withOpacity(
+                                                      0.7,
+                                                    ),
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                        AppSpacing.hGap12,
+
+                                        // Selected checkmark or chevron
+                                        if (isCurrent)
+                                          Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: colors.brand,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.check_rounded,
+                                              color: colors.onBrand,
+                                              size: 16,
+                                            ),
+                                          )
+                                        else
+                                          Icon(
+                                            Icons.chevron_right_rounded,
+                                            color: colors.muted,
+                                            size: 20,
+                                          ),
                                       ],
                                     ),
                                   ),
-                                  AppSpacing.hGap12,
-
-                                  // Selected checkmark or chevron
-                                  if (isCurrent)
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: colors.brand,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.check_rounded,
-                                        color: colors.onBrand,
-                                        size: 16,
-                                      ),
-                                    )
-                                  else
-                                    Icon(
-                                      Icons.chevron_right_rounded,
-                                      color: colors.muted,
-                                      size: 20,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                                );
+                              },
                             ),
                           ),
                   ),

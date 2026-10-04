@@ -102,11 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       current.name.isNotEmpty
                           ? current.name[0].toUpperCase()
                           : 'U',
-                      style: TextStyle(
-                        color: colors.onBrand,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: AppText.h3(colors.onBrand),
                     ),
                   ),
                   AppSpacing.hGap12,
@@ -399,7 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         .then((_) => _loadRecent());
                   },
                 ),
-                const SizedBox(height: 20),
+                AppSpacing.gap20,
 
                 // Live Match Discovery Banner (if matches exist)
                 if (matches.isNotEmpty) ...[
@@ -463,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.gap20,
                 ],
 
                 // Platform & Area Metrics
@@ -513,7 +509,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         .then((_) => _loadRecent());
                   },
                 ),
-                const SizedBox(height: 24),
+                AppSpacing.gap24,
 
                 // Found Near You Header
                 Row(
@@ -559,7 +555,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (_isLoadingRecent)
                   const Center(
                     child: Padding(
-                      padding: EdgeInsets.all(32),
+                      padding: EdgeInsets.all(AppSpacing.s32),
                       child: CircularProgressIndicator(),
                     ),
                   )
@@ -597,20 +593,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
         return AppScaffold(
           appBar: null,
-          body: isTablet
+          body: isDesktop
               ? Row(
                   children: [
                     AppNavRail(
                       selectedIndex: 0,
                       onDestinationSelected: handleNav,
                       destinations: navDestinations,
-                      extended: isDesktop,
+                      extended: true,
                     ),
                     Expanded(child: content),
                   ],
                 )
               : content,
-          bottomNavigationBar: isTablet
+          bottomNavigationBar: isDesktop
               ? null
               : AppBottomNav(
                   selectedIndex: 0,

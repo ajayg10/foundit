@@ -5,6 +5,8 @@ import '../state/app_state.dart';
 import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/match_card.dart';
+import 'report_lost_screen.dart';
+import 'report_found_screen.dart';
 
 /// My Items Dashboard — shows all the user's activity in one place:
 /// Lost | Found | Matches | Claims | Returned
@@ -72,153 +74,78 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-
     return AppScaffold(
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            expandedHeight: 200,
-            floating: false,
-            pinned: true,
-            backgroundColor: colors.brand,
-            foregroundColor: colors.onBrand,
-            title: Text(
-              'My Dashboard',
-              style: AppText.h3(colors.onBrand),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: _buildStatsHeader(colors),
-            ),
-            bottom: TabBar(
-              controller: _tabController,
-              labelColor: colors.onBrand,
-              unselectedLabelColor: colors.onBrandMuted,
-              indicatorColor: colors.onBrand,
-              indicatorWeight: 3,
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              tabs: [
-                Tab(text: 'Lost ($_lostCount)'),
-                Tab(text: 'Found ($_foundCount)'),
-                Tab(text: 'Matches ($_matchedCount)'),
-                Tab(text: 'Claims ($_claimsCount)'),
-                Tab(text: 'Returned ($_returnedCount)'),
-              ],
-            ),
-          ),
-        ],
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildReportList(
-                    _userReports.where((r) => r.reportType == 'lost').toList(),
-                    'No lost item reports yet.',
-                    Icons.search_off_rounded,
-                  ),
-                  _buildReportList(
-                    _userReports.where((r) => r.reportType == 'found').toList(),
-                    'No found item reports yet.',
-                    Icons.inventory_2_outlined,
-                  ),
-                  _buildMatchesList(),
-                  _buildReportList(
-                    _userReports
-                        .where((r) => r.status == 'claimPending')
-                        .toList(),
-                    'No pending claims.',
-                    Icons.pending_actions_outlined,
-                  ),
-                  _buildReportList(
-                    _userReports.where((r) => r.status == 'returned').toList(),
-                    'No returned items yet — keep going! 🎉',
-                    Icons.check_circle_outline_rounded,
-                  ),
-                ],
-              ),
+      appBar: const AppTopBar(
+        title: 'My Dashboard',
       ),
-    );
-  }
-
-  Widget _buildStatsHeader(AppSemantic colors) {
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.brand,
-      ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.s20,
-            60,
-            AppSpacing.s20,
-            0,
+      body: Column(
+        children: [
+          SummaryPanel(
+            reportsCount: _lostCount + _foundCount,
+            matchesCount: _matchedCount,
+            returnedCount: _returnedCount,
           ),
-          child: Row(
-            children: [
-              _statTile(
-                '${_lostCount + _foundCount}',
-                'Total\nReports',
-                Icons.article_outlined,
-                colors,
-              ),
-              AppSpacing.hGap12,
-              _statTile(
-                '$_matchedCount',
-                'Matches\nFound',
-                Icons.auto_awesome_rounded,
-                colors,
-              ),
-              AppSpacing.hGap12,
-              _statTile(
-                '$_returnedCount',
-                'Items\nReturned',
-                Icons.check_circle_rounded,
-                colors,
-              ),
+          AppTabBar(
+            controller: _tabController,
+            tabs: [
+              AppTabItem('Lost', _lostCount),
+              AppTabItem('Found', _foundCount),
+              AppTabItem('Matches', _matchedCount),
+              AppTabItem('Claims', _claimsCount),
+              AppTabItem('Returned', _returnedCount),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _statTile(
-    String value,
-    String label,
-    IconData icon,
-    AppSemantic colors,
-  ) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.s12,
-          horizontal: 10,
-        ),
-        decoration: BoxDecoration(
-          color: colors.onBrand.withAlpha(30),
-          borderRadius: AppRadius.buttonBr,
-          border: Border.all(color: colors.onBrand.withAlpha(50), width: 1),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: colors.onBrand, size: 22),
-            AppSpacing.gap4,
-            Text(
-              value,
-              style: AppText.h2(colors.onBrand),
-            ),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: AppText.caption(
-                colors.onBrandMuted,
-              ).copyWith(fontSize: 10),
-            ),
-          ],
-        ),
+          Expanded(
+            child: _isLoading
+                ? const SkeletonList()
+                : TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildReportList(
+                        _userReports
+                            .where((r) => r.reportType == 'lost')
+                            .toList(),
+                        'No lost item reports yet.',
+                        Icons.search_off_rounded,
+                        actionLabel: 'Report a lost item',
+                        onAction: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ReportLostScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildReportList(
+                        _userReports
+                            .where((r) => r.reportType == 'found')
+                            .toList(),
+                        'No found item reports yet.',
+                        Icons.inventory_2_outlined,
+                        actionLabel: 'Report a found item',
+                        onAction: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ReportFoundScreen(),
+                          ),
+                        ),
+                      ),
+                      _buildMatchesList(),
+                      _buildReportList(
+                        _userReports
+                            .where((r) => r.status == 'claimPending')
+                            .toList(),
+                        'No pending claims.',
+                        Icons.pending_actions_outlined,
+                      ),
+                      _buildReportList(
+                        _userReports
+                            .where((r) => r.status == 'returned')
+                            .toList(),
+                        'No returned items yet — keep going! 🎉',
+                        Icons.check_circle_outline_rounded,
+                      ),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -226,8 +153,10 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildReportList(
     List<ItemReport> allReports,
     String emptyMessage,
-    IconData emptyIcon,
-  ) {
+    IconData emptyIcon, {
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
     final activeLoc = AppState.instance.currentLocation;
     final filteredReports = _filterByCurrentLocation && activeLoc?.id != null
         ? allReports.where((r) => r.locationId == activeLoc!.id).toList()
@@ -267,6 +196,8 @@ class _DashboardScreenState extends State<DashboardScreen>
                   title: 'No Reports',
                   body: emptyMessage,
                   icon: emptyIcon,
+                  actionLabel: actionLabel,
+                  onAction: onAction,
                 )
               : RefreshIndicator(
                   onRefresh: _loadAll,

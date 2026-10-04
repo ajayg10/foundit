@@ -8,7 +8,7 @@ import '../theme/app_text.dart';
 class AppTextField extends StatelessWidget {
   const AppTextField({
     super.key,
-    required this.label,
+    this.label,
     this.controller,
     this.hint,
     this.helper,
@@ -29,7 +29,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction,
   });
 
-  final String label;
+  final String? label;
   final TextEditingController? controller;
   final String? hint;
   final String? helper;
@@ -58,8 +58,10 @@ class AppTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: AppText.label(colors.muted)),
-        AppSpacing.gap8,
+        if (label != null) ...[
+          Text(label!, style: AppText.label(colors.muted)),
+          AppSpacing.gap8,
+        ],
         TextFormField(
           controller: controller,
           obscureText: obscureText,

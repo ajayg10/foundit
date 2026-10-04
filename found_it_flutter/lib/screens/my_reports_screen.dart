@@ -17,7 +17,6 @@ class _MyReportsScreenState extends State<MyReportsScreen>
   late TabController _tabController;
   List<ItemReport> _userReports = [];
   bool _isLoading = true;
-  String? _error;
 
   @override
   void initState() {
@@ -33,17 +32,13 @@ class _MyReportsScreenState extends State<MyReportsScreen>
   }
 
   Future<void> _loadUserReports() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    setState(() => _isLoading = true);
     try {
       final reports = await client.report.listUserReports(
         AppState.instance.currentUser.userId,
       );
       setState(() => _userReports = reports);
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
       debugPrint('Error loading user reports: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -59,73 +54,82 @@ class _MyReportsScreenState extends State<MyReportsScreen>
         .where((r) => r.reportType == 'found')
         .toList();
 
-    final colors = context.colors;
-
-    return AppScaffold(
-      appBar: AppTopBar(
-        title: 'My Activity & Reports',
+    return Scaffold(
+      backgroundColor: context.colors.bg,
+      appBar: AppBar(
+        backgroundColor: context.colors.surface,
+        title: Text(
+          'My Activity & Reports',
+          style: AppText.h2(context.colors.ink),
+        ),
+        bottom: TabBar(
+          controller: _tabController,
+          labelColor: context.colors.brand,
+          unselectedLabelColor: context.colors.muted,
+          indicatorColor: context.colors.brand,
+          indicatorWeight: 3,
+          tabs: [
+            Tab(text: 'Lost Items (${lostReports.length})'),
+            Tab(text: 'Found Items (${foundReports.length})'),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          Container(
-            color: colors.surface,
-            child: TabBar(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : TabBarView(
               controller: _tabController,
-              labelColor: colors.brand,
-              unselectedLabelColor: colors.muted,
-              indicatorColor: colors.brand,
-              indicatorWeight: 3,
-              labelStyle: AppText.label(colors.brand),
-              unselectedLabelStyle: AppText.label(colors.muted),
-              tabs: [
-                Tab(text: 'Lost Items (${lostReports.length})'),
-                Tab(text: 'Found Items (${foundReports.length})'),
+              children: [
+                _buildReportList(
+                  lostReports,
+                  'You haven\'t reported any lost items yet.',
+                ),
+                _buildReportList(
+                  foundReports,
+                  'You haven\'t posted any found items yet.',
+                ),
               ],
             ),
-          ),
-          Divider(height: 1, color: colors.line),
-          Expanded(
-            child: _isLoading && _userReports.isEmpty
-                ? const SkeletonList()
-                : _error != null && _userReports.isEmpty
-                ? ErrorState(
-                    message: _error!,
-                    onRetry: _loadUserReports,
-                  )
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildReportList(
-                        lostReports,
-                        'You haven\'t reported any lost items yet.',
-                      ),
-                      _buildReportList(
-                        foundReports,
-                        'You haven\'t posted any found items yet.',
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _buildReportList(List<ItemReport> reports, String emptyMessage) {
     if (reports.isEmpty) {
-      return EmptyState(
-        title: 'No Reports',
-        body: emptyMessage,
-        icon: Icons.folder_open,
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.s32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.s16),
+                decoration: BoxDecoration(
+                  color: context.colors.surface,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.folder_open,
+                  size: 40,
+                  color: context.colors.muted,
+                ),
+              ),
+              AppSpacing.gap16,
+              Text(
+                emptyMessage,
+                textAlign: TextAlign.center,
+                style: AppText.body(context.colors.muted),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     return RefreshIndicator(
       onRefresh: _loadUserReports,
       child: ListView.separated(
-        padding: const EdgeInsets.all(AppSpacing.s16),
+        padding: const EdgeInsets.all(16),
         itemCount: reports.length,
-        separatorBuilder: (_, __) => AppSpacing.gap12,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final report = reports[index];
           return ItemCard(

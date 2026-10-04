@@ -354,39 +354,31 @@ class _MapLocationPickerScreenState extends State<MapLocationPickerScreen> {
                           color: colors.surface,
                           borderRadius: AppRadius.panelBr,
                           elevation: 4,
-                          child: TextField(
+                          child: AppTextField(
+                            label: '',
+                            hint: 'Search airport, college, mall, office…',
                             controller: _searchCtrl,
                             focusNode: _searchFocus,
-                            decoration: InputDecoration(
-                              hintText:
-                                  'Search airport, college, mall, office…',
-                              hintStyle: AppText.body(colors.muted),
-                              prefixIcon: Icon(
-                                Icons.search_rounded,
-                                color: colors.brand,
-                              ),
-                              suffixIcon: _searchCtrl.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(
-                                        Icons.close_rounded,
-                                        size: 18,
-                                        color: colors.ink,
-                                      ),
-                                      onPressed: () {
-                                        _searchCtrl.clear();
-                                        setState(() {
-                                          _suggestions = [];
-                                          _showSuggestions = false;
-                                        });
-                                      },
-                                    )
-                                  : null,
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 14,
-                              ),
+                            prefixIcon: Icon(
+                              Icons.search_rounded,
+                              color: colors.brand,
                             ),
-                            style: AppText.body(colors.ink),
+                            suffixIcon: _searchCtrl.text.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(
+                                      Icons.close_rounded,
+                                      size: 18,
+                                      color: colors.ink,
+                                    ),
+                                    onPressed: () {
+                                      _searchCtrl.clear();
+                                      setState(() {
+                                        _suggestions = [];
+                                        _showSuggestions = false;
+                                      });
+                                    },
+                                  )
+                                : null,
                           ),
                         ),
                       ),

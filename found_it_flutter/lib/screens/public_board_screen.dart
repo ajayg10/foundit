@@ -179,9 +179,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                           ),
                           Text(
                             'Found on ${DateFormat('MMM d, yyyy • h:mm a').format(item.eventTime.toLocal())}',
-                            style: AppText.caption(colors.muted).copyWith(
-                              fontSize: 11,
-                            ),
+                            style: AppText.caption(colors.muted),
                           ),
                         ],
                       ),

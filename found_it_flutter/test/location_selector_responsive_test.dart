@@ -56,22 +56,23 @@ void main() {
       for (final scale in textScales) {
         for (final theme in themes) {
           testWidgets(
-              'LocationSelectorScreen at ${size.width}x${size.height}, scale=$scale, theme=${theme.name}',
-              (tester) async {
-            tester.view.physicalSize = size;
-            tester.view.devicePixelRatio = 1.0;
+            'LocationSelectorScreen at ${size.width}x${size.height}, scale=$scale, theme=${theme.name}',
+            (tester) async {
+              tester.view.physicalSize = size;
+              tester.view.devicePixelRatio = 1.0;
 
-            await tester.pumpWidget(
-              TestAppWrapper(
-                themeMode: theme,
-                textScale: scale,
-                child: const LocationSelectorScreen(),
-              ),
-            );
+              await tester.pumpWidget(
+                TestAppWrapper(
+                  themeMode: theme,
+                  textScale: scale,
+                  child: const LocationSelectorScreen(),
+                ),
+              );
 
-            await tester.pumpAndSettle();
-            expect(tester.takeException(), isNull);
-          });
+              await tester.pumpAndSettle();
+              expect(tester.takeException(), isNull);
+            },
+          );
         }
       }
     }
