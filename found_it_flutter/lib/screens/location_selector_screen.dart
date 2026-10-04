@@ -37,16 +37,24 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
     super.dispose();
   }
 
+  String? _error;
+
   Future<void> _loadLocations() async {
-    setState(() => _isLoading = true);
-    await AppState.instance.fetchLocations(
-      query: _searchController.text.trim().isNotEmpty
-          ? _searchController.text.trim()
-          : null,
-      type: _selectedType == 'all' ? null : _selectedType,
-    );
-    if (mounted) {
-      setState(() => _isLoading = false);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      await AppState.instance.fetchLocations(
+        query: _searchController.text.trim().isNotEmpty
+            ? _searchController.text.trim()
+            : null,
+        type: _selectedType == 'all' ? null : _selectedType,
+      );
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -292,18 +300,8 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
         final colors = context.colors;
 
         return AppScaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: colors.ink,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            title: Text(
-              'Select Campus or Place',
-              style: AppText.h3(colors.ink),
-            ),
+          appBar: AppTopBar(
+            title: 'Select Campus or Place',
             actions: [
               IconButton(
                 icon: Icon(
@@ -315,9 +313,20 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
               ),
             ],
           ),
-          body: Column(
-            children: [
-              // Search Bar
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: constraints.maxHeight * 0.4,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Search Bar
+
               Container(
                 color: colors.bg,
                 padding: const EdgeInsets.fromLTRB(
@@ -326,44 +335,27 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                   AppSpacing.s16,
                   AppSpacing.s12,
                 ),
-                child: TextField(
+                child: AppTextField(
+                  label: '',
                   controller: _searchController,
-                  style: AppText.body(colors.ink),
-                  onChanged: (_) => _loadLocations(),
-                  decoration: InputDecoration(
-                    hintText: 'Search college, airport, or workplace...',
-                    hintStyle: AppText.body(colors.muted),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: colors.muted,
-                    ),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(
-                              Icons.clear_rounded,
-                              color: colors.muted,
-                            ),
-                            onPressed: () {
-                              _searchController.clear();
-                              _loadLocations();
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: colors.surface,
-                    border: OutlineInputBorder(
-                      borderRadius: AppRadius.buttonBr,
-                      borderSide: BorderSide(color: colors.line),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.buttonBr,
-                      borderSide: BorderSide(color: colors.line),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: AppRadius.buttonBr,
-                      borderSide: BorderSide(color: colors.brand, width: 2),
-                    ),
+                  hint: 'Search college, airport, or workplace...',
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: colors.muted,
                   ),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear_rounded,
+                            color: colors.muted,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            _loadLocations();
+                          },
+                        )
+                      : null,
+                  onChanged: (_) => _loadLocations(),
                 ),
               ),
 
@@ -393,31 +385,38 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                           },
                         ),
                       );
-                    }).toList(),
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              Divider(height: 1, color: colors.line),
+                  Divider(height: 1, color: colors.line),
+                        ],
+                      ),
+                    ),
+                  ),
 
-              // Location List
-              Expanded(
-                child: _isLoading
-                    ? Center(
-                        child: CircularProgressIndicator(
-                          color: colors.brand,
-                        ),
-                      )
-                    : locations.isEmpty
-                    ? EmptyState(
-                        title: 'No Locations',
-                        body: 'No places found for "${_searchController.text}"',
-                        icon: Icons.location_off_rounded,
-                        actionLabel: 'Add This Location',
-                        onAction: _showAddLocationDialog,
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(AppSpacing.s16),
-                        itemCount: locations.length,
+                  // Location List
+                  Expanded(
+                    child: _isLoading && locations.isEmpty
+                        ? const SkeletonList()
+                        : _error != null && locations.isEmpty
+                        ? ErrorState(
+                            message: _error!,
+                            onRetry: _loadLocations,
+                          )
+                        : locations.isEmpty
+                        ? EmptyState(
+                            title: 'No Locations',
+                            body: 'No places found for "${_searchController.text}"',
+                            icon: Icons.location_off_rounded,
+                            actionLabel: 'Add This Location',
+                            onAction: _showAddLocationDialog,
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _loadLocations,
+                            child: ListView.separated(
+                              padding: const EdgeInsets.all(AppSpacing.s16),
+                              itemCount: locations.length,
                         separatorBuilder: (_, __) => AppSpacing.gap12,
                         itemBuilder: (context, index) {
                           final loc = locations[index];
@@ -563,9 +562,12 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                             ),
                           );
                         },
-                      ),
-              ),
-            ],
+                            ),
+                          ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       },
