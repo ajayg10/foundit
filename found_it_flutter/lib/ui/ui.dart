@@ -21,3 +21,7 @@ export 'widgets/app_text_field.dart';
 export 'widgets/app_chips.dart';
 export 'widgets/app_states.dart';
 export 'widgets/app_bottom_nav.dart';
+export 'widgets/brand_header.dart';
+export 'widgets/ticket_hero.dart';
+export 'widgets/stat_bento.dart';
+export 'widgets/app_nav_rail.dart';
