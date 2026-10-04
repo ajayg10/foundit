@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/location_picker.dart';
 import '../widgets/photo_picker.dart';
 
@@ -144,44 +143,37 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: AppTheme.recoveryGreen.withOpacity(0.12),
+                  color: context.colors.success.withAlpha(30),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.auto_awesome,
-                  color: AppTheme.recoveryGreen,
+                  color: context.colors.success,
                   size: 40,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               Text(
                 'Found Item Listed & Matched!',
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
-                ),
+                style: AppText.h3(context.colors.ink),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
               Text(
                 'Serverpod processed your found report. Any potential owners who reported lost matching items have been notified with your verification challenge.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.body(context.colors.muted),
               ),
-              const SizedBox(height: 24),
+              AppSpacing.gap24,
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
+                  label: 'View Matches & Alerts',
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('View Matches & Alerts'),
                 ),
               ),
             ],
@@ -199,33 +191,31 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    final colors = context.colors;
+
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           'I Found Something',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+          style: AppText.h3(colors.ink),
         ),
         actions: [
           TextButton.icon(
             onPressed: _fillSampleFoundBackpack,
-            icon: const Icon(
+            icon: Icon(
               Icons.flash_on,
               size: 16,
-              color: AppTheme.warningAmber,
+              color: colors.warning,
             ),
             label: Text(
               'Fill Demo',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.warningAmber,
-              ),
+              style: AppText.label(colors.warning),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.s20),
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
@@ -235,102 +225,92 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    padding: const EdgeInsets.all(AppSpacing.s12),
                     decoration: BoxDecoration(
-                      color: AppTheme.recoveryGreen.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.recoveryGreen.withOpacity(0.2),
-                      ),
+                      color: colors.foundSoft,
+                      borderRadius: AppRadius.panelBr,
+                      border: Border.all(color: colors.found.withAlpha(50)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.volunteer_activism_outlined,
-                          color: AppTheme.recoveryGreen,
+                          color: colors.found,
                           size: 20,
                         ),
-                        const SizedBox(width: 10),
+                        AppSpacing.hGap8,
                         Expanded(
                           child: Text(
                             'Thank you for being a good Samaritan! Set a verification question so only the rightful owner can claim this item.',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppTheme.textMain,
-                            ),
+                            style: AppText.caption(colors.ink),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  AppSpacing.gap24,
 
                   // Title
-                  Text(
-                    'Item Title *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
+                  AppTextField(
+                    label: 'Item Title *',
                     controller: _titleController,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'e.g. Black Backpack, AirPods Pro Case, Set of Keys',
-                      prefixIcon: Icon(Icons.title, size: 18),
-                    ),
+                    hint: 'e.g. Black Backpack, AirPods Pro Case, Set of Keys',
+                    prefixIcon: const Icon(Icons.title, size: 18),
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Please enter item title'
                         : null,
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Description
-                  Text(
-                    'Public Description *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
+                  AppTextField(
+                    label: 'Public Description *',
                     controller: _descController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Describe where you found it, general appearance (keep subtle details private for the verification question!)...',
-                    ),
+                    hint:
+                        'Describe where you found it, general appearance (keep subtle details private for the verification question!)...',
                     validator: (v) => v == null || v.trim().isEmpty
                         ? 'Please enter a description'
                         : null,
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Category
                   Text(
                     'Category *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppText.label(colors.ink),
                   ),
-                  const SizedBox(height: 6),
+                  AppSpacing.gap8,
                   DropdownButtonFormField<String>(
                     value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.category_outlined, size: 18),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(Icons.category_outlined, size: 18),
+                      filled: true,
+                      fillColor: colors.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.line),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.line),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppRadius.buttonBr,
+                        borderSide: BorderSide(color: colors.brand, width: 2),
+                      ),
                     ),
                     items: _categories.map((c) {
-                      return DropdownMenuItem(value: c, child: Text(c));
+                      return DropdownMenuItem(
+                        value: c,
+                        child: Text(c, style: AppText.body(colors.ink)),
+                      );
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) setState(() => _selectedCategory = v);
                     },
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Location
                   LocationPickerWidget(
@@ -347,17 +327,14 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Date and Time Found
                   Text(
                     'Approximate Date & Time Found *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppText.label(colors.ink),
                   ),
-                  const SizedBox(height: 6),
+                  AppSpacing.gap8,
                   InkWell(
                     onTap: () async {
                       final pickedDate = await showDatePicker(
@@ -386,126 +363,93 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                         }
                       }
                     },
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.buttonBr,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
+                        horizontal: AppSpacing.s16,
+                        vertical: AppSpacing.s12,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.borderLight),
+                        color: colors.surface,
+                        borderRadius: AppRadius.buttonBr,
+                        border: Border.all(color: colors.line),
                       ),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.calendar_today,
                             size: 18,
-                            color: AppTheme.primaryBlue,
+                            color: colors.brand,
                           ),
-                          const SizedBox(width: 12),
+                          AppSpacing.hGap12,
                           Text(
                             DateFormat(
                               'EEEE, MMM d, yyyy • h:mm a',
                             ).format(_eventTime),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppTheme.textMain,
-                            ),
+                            style: AppText.body(colors.ink),
                           ),
                           const Spacer(),
-                          const Icon(
+                          Icon(
                             Icons.edit,
                             size: 16,
-                            color: AppTheme.textMuted,
+                            color: colors.muted,
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  AppSpacing.gap24,
 
                   // Verification Question Box
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.s16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFDE68A)),
+                      color: colors.warningSoft,
+                      borderRadius: AppRadius.panelBr,
+                      border: Border.all(color: colors.warning.withAlpha(50)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.verified_user,
-                              color: AppTheme.warningAmber,
+                              color: colors.warning,
                               size: 20,
                             ),
-                            const SizedBox(width: 8),
+                            AppSpacing.hGap8,
                             Text(
                               'Private Ownership Verification Challenge',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF92400E),
-                              ),
+                              style: AppText.label(colors.ink),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        AppSpacing.gap8,
                         Text(
                           'To ensure only the real owner claims this item, ask a specific question that only they would know. The answer is NEVER shown publicly and is securely verified on the server.',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: const Color(0xFF78350F),
-                            height: 1.4,
-                          ),
+                          style: AppText.caption(colors.muted),
                         ),
-                        const SizedBox(height: 14),
+                        AppSpacing.gap16,
 
                         // Question
-                        Text(
-                          'Verification Question *',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF78350F),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
+                        AppTextField(
+                          label: 'Verification Question *',
                           controller: _questionController,
-                          decoration: const InputDecoration(
-                            fillColor: Colors.white,
-                            hintText:
-                                'e.g. What keychain/accessory is attached to it?',
-                          ),
+                          hint:
+                              'e.g. What keychain/accessory is attached to it?',
                           validator: (v) => v == null || v.trim().isEmpty
                               ? 'Please enter a verification question'
                               : null,
                         ),
-                        const SizedBox(height: 12),
+                        AppSpacing.gap12,
 
                         // Answer
-                        Text(
-                          'Expected Answer (Kept Strictly Secret) *',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF78350F),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
+                        AppTextField(
+                          label: 'Expected Answer (Kept Strictly Secret) *',
                           controller: _answerController,
-                          decoration: const InputDecoration(
-                            fillColor: Colors.white,
-                            hintText: 'e.g. Red keychain',
-                            prefixIcon: Icon(Icons.lock, size: 18),
-                          ),
+                          hint: 'e.g. Red keychain',
+                          prefixIcon: const Icon(Icons.lock, size: 18),
                           validator: (v) => v == null || v.trim().isEmpty
                               ? 'Please enter the expected answer'
                               : null,
@@ -513,7 +457,7 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  AppSpacing.gap16,
 
                   // Photo Picker (Camera + Gallery)
                   PhotoPickerWidget(
@@ -522,33 +466,16 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
                       setState(() => _imageUrl = url);
                     },
                   ),
-                  const SizedBox(height: 28),
+                  AppSpacing.gap24,
 
                   // Submit Button
                   SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
+                    child: AppButton(
+                      label: 'Post Found Item & Notify Owners',
                       onPressed: _isSubmitting ? null : _submitReport,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.recoveryGreen,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Post Found Item & Notify Owners',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
+                      variant: AppButtonVariant.found,
+                      loading: _isSubmitting,
                     ),
                   ),
                 ],

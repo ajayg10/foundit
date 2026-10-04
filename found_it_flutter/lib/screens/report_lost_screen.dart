@@ -401,6 +401,7 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
                     child: AppButton(
                       label: 'Submit Lost Report & Find Matches',
                       onPressed: _isSubmitting ? null : _submitReport,
+                      variant: AppButtonVariant.lost,
                       loading: _isSubmitting,
                     ),
                   ),
