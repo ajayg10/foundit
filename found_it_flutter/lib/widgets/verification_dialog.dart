@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 class VerificationDialog extends StatefulWidget {
   final int reportId;
@@ -99,12 +98,12 @@ class _VerificationDialogState extends State<VerificationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: Colors.white,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 440),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.s24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,24 +112,22 @@ class _VerificationDialogState extends State<VerificationDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(AppSpacing.s12),
                   decoration: BoxDecoration(
                     color: _isVerified
-                        ? AppTheme.recoveryGreen.withOpacity(0.12)
-                        : AppTheme.primaryBlue.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
+                        ? colors.success.withAlpha(25)
+                        : colors.brand.withAlpha(25),
+                    borderRadius: AppRadius.buttonBr,
                   ),
                   child: Icon(
                     _isVerified
                         ? Icons.check_circle
                         : Icons.verified_user_outlined,
-                    color: _isVerified
-                        ? AppTheme.recoveryGreen
-                        : AppTheme.primaryBlue,
+                    color: _isVerified ? colors.success : colors.brand,
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 12),
+                AppSpacing.hGap12,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,18 +136,11 @@ class _VerificationDialogState extends State<VerificationDialog> {
                         _isVerified
                             ? 'Verification Successful!'
                             : 'Ownership Verification',
-                        style: GoogleFonts.outfit(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: AppTheme.textMain,
-                        ),
+                        style: AppText.h3(colors.ink),
                       ),
                       Text(
                         widget.itemTitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: AppTheme.textMuted,
-                        ),
+                        style: AppText.caption(colors.muted),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -161,99 +151,87 @@ class _VerificationDialogState extends State<VerificationDialog> {
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close, size: 20),
                   splashRadius: 20,
+                  color: colors.muted,
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            AppSpacing.gap20,
 
             if (_isVerified) ...[
               // Success Content
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFECFDF5),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFA7F3D0)),
+                  color: colors.success.withAlpha(25),
+                  borderRadius: AppRadius.buttonBr,
+                  border: Border.all(color: colors.success.withAlpha(60)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.security,
-                          color: AppTheme.recoveryGreen,
+                          color: colors.success,
                           size: 20,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'You are confirmed as the owner!',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.recoveryGreen,
+                        AppSpacing.hGap8,
+                        Flexible(
+                          child: Text(
+                            'You are confirmed as the owner!',
+                            style: AppText.label(colors.success),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    AppSpacing.gap8,
                     Text(
                       'Your answer was verified by the server. You can now coordinate with the finder to retrieve your item.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: const Color(0xFF065F46),
-                        height: 1.4,
+                      style: AppText.body(colors.success).copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               if (!_isMarkedReturned) ...[
                 Text(
                   'Once you have received your item in person, click below to mark it as Returned.',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppTheme.textMuted,
-                  ),
+                  style: AppText.body(colors.muted),
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.gap12,
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
+                  child: AppButton(
                     onPressed: _isSubmitting ? null : _markReturned,
-                    icon: const Icon(Icons.handshake_outlined, size: 18),
-                    label: Text(
-                      _isSubmitting
-                          ? 'Updating...'
-                          : 'Mark Item Returned & Close Case',
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.recoveryGreen,
-                    ),
+                    icon: Icons.handshake_outlined,
+                    label: 'Mark Item Returned & Close Case',
+                    variant: AppButtonVariant.found,
+                    loading: _isSubmitting,
                   ),
                 ),
               ] else ...[
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(AppSpacing.s12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
+                    color: colors.surface,
+                    borderRadius: AppRadius.buttonBr,
+                    border: Border.all(color: colors.line),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.celebration,
-                        color: AppTheme.recoveryGreen,
+                        color: colors.success,
                         size: 20,
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        '🎉 Item returned and case closed!',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textMain,
+                      AppSpacing.hGap8,
+                      Expanded(
+                        child: Text(
+                          '🎉 Item returned and case closed!',
+                          style: AppText.label(colors.ink),
                         ),
                       ),
                     ],
@@ -263,115 +241,89 @@ class _VerificationDialogState extends State<VerificationDialog> {
             ] else ...[
               // Prompt Section
               Container(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.borderLight),
+                  color: colors.surface,
+                  borderRadius: AppRadius.buttonBr,
+                  border: Border.all(color: colors.line),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'THE FINDER ASKS:',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
+                      style: AppText.caption(colors.muted).copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
-                        color: AppTheme.textMuted,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    AppSpacing.gap8,
                     Text(
                       '"${widget.question}"',
-                      style: GoogleFonts.outfit(
-                        fontSize: 15,
+                      style: AppText.h3(colors.ink).copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textMain,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
 
-              Text(
-                'Your Answer',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textMain,
-                ),
-              ),
-              const SizedBox(height: 6),
-              TextField(
+              AppTextField(
+                label: 'Your Answer',
                 controller: _answerController,
                 enabled: !_isLocked && !_isSubmitting,
-                decoration: InputDecoration(
-                  hintText: 'e.g. Red keychain, dog photo, etc.',
-                  prefixIcon: const Icon(Icons.lock_open, size: 18),
-                  errorText: _errorMessage,
-                ),
+                hint: 'e.g. Red keychain, dog photo, etc.',
+                prefixIcon: const Icon(Icons.lock_open, size: 18),
+                errorText: _errorMessage,
                 onSubmitted: (_) => _submitAnswer(),
               ),
+
               if (_remainingAttempts != null && !_isVerified) ...[
-                const SizedBox(height: 4),
+                AppSpacing.gap4,
                 Text(
                   'Attempts remaining: $_remainingAttempts',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _remainingAttempts! <= 1
-                        ? AppTheme.lostRed
-                        : AppTheme.warningAmber,
-                  ),
+                  style: AppText.caption(
+                    _remainingAttempts! <= 1 ? colors.error : colors.warning,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
 
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.shield_outlined,
-                    size: 14,
-                    color: AppTheme.textMuted,
+                    size: 16,
+                    color: colors.muted,
                   ),
-                  const SizedBox(width: 6),
+                  AppSpacing.hGap8,
                   Expanded(
                     child: Text(
                       'Verified server-side. The finder\'s expected answer is never shared with you.',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppTheme.textMuted,
-                      ),
+                      style: AppText.caption(colors.muted),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              AppSpacing.gap24,
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
+                  AppButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Cancel'),
+                    label: 'Cancel',
+                    variant: AppButtonVariant.tertiary,
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
+                  AppSpacing.hGap12,
+                  AppButton(
                     onPressed: _isLocked || _isSubmitting
                         ? null
                         : _submitAnswer,
-                    child: _isSubmitting
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Submit Verification'),
+                    label: 'Submit Verification',
+                    loading: _isSubmitting,
                   ),
                 ],
               ),

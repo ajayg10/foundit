@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../client.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/verification_dialog.dart';
 import 'location_selector_screen.dart';
@@ -224,21 +225,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
                   ),
                 )
               else
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Center(
-                    child: Text(
+                const EmptyState(
+                  title: 'No Question Set',
+                  body:
                       'No verification question set. Please visit Campus Lost & Found center.',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
-                    ),
-                  ),
+                  icon: Icons.help_outline,
                 ),
             ],
           ),
@@ -437,41 +428,11 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _items.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.inventory_2_outlined,
-                            size: 48,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No found items found',
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textMain,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Try clearing your search filters or check back later.',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
+                ? const EmptyState(
+                    title: 'No found items found',
+                    body:
+                        'Try clearing your search filters or check back later.',
+                    icon: Icons.inventory_2_outlined,
                   )
                 : RefreshIndicator(
                     onRefresh: _fetchItems,

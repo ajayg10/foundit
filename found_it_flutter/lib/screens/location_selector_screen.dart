@@ -3,6 +3,7 @@ import 'package:found_it_client/found_it_client.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 /// Clean, mobile-friendly screen allowing users to select or add their campus or workplace.
 class LocationSelectorScreen extends StatefulWidget {
@@ -420,38 +421,12 @@ class _LocationSelectorScreenState extends State<LocationSelectorScreen> {
                         ),
                       )
                     : locations.isEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.location_off_rounded,
-                                size: 56,
-                                color: AppTheme.textMuted.withOpacity(0.5),
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'No places found for "${_searchController.text}"',
-                                style: GoogleFonts.inter(
-                                  color: AppTheme.textMuted,
-                                  fontSize: 15,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                onPressed: _showAddLocationDialog,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppTheme.primaryDark,
-                                ),
-                                icon: const Icon(Icons.add_rounded),
-                                label: const Text('Add This Location'),
-                              ),
-                            ],
-                          ),
-                        ),
+                    ? EmptyState(
+                        title: 'No Locations',
+                        body: 'No places found for "${_searchController.text}"',
+                        icon: Icons.location_off_rounded,
+                        actionLabel: 'Add This Location',
+                        onAction: _showAddLocationDialog,
                       )
                     : ListView.separated(
                         padding: const EdgeInsets.all(16),

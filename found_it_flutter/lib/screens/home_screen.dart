@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/metric_card.dart';
 import 'location_selector_screen.dart';
@@ -903,22 +904,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       )
                     else if (_recentFoundItems.isEmpty)
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppTheme.borderLight),
-                        ),
-                        child: Center(
-                          child: Text(
+                      const EmptyState(
+                        title: 'No Items',
+                        body:
                             'No items currently on the board. Post one or click Seed Demo Data!',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppTheme.textMuted,
-                            ),
-                          ),
-                        ),
+                        icon: Icons.inventory_2_outlined,
                       )
                     else
                       Column(

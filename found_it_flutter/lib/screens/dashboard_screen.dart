@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
 import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 import '../widgets/match_card.dart';
 
@@ -270,7 +271,11 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         Expanded(
           child: filteredReports.isEmpty
-              ? _emptyState(emptyMessage, emptyIcon)
+              ? EmptyState(
+                  title: 'No Reports',
+                  body: emptyMessage,
+                  icon: emptyIcon,
+                )
               : RefreshIndicator(
                   onRefresh: _loadAll,
                   child: ListView.separated(
@@ -336,9 +341,10 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Widget _buildMatchesList() {
     if (_matches.isEmpty) {
-      return _emptyState(
-        'No matches yet.\nKeep your report open — we\'ll notify you!',
-        Icons.auto_awesome_outlined,
+      return const EmptyState(
+        title: 'No Matches',
+        body: 'Keep your report open — we\'ll notify you!',
+        icon: Icons.auto_awesome_outlined,
       );
     }
     return RefreshIndicator(
@@ -354,37 +360,6 @@ class _DashboardScreenState extends State<DashboardScreen>
             currentUserId: AppState.instance.currentUser.userId,
           );
         },
-      ),
-    );
-  }
-
-  Widget _emptyState(String message, IconData icon) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 40, color: AppTheme.textMuted),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppTheme.textMuted,
-                height: 1.6,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

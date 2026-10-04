@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import '../screens/location_selector_screen.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import 'map_location_picker.dart';
 
 /// Dynamic location & sub-area picker scoped to the user's active campus/workplace.
-/// Integrates OpenStreetMap + Nominatim for map pin & venue selection, with
-/// automatic synchronization to Primary Location and zone/sub-area chips that
-/// preserve the precise map pin coordinates.
 class LocationPickerWidget extends StatefulWidget {
   final String selectedLabel;
   final int? selectedAreaId;
@@ -68,7 +64,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
           activeLoc.latitude,
           activeLoc.longitude,
         );
-        // If passed coordinates differ by more than 20 meters from campus default, mark as custom pin
         if (dist > 20.0) {
           _hasCustomMapPin = true;
           if (_pinnedVenue.isEmpty && widget.selectedLabel.isNotEmpty) {
@@ -119,27 +114,24 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
   }
 
   void _showCustomAreaDialog(BuildContext context, Location activeLoc) {
+    final colors = context.colors;
     final customController = TextEditingController();
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Custom Spot / Area'),
-        content: TextField(
+        title: Text('Custom Spot / Area', style: AppText.h3(colors.ink)),
+        content: AppTextField(
+          label: 'Area description',
           controller: customController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'e.g. 3rd floor staircase near lab 2',
-          ),
+          hint: 'e.g. 3rd floor staircase near lab 2',
         ),
         actions: [
-          TextButton(
+          AppButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            label: 'Cancel',
+            variant: AppButtonVariant.tertiary,
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryDark,
-            ),
+          AppButton(
             onPressed: () {
               final spot = customController.text.trim();
               if (spot.isNotEmpty) {
@@ -170,7 +162,7 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 Navigator.pop(ctx);
               }
             },
-            child: const Text('Select'),
+            label: 'Select',
           ),
         ],
       ),
@@ -210,7 +202,6 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
     });
 
     try {
-      // 1. Check if the pin is near an existing registered location in AppState
       Location? matchedLoc;
       double minDistance = double.infinity;
       for (final loc in AppState.instance.locations) {
@@ -230,10 +221,8 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
       }
 
       if (matchedLoc != null) {
-        // Matched an existing campus or registered location
         await AppState.instance.selectLocation(matchedLoc);
       } else {
-        // Automatically create and select this new location so Primary Location updates immediately
         final cleanName = venueName.isNotEmpty
             ? venueName
             : 'Selected Location';
@@ -274,13 +263,14 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return AnimatedBuilder(
       animation: AppState.instance,
       builder: (context, _) {
         final activeLoc = AppState.instance.currentLocation;
         final areas = AppState.instance.currentLocationAreas;
 
-        // Primary title for the location banner
         final primaryTitle =
             activeLoc?.name ??
             (_pinnedVenue.isNotEmpty
@@ -292,20 +282,23 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
           children: [
             // ── Primary Location Banner ──────────────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s16,
+                vertical: AppSpacing.s12,
+              ),
               decoration: BoxDecoration(
-                color: const Color(0xFFEEF2FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFC7D2FE)),
+                color: colors.brand.withAlpha(20),
+                borderRadius: AppRadius.tileBr,
+                border: Border.all(color: colors.brand.withAlpha(50)),
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.place_rounded,
-                    color: Color(0xFF4F46E5),
+                    color: colors.brand,
                     size: 22,
                   ),
-                  const SizedBox(width: 10),
+                  AppSpacing.hGap12,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,33 +307,29 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                           children: [
                             Text(
                               'Primary Location',
-                              style: GoogleFonts.inter(
-                                fontSize: 10,
+                              style: AppText.caption(colors.brand).copyWith(
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF6366F1),
                                 letterSpacing: 0.5,
                               ),
                             ),
                             if (_isResolvingLocation) ...[
-                              const SizedBox(width: 8),
-                              const SizedBox(
+                              AppSpacing.hGap8,
+                              SizedBox(
                                 width: 10,
                                 height: 10,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Color(0xFF6366F1),
+                                  color: colors.brand,
                                 ),
                               ),
                             ],
                           ],
                         ),
-                        const SizedBox(height: 2),
+                        AppSpacing.gap4,
                         Text(
                           primaryTitle,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
+                          style: AppText.label(colors.ink).copyWith(
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF312E81),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -349,13 +338,11 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                             _pinnedVenue.isNotEmpty &&
                             _pinnedVenue.toLowerCase() !=
                                 activeLoc?.name.toLowerCase()) ...[
-                          const SizedBox(height: 1),
+                          AppSpacing.gap4,
                           Text(
                             '📍 Pin: $_pinnedVenue',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
+                            style: AppText.caption(colors.brand).copyWith(
                               fontWeight: FontWeight.w500,
-                              color: const Color(0xFF4F46E5),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -367,8 +354,8 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   TextButton.icon(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+                        horizontal: AppSpacing.s8,
+                        vertical: AppSpacing.s4,
                       ),
                       visualDensity: VisualDensity.compact,
                     ),
@@ -395,64 +382,58 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         );
                       }
                     },
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.swap_horiz_rounded,
                       size: 16,
-                      color: Color(0xFF4F46E5),
+                      color: colors.brand,
                     ),
                     label: Text(
                       'Change',
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
+                      style: AppText.caption(colors.brand).copyWith(
                         fontWeight: FontWeight.bold,
-                        color: const Color(0xFF4F46E5),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            AppSpacing.gap12,
 
             // ── Pin on Map Button ────────────────────────────────────────
             InkWell(
               onTap: () => _openMapPicker(context),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.buttonBr,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 11,
+                  horizontal: AppSpacing.s16,
+                  vertical: AppSpacing.s12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  color: colors.surface,
+                  borderRadius: AppRadius.buttonBr,
                   border: Border.all(
-                    color: _hasCustomMapPin
-                        ? const Color(0xFF86EFAC)
-                        : AppTheme.borderLight,
+                    color: _hasCustomMapPin ? colors.success : colors.line,
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(AppSpacing.s8),
                       decoration: BoxDecoration(
                         color: _hasCustomMapPin
-                            ? const Color(0xFFDCFCE7)
-                            : AppTheme.primaryDark.withOpacity(0.1),
+                            ? colors.success.withAlpha(20)
+                            : colors.brand.withAlpha(25),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         _hasCustomMapPin
                             ? Icons.pin_drop_rounded
                             : Icons.map_outlined,
-                        color: _hasCustomMapPin
-                            ? const Color(0xFF16A34A)
-                            : AppTheme.primaryDark,
+                        color: _hasCustomMapPin ? colors.success : colors.brand,
                         size: 18,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    AppSpacing.hGap12,
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,21 +442,14 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                             _hasCustomMapPin
                                 ? 'Pin on Map (Active)'
                                 : 'Pin on Map',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textMain,
-                            ),
+                            style: AppText.label(colors.ink),
                           ),
                           Text(
                             _hasCustomMapPin && _pinnedVenue.isNotEmpty
                                 ? _pinnedVenue
                                 : 'Search venues or tap the map to drop a pin',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: _hasCustomMapPin
-                                  ? const Color(0xFF15803D)
-                                  : AppTheme.textMuted,
+                            style: AppText.caption(
+                              _hasCustomMapPin ? colors.success : colors.muted,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -483,9 +457,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
-                      color: AppTheme.textMuted,
+                      color: colors.muted,
                     ),
                   ],
                 ),
@@ -494,42 +468,39 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
 
             // ── Map Pin Active Pill & Reset ──────────────────────────────
             if (_hasCustomMapPin) ...[
-              const SizedBox(height: 6),
+              AppSpacing.gap8,
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
+                  horizontal: AppSpacing.s12,
+                  vertical: AppSpacing.s8,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF0FDF4),
+                  color: colors.success.withAlpha(20),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                  border: Border.all(color: colors.success.withAlpha(60)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.my_location_rounded,
-                      size: 15,
-                      color: Color(0xFF16A34A),
+                      size: 16,
+                      color: colors.success,
                     ),
-                    const SizedBox(width: 8),
+                    AppSpacing.hGap8,
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Map Pin Coordinates Locked',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
+                            style: AppText.caption(colors.success).copyWith(
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF15803D),
                             ),
                           ),
                           Text(
                             '${_pinnedLat.toStringAsFixed(4)}, ${_pinnedLon.toStringAsFixed(4)}${_pinnedAddress.isNotEmpty ? " • $_pinnedAddress" : (_pinnedVenue.isNotEmpty ? " • $_pinnedVenue" : "")}',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: const Color(0xFF166534),
+                            style: AppText.caption(colors.success).copyWith(
+                              color: colors.success.withAlpha(200),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -556,12 +527,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                           }
                         },
                         borderRadius: BorderRadius.circular(16),
-                        child: const Padding(
-                          padding: EdgeInsets.all(4),
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.s4),
                           child: Icon(
                             Icons.close_rounded,
                             size: 16,
-                            color: Color(0xFF15803D),
+                            color: colors.success,
                           ),
                         ),
                       ),
@@ -571,18 +542,14 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
               ),
             ],
 
-            const SizedBox(height: 12),
+            AppSpacing.gap12,
 
             // ── Specific Sub-Area chips ──────────────────────────────────
             Text(
               'Specific Zone / Sub-Area *',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.textMain,
-              ),
+              style: AppText.label(colors.ink),
             ),
-            const SizedBox(height: 8),
+            AppSpacing.gap8,
 
             if (areas.isNotEmpty) ...[
               Wrap(
@@ -597,13 +564,12 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                       avatar: Icon(
                         _getAreaIcon(area.name),
                         size: 16,
-                        color: isSelected ? Colors.white : AppTheme.textMuted,
+                        color: isSelected ? colors.surface : colors.muted,
                       ),
                       label: Text(area.name),
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected && activeLoc != null) {
-                          // CRITICAL FIX: If map pin was chosen, keep exact map pin coordinates!
                           final double finalLat = _hasCustomMapPin
                               ? _pinnedLat
                               : (area.latitude ?? activeLoc.latitude);
@@ -633,39 +599,36 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                           );
                         }
                       },
-                      selectedColor: AppTheme.primaryDark,
-                      backgroundColor: Colors.white,
-                      labelStyle: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w500,
-                        color: isSelected ? Colors.white : AppTheme.textMain,
-                      ),
+                      selectedColor: colors.brand,
+                      backgroundColor: colors.surface,
+                      labelStyle:
+                          AppText.caption(
+                            isSelected ? colors.surface : colors.ink,
+                          ).copyWith(
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                          ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                         side: BorderSide(
-                          color: isSelected
-                              ? AppTheme.primaryDark
-                              : AppTheme.borderLight,
+                          color: isSelected ? colors.brand : colors.line,
                         ),
                       ),
                     );
                   }),
                   // Custom spot chip
                   ActionChip(
-                    avatar: const Icon(
+                    avatar: Icon(
                       Icons.add_rounded,
                       size: 16,
-                      color: AppTheme.primaryBlue,
+                      color: colors.brand,
                     ),
                     label: const Text('Other Spot…'),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: AppTheme.borderLight),
-                    labelStyle: GoogleFonts.inter(
-                      fontSize: 12,
+                    backgroundColor: colors.surface,
+                    side: BorderSide(color: colors.line),
+                    labelStyle: AppText.caption(colors.brand).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryBlue,
                     ),
                     onPressed: () {
                       if (activeLoc != null) {
@@ -681,18 +644,16 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 runSpacing: 8,
                 children: [
                   ActionChip(
-                    avatar: const Icon(
+                    avatar: Icon(
                       Icons.add_rounded,
                       size: 16,
-                      color: AppTheme.primaryBlue,
+                      color: colors.brand,
                     ),
                     label: const Text('Specify Spot / Zone…'),
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: AppTheme.borderLight),
-                    labelStyle: GoogleFonts.inter(
-                      fontSize: 12,
+                    backgroundColor: colors.surface,
+                    side: BorderSide(color: colors.line),
+                    labelStyle: AppText.caption(colors.brand).copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryBlue,
                     ),
                     onPressed: () {
                       if (activeLoc != null) {
@@ -703,15 +664,18 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                 ],
               ),
             ],
-            const SizedBox(height: 10),
+            AppSpacing.gap12,
 
             // ── Selected summary pill ────────────────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s16,
+                vertical: AppSpacing.s12,
+              ),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colors.bg,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppTheme.borderLight),
+                border: Border.all(color: colors.line),
               ),
               child: Row(
                 children: [
@@ -720,11 +684,9 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                         ? Icons.pin_drop_rounded
                         : Icons.pin_drop_outlined,
                     size: 18,
-                    color: _hasCustomMapPin
-                        ? const Color(0xFF16A34A)
-                        : AppTheme.primaryBlue,
+                    color: _hasCustomMapPin ? colors.success : colors.brand,
                   ),
-                  const SizedBox(width: 8),
+                  AppSpacing.hGap8,
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -733,22 +695,15 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                           widget.selectedLabel.isNotEmpty
                               ? widget.selectedLabel
                               : 'Select an area above or pin on map',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.textMain,
-                          ),
+                          style: AppText.label(colors.ink),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (widget.latitude != 0.0 && widget.longitude != 0.0)
                           Text(
                             'Lat: ${widget.latitude.toStringAsFixed(4)}, Lon: ${widget.longitude.toStringAsFixed(4)}${_hasCustomMapPin ? " (Map Pin Locked)" : ""}',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: _hasCustomMapPin
-                                  ? const Color(0xFF15803D)
-                                  : AppTheme.textMuted,
+                            style: AppText.caption(
+                              _hasCustomMapPin ? colors.success : colors.muted,
                             ),
                           ),
                       ],
@@ -757,28 +712,26 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> {
                   if (widget.selectedLabel.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
+                        horizontal: AppSpacing.s8,
+                        vertical: AppSpacing.s4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.recoveryGreen.withOpacity(0.12),
+                        color: colors.success.withAlpha(20),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.check_circle,
                             size: 12,
-                            color: AppTheme.recoveryGreen,
+                            color: colors.success,
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.hGap4,
                           Text(
                             _hasCustomMapPin ? 'Pin Locked' : 'Area Selected',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
+                            style: AppText.caption(colors.success).copyWith(
                               fontWeight: FontWeight.w600,
-                              color: AppTheme.recoveryGreen,
                             ),
                           ),
                         ],

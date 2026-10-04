@@ -3,9 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 /// Rich item card that shows:
 /// - Left accent border colored by report type
@@ -24,34 +23,18 @@ class ItemCard extends StatelessWidget {
     this.trailing,
   });
 
-  Color get _typeColor => report.reportType.toLowerCase() == 'lost'
-      ? AppTheme.lostRed
-      : AppTheme.recoveryGreen;
-
-  Color _statusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'open':
-        return _typeColor;
-      case 'matched':
-        return AppTheme.matchIndigo;
-      case 'claimpending':
-        return AppTheme.warningAmber;
-      case 'verified':
-        return AppTheme.recoveryGreen;
-      case 'returned':
-        return const Color(0xFF64748B);
-      default:
-        return AppTheme.primaryBlue;
-    }
+  Color _typeColor(BuildContext context) {
+    final colors = context.colors;
+    return report.reportType.toLowerCase() == 'lost'
+        ? colors.lost
+        : colors.found;
   }
 
-  String _statusLabel(String status) {
-    switch (status.toLowerCase()) {
-      case 'claimpending':
-        return 'CLAIM PENDING';
-      default:
-        return status.toUpperCase();
-    }
+  Color _typeSoftColor(BuildContext context) {
+    final colors = context.colors;
+    return report.reportType.toLowerCase() == 'lost'
+        ? colors.lostSoft
+        : colors.foundSoft;
   }
 
   IconData _categoryIcon(String category) {
@@ -85,10 +68,9 @@ class ItemCard extends StatelessWidget {
     return DateFormat('MMM d').format(dt.toLocal());
   }
 
-  Widget _photoWidget() {
+  Widget _photoWidget(BuildContext context) {
     final img = report.imageUrl;
     if (img != null && img.isNotEmpty) {
-      // Base64 encoded image
       if (img.startsWith('data:image')) {
         try {
           final base64Str = img.split(',').last;
@@ -98,186 +80,140 @@ class ItemCard extends StatelessWidget {
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
-            errorBuilder: (_, __, ___) => _iconPlaceholder(),
+            errorBuilder: (_, __, ___) => _iconPlaceholder(context),
           );
         } catch (_) {
-          return _iconPlaceholder();
+          return _iconPlaceholder(context);
         }
       }
-      // Network URL
       return Image.network(
         img,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
         loadingBuilder: (_, child, progress) =>
-            progress == null ? child : _iconPlaceholder(),
-        errorBuilder: (_, __, ___) => _iconPlaceholder(),
+            progress == null ? child : _iconPlaceholder(context),
+        errorBuilder: (_, __, ___) => _iconPlaceholder(context),
       );
     }
-    return _iconPlaceholder();
+    return _iconPlaceholder(context);
   }
 
-  Widget _iconPlaceholder() {
+  Widget _iconPlaceholder(BuildContext context) {
     return Icon(
       _categoryIcon(report.category),
-      color: _typeColor,
+      color: _typeColor(context),
       size: 30,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final isLost = report.reportType.toLowerCase() == 'lost';
-    final sc = _statusColor(report.status);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border(
-            left: BorderSide(color: _typeColor, width: 5),
-            top: const BorderSide(color: AppTheme.borderLight),
-            right: const BorderSide(color: AppTheme.borderLight),
-            bottom: const BorderSide(color: AppTheme.borderLight),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Photo thumbnail ──────────────────────────────────────
-            Container(
-              width: 76,
-              height: 76,
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: _typeColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12),
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left accent border
+              Container(
+                width: 4,
+                color: _typeColor(context),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: _photoWidget(),
-              ),
-            ),
 
-            // ── Content ──────────────────────────────────────────────
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 12, 14, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Badges row
-                    Row(
-                      children: [
-                        _chip(
-                          isLost ? 'LOST' : 'FOUND',
-                          _typeColor,
-                          _typeColor.withOpacity(0.12),
-                        ),
-                        const SizedBox(width: 5),
-                        _chip(
-                          _statusLabel(report.status),
-                          sc,
-                          sc.withOpacity(0.10),
-                        ),
-                        const Spacer(),
-                        Text(
-                          _relativeTime(report.eventTime),
-                          style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-
-                    // Title
-                    Text(
-                      report.title,
-                      style: GoogleFonts.outfit(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textMain,
-                        height: 1.2,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 3),
-
-                    // Description
-                    Text(
-                      report.description,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Location row
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_rounded,
-                          size: 13,
-                          color: AppTheme.primaryBlue,
-                        ),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            report.locationLabel,
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: AppTheme.textMain,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (trailing != null) trailing!,
-                      ],
-                    ),
-                  ],
+              // ── Photo thumbnail ──────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.s12),
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: _typeSoftColor(context),
+                    borderRadius: AppRadius.buttonBr,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: _photoWidget(context),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _chip(String text, Color fg, Color bg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 9,
-          fontWeight: FontWeight.w800,
-          color: fg,
-          letterSpacing: 0.3,
+              // ── Content ──────────────────────────────────────────────
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: AppSpacing.s12,
+                    right: AppSpacing.s16,
+                    bottom: AppSpacing.s12,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Badges row
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: AppSpacing.s8,
+                        runSpacing: AppSpacing.s4,
+                        children: [
+                          StatusBadge(status: isLost ? 'Lost' : 'Found'),
+                          if (report.status.toLowerCase() != 'open')
+                            StatusBadge(status: report.status),
+                          Text(
+                            _relativeTime(report.eventTime),
+                            style: AppText.caption(colors.muted),
+                          ),
+                        ],
+                      ),
+                      AppSpacing.gap8,
+
+                      // Title
+                      Text(
+                        report.title,
+                        style: AppText.h3(colors.ink),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      AppSpacing.gap4,
+
+                      // Description
+                      Text(
+                        report.description,
+                        style: AppText.body(colors.muted),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      AppSpacing.gap8,
+
+                      // Location row
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_rounded,
+                            size: 16,
+                            color: colors.brand,
+                          ),
+                          AppSpacing.hGap4,
+                          Expanded(
+                            child: Text(
+                              report.locationLabel,
+                              style: AppText.caption(colors.ink),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (trailing != null) trailing!,
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
