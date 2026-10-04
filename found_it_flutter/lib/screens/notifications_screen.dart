@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -22,18 +21,18 @@ class NotificationsScreen extends StatelessWidget {
     }
   }
 
-  Color _getColorForType(String type) {
+  Color _getColorForType(String type, AppSemantic colors) {
     switch (type) {
       case 'matchFound':
-        return AppTheme.matchIndigo;
+        return colors.brand;
       case 'verificationSuccess':
-        return AppTheme.recoveryGreen;
+        return colors.success;
       case 'verificationFailed':
-        return AppTheme.lostRed;
+        return colors.error;
       case 'itemReturned':
-        return AppTheme.primaryBlue;
+        return colors.found;
       default:
-        return AppTheme.textMuted;
+        return colors.muted;
     }
   }
 
@@ -43,70 +42,39 @@ class NotificationsScreen extends StatelessWidget {
       listenable: AppState.instance,
       builder: (context, _) {
         final notifications = AppState.instance.notifications;
+        final colors = context.colors;
 
-        return Scaffold(
+        return AppScaffold(
           appBar: AppBar(
             title: Text(
               'Real-Time Notifications',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+              style: AppText.h3(colors.ink),
             ),
             actions: [
               if (notifications.isNotEmpty)
                 TextButton(
                   onPressed: () => AppState.instance.markAllNotificationsRead(),
-                  child: const Text('Mark all read'),
+                  child: Text(
+                    'Mark all read',
+                    style: AppText.label(colors.brand),
+                  ),
                 ),
             ],
           ),
           body: notifications.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.notifications_none,
-                            size: 48,
-                            color: AppTheme.textMuted,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'No Notifications Yet',
-                          style: GoogleFonts.outfit(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'You will receive instant alerts here whenever Serverpod finds potential matches or when someone verifies your item.',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: AppTheme.textMuted,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              ? const EmptyState(
+                  icon: Icons.notifications_none,
+                  title: 'No Notifications Yet',
+                  body:
+                      'You will receive instant alerts here whenever Serverpod finds potential matches or when someone verifies your item.',
                 )
               : ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppSpacing.s16),
                   itemCount: notifications.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     final item = notifications[index];
-                    final color = _getColorForType(item.type);
+                    final color = _getColorForType(item.type, colors);
                     final icon = _getIconForType(item.type);
 
                     return InkWell(
@@ -115,27 +83,29 @@ class NotificationsScreen extends StatelessWidget {
                           AppState.instance.markNotificationRead(item.id!);
                         }
                       },
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadius.panelBr,
                       child: Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(AppSpacing.s16),
                         decoration: BoxDecoration(
                           color: item.isRead
-                              ? Colors.white
-                              : const Color(0xFFF0FDF4),
-                          borderRadius: BorderRadius.circular(14),
+                              ? colors.surface
+                              : colors.success.withAlpha(10),
+                          borderRadius: AppRadius.panelBr,
                           border: Border.all(
                             color: item.isRead
-                                ? AppTheme.borderLight
-                                : const Color(0xFFA7F3D0),
+                                ? colors.line
+                                : colors.success.withAlpha(50),
                             width: item.isRead ? 1 : 1.5,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          boxShadow: item.isRead
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: colors.success.withAlpha(20),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,12 +113,12 @@ class NotificationsScreen extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: color.withOpacity(0.12),
+                                color: color.withAlpha(30),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(icon, color: color, size: 20),
                             ),
-                            const SizedBox(width: 14),
+                            AppSpacing.hGap16,
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,12 +128,10 @@ class NotificationsScreen extends StatelessWidget {
                                       Expanded(
                                         child: Text(
                                           item.title,
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 15,
-                                            fontWeight: item.isRead
-                                                ? FontWeight.w600
-                                                : FontWeight.w700,
-                                            color: AppTheme.textMain,
+                                          style: AppText.label(
+                                            item.isRead
+                                                ? colors.ink
+                                                : colors.ink,
                                           ),
                                         ),
                                       ),
@@ -171,33 +139,26 @@ class NotificationsScreen extends StatelessWidget {
                                         Container(
                                           width: 8,
                                           height: 8,
-                                          decoration: const BoxDecoration(
-                                            color: AppTheme.recoveryGreen,
+                                          decoration: BoxDecoration(
+                                            color: colors.success,
                                             shape: BoxShape.circle,
                                           ),
                                         ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
+                                  AppSpacing.gap4,
                                   Text(
                                     item.body,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      color: item.isRead
-                                          ? AppTheme.textMuted
-                                          : AppTheme.textMain,
-                                      height: 1.4,
+                                    style: AppText.body(
+                                      item.isRead ? colors.muted : colors.ink,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  AppSpacing.gap8,
                                   Text(
                                     DateFormat(
                                       'MMM d, h:mm a',
                                     ).format(item.createdAt.toLocal()),
-                                    style: GoogleFonts.robotoMono(
-                                      fontSize: 11,
-                                      color: AppTheme.textMuted,
-                                    ),
+                                    style: AppText.caption(colors.muted),
                                   ),
                                 ],
                               ),

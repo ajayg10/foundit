@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../client.dart';
+import '../ui/ui.dart';
 
 class GreetingsScreen extends StatefulWidget {
   final Future<void> Function()? onSignOut;
@@ -40,30 +40,30 @@ class _GreetingsScreenState extends State<GreetingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.s16),
       child: Column(
         children: [
           if (widget.onSignOut != null) ...[
-            const Text('You are connected'),
-            ElevatedButton(
+            Text('You are connected', style: AppText.body(context.colors.ink)),
+            AppSpacing.gap16,
+            AppButton(
               onPressed: widget.onSignOut,
-              child: const Text('Sign out'),
+              label: 'Sign out',
+              variant: AppButtonVariant.secondary,
             ),
           ],
-          const SizedBox(height: 32),
-          TextField(
+          AppSpacing.gap32,
+          AppTextField(
+            label: 'Name',
             controller: _textEditingController,
             onSubmitted: (_) => _callHello(),
-            decoration: InputDecoration(
-              hintText: 'Enter your name',
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                onPressed: _callHello,
-                icon: const Icon(Icons.send),
-              ),
+            hint: 'Enter your name',
+            suffixIcon: IconButton(
+              onPressed: _callHello,
+              icon: Icon(Icons.send, color: context.colors.brand),
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.gap16,
           ResultDisplay(
             resultMessage: _resultMessage,
             errorMessage: _errorMessage,
@@ -84,38 +84,36 @@ class ResultDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final colors = context.colors;
 
     String text;
     Color backgroundColor;
     Color foregroundColor;
     if (errorMessage != null) {
-      backgroundColor = colors.errorContainer;
-      foregroundColor = colors.onErrorContainer;
+      backgroundColor = colors.error.withAlpha(20);
+      foregroundColor = colors.error;
       text = errorMessage!;
     } else if (resultMessage != null) {
-      backgroundColor = colors.primaryContainer;
-      foregroundColor = colors.onPrimaryContainer;
+      backgroundColor = colors.success.withAlpha(20);
+      foregroundColor = colors.success;
       text = resultMessage!;
     } else {
-      backgroundColor = colors.surfaceContainerHighest;
-      foregroundColor = colors.onSurfaceVariant;
+      backgroundColor = colors.surface;
+      foregroundColor = colors.muted;
       text = 'No server response yet.';
     }
 
     return Container(
       constraints: const BoxConstraints(minHeight: 60),
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      // Reuses the text field's border so the shape and width always match.
-      decoration: ShapeDecoration(
+      padding: const EdgeInsets.all(AppSpacing.s16),
+      decoration: BoxDecoration(
         color: backgroundColor,
-        shape: OutlineInputBorder(
-          borderSide: BorderSide(color: foregroundColor),
-        ),
+        borderRadius: AppRadius.panelBr,
+        border: Border.all(color: foregroundColor.withAlpha(80)),
       ),
       child: Center(
-        child: Text(text, style: TextStyle(color: foregroundColor)),
+        child: Text(text, style: AppText.body(foregroundColor)),
       ),
     );
   }

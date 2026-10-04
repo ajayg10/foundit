@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 
 class MyReportsScreen extends StatefulWidget {
@@ -55,18 +54,22 @@ class _MyReportsScreenState extends State<MyReportsScreen>
         .where((r) => r.reportType == 'found')
         .toList();
 
-    return Scaffold(
+    final colors = context.colors;
+
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           'My Activity & Reports',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+          style: AppText.h3(colors.ink),
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppTheme.primaryDark,
-          unselectedLabelColor: AppTheme.textMuted,
-          indicatorColor: AppTheme.primaryDark,
+          labelColor: colors.brand,
+          unselectedLabelColor: colors.muted,
+          indicatorColor: colors.brand,
           indicatorWeight: 3,
+          labelStyle: AppText.label(colors.brand),
+          unselectedLabelStyle: AppText.label(colors.muted),
           tabs: [
             Tab(text: 'Lost Items (${lostReports.length})'),
             Tab(text: 'Found Items (${foundReports.length})'),
@@ -93,45 +96,19 @@ class _MyReportsScreenState extends State<MyReportsScreen>
 
   Widget _buildReportList(List<ItemReport> reports, String emptyMessage) {
     if (reports.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.folder_open,
-                  size: 40,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                emptyMessage,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
-              ),
-            ],
-          ),
-        ),
+      return EmptyState(
+        title: 'No Reports',
+        body: emptyMessage,
+        icon: Icons.folder_open,
       );
     }
 
     return RefreshIndicator(
       onRefresh: _loadUserReports,
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.s16),
         itemCount: reports.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, __) => AppSpacing.gap12,
         itemBuilder: (context, index) {
           final report = reports[index];
           return ItemCard(
