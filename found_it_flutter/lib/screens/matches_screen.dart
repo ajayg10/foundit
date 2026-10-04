@@ -3,8 +3,38 @@ import '../state/app_state.dart';
 import '../ui/ui.dart';
 import '../widgets/match_card.dart';
 
-class MatchesScreen extends StatelessWidget {
+class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
+
+  @override
+  State<MatchesScreen> createState() => _MatchesScreenState();
+}
+
+class _MatchesScreenState extends State<MatchesScreen> {
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AppState.instance.userMatches.isEmpty) {
+      _loadData();
+    }
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      await AppState.instance.fetchUserMatches();
+    } catch (e) {
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,47 +43,65 @@ class MatchesScreen extends StatelessWidget {
       builder: (context, _) {
         final matches = AppState.instance.userMatches;
 
-        final colors = context.colors;
-
         return AppScaffold(
-          appBar: AppBar(
-            backgroundColor: colors.surface,
-            surfaceTintColor: Colors.transparent,
-            title: Text(
-              'Possible Matches',
-              style: AppText.h3(colors.ink),
-            ),
+          appBar: AppTopBar(
+            title: 'Possible Matches',
             actions: [
               IconButton(
-                icon: Icon(Icons.refresh, color: colors.ink),
+                icon: Icon(Icons.refresh, color: context.colors.ink),
                 tooltip: 'Refresh Matches',
-                onPressed: () => AppState.instance.fetchUserMatches(),
+                onPressed: _loadData,
               ),
             ],
           ),
-          body: matches.isEmpty
-              ? EmptyState(
-                  title: 'No Matches Yet',
-                  body:
-                      'When someone reports an item matching your lost or found posts, Serverpod will rank them and notify you automatically.',
-                  icon: Icons.auto_awesome,
-                  actionLabel: 'Seed Hackathon Demo Data',
-                  onAction: () => AppState.instance.resetDemoData(),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(AppSpacing.s16),
-                  itemCount: matches.length,
-                  separatorBuilder: (_, __) => AppSpacing.gap16,
-                  itemBuilder: (context, index) {
-                    final match = matches[index];
-                    return MatchCard(
-                      matchDetails: match,
-                      onVerified: () => AppState.instance.fetchUserMatches(),
-                    );
-                  },
-                ),
+          body: _buildBody(matches),
         );
       },
+    );
+  }
+
+  Widget _buildBody(List matches) {
+    if (_isLoading && matches.isEmpty) {
+      return const SkeletonList();
+    }
+
+    if (_error != null && matches.isEmpty) {
+      return ErrorState(
+        message: _error!,
+        onRetry: _loadData,
+      );
+    }
+
+    if (matches.isEmpty) {
+      return EmptyState(
+        title: 'No Matches Yet',
+        body:
+            'When someone reports an item matching your lost or found posts, Serverpod will rank them and notify you automatically.',
+        icon: Icons.auto_awesome,
+        actionLabel: 'Seed Hackathon Demo Data',
+        onAction: () async {
+          setState(() => _isLoading = true);
+          await AppState.instance.resetDemoData();
+          if (mounted) setState(() => _isLoading = false);
+        },
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.s16),
+        itemCount: matches.length,
+        separatorBuilder: (_, __) => AppSpacing.gap16,
+        itemBuilder: (context, index) {
+          final match = matches[index];
+          return MatchCard(
+            matchDetails: match,
+            currentUserId: AppState.instance.currentUser.userId,
+            onVerified: _loadData,
+          );
+        },
+      ),
     );
   }
 }
