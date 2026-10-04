@@ -133,9 +133,9 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: context.colors.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: AppRadius.sheetBr,
         ),
         builder: (ctx) => Padding(
           padding: const EdgeInsets.all(24),
@@ -194,11 +194,8 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
     final colors = context.colors;
 
     return AppScaffold(
-      appBar: AppBar(
-        title: Text(
-          'I Found Something',
-          style: AppText.h3(colors.ink),
-        ),
+      appBar: AppTopBar(
+        title: 'I Found Something',
         actions: [
           TextButton.icon(
             onPressed: _fillSampleFoundBackpack,

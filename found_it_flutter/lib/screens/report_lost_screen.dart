@@ -119,9 +119,9 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
+        backgroundColor: context.colors.surface,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: AppRadius.sheetBr,
         ),
         builder: (ctx) => Padding(
           padding: const EdgeInsets.all(24),
@@ -180,11 +180,8 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
     final colors = context.colors;
 
     return AppScaffold(
-      appBar: AppBar(
-        title: Text(
-          'I Lost Something',
-          style: AppText.h3(colors.ink),
-        ),
+      appBar: AppTopBar(
+        title: 'I Lost Something',
         actions: [
           TextButton.icon(
             onPressed: _fillSampleLostBackpack,

@@ -20,6 +20,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
   String _selectedCategory = 'All';
   List<ItemReport> _items = [];
   bool _isLoading = true;
+  String? _error;
 
   final List<String> _categories = [
     'All',
@@ -46,7 +47,10 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
   }
 
   Future<void> _fetchItems() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final items = await client.report.listReports(
         locationId: AppState.instance.currentLocation?.id,
@@ -59,7 +63,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
       );
       setState(() => _items = items);
     } catch (e) {
-      debugPrint('Error fetching public board: $e');
+      setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -147,7 +151,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
               ),
               AppSpacing.gap16,
 
-              // Approximate Location Banner (Privacy Rule #10)
+              // Approximate Location Banner
               Container(
                 padding: const EdgeInsets.all(AppSpacing.s12),
                 decoration: BoxDecoration(
@@ -227,22 +231,8 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
     final colors = context.colors;
 
     return AppScaffold(
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        surfaceTintColor: Colors.transparent,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Public Found Items',
-              style: AppText.h3(colors.ink),
-            ),
-            Text(
-              'at ${AppState.instance.currentLocation?.name ?? "All Locations"}',
-              style: AppText.caption(colors.muted).copyWith(fontSize: 11),
-            ),
-          ],
-        ),
+      appBar: AppTopBar(
+        title: 'Public Found Items',
         actions: [
           InkWell(
             onTap: () async {
@@ -295,125 +285,170 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search & Filters Header
-          Container(
-            color: colors.surface,
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.s16,
-              AppSpacing.s8,
-              AppSpacing.s16,
-              AppSpacing.s16,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Search bar
-                AppTextField(
-                  label: '',
-                  controller: _searchController,
-                  hint: 'Search by keyword, location, or item name...',
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  onSubmitted: (_) => _fetchItems(),
-                  onChanged: (val) {
-                    if (val.isEmpty) _fetchItems();
-                  },
-                ),
-                AppSpacing.gap12,
-
-                // Category chips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _categories.map((c) {
-                      final isSelected = _selectedCategory == c;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.s8),
-                        child: AppChip(
-                          label: c,
-                          selected: isSelected,
-                          onSelected: (_) {
-                            setState(() => _selectedCategory = c);
-                            _fetchItems();
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Clamp the filter header to at most 50% of the viewport height so
+          // the list always has room on small/landscape screens.
+          final maxHeaderHeight = constraints.maxHeight * 0.5;
+          return Column(
+            children: [
+              // Search & Filters Header — height-capped and internally scrollable
+              // to prevent overflow on landscape (844×390) or 2× text scale.
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxHeaderHeight),
+                child: SingleChildScrollView(
+                  child: Container(
+                    color: colors.surface,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.s16,
+                      AppSpacing.s8,
+                      AppSpacing.s16,
+                      AppSpacing.s16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Search bar
+                        AppTextField(
+                          label: '',
+                          controller: _searchController,
+                          hint: 'Search by keyword, location, or item name...',
+                          prefixIcon: const Icon(Icons.search, size: 20),
+                          onSubmitted: (_) => _fetchItems(),
+                          onChanged: (val) {
+                            if (val.isEmpty) _fetchItems();
                           },
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                AppSpacing.gap12,
+                        AppSpacing.gap12,
 
-                // Area scope indicator banner
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s12,
-                    vertical: AppSpacing.s8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.success.withAlpha(20),
-                    borderRadius: AppRadius.tileBr,
-                    border: Border.all(color: colors.success.withAlpha(50)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 15,
-                        color: colors.success,
-                      ),
-                      AppSpacing.hGap8,
-                      Expanded(
-                        child: Text(
-                          'Showing found items in: ${AppState.instance.currentLocation?.name ?? "Current Area"} (${_items.length} items)',
-                          style: AppText.caption(colors.success).copyWith(
-                            fontWeight: FontWeight.w600,
+                        // Category chips
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: _categories.map((c) {
+                              final isSelected = _selectedCategory == c;
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  right: AppSpacing.s8,
+                                ),
+                                child: AppChip(
+                                  label: c,
+                                  selected: isSelected,
+                                  onSelected: (_) {
+                                    setState(() => _selectedCategory = c);
+                                    _fetchItems();
+                                  },
+                                ),
+                              );
+                            }).toList(),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+                        AppSpacing.gap12,
 
-          // Items List
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _items.isEmpty
-                ? const EmptyState(
-                    title: 'No found items found',
-                    body:
-                        'Try clearing your search filters or check back later.',
-                    icon: Icons.inventory_2_outlined,
-                  )
-                : RefreshIndicator(
-                    onRefresh: _fetchItems,
-                    child: ListView.separated(
-                      padding: const EdgeInsets.all(AppSpacing.s16),
-                      itemCount: _items.length,
-                      separatorBuilder: (_, __) => AppSpacing.gap12,
-                      itemBuilder: (context, index) {
-                        final item = _items[index];
-                        return ItemCard(
-                          report: item,
-                          onTap: () => _showItemDetails(item),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            size: 20,
-                            color: colors.muted,
+                        // Area scope indicator banner
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.s12,
+                            vertical: AppSpacing.s8,
                           ),
-                        );
-                      },
+                          decoration: BoxDecoration(
+                            color: colors.success.withAlpha(20),
+                            borderRadius: AppRadius.tileBr,
+                            border: Border.all(
+                              color: colors.success.withAlpha(50),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 15,
+                                color: colors.success,
+                              ),
+                              AppSpacing.hGap8,
+                              Expanded(
+                                child: Text(
+                                  'Showing found items in: ${AppState.instance.currentLocation?.name ?? "Current Area"} (${_items.length} items)',
+                                  style:
+                                      AppText.caption(
+                                        colors.success,
+                                      ).copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-          ),
-        ],
+                ),
+              ),
+
+              // Items List — takes remaining space
+              Expanded(
+                child: _buildBody(),
+              ),
+            ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading && _items.isEmpty) {
+      return const SkeletonList();
+    }
+
+    if (_error != null && _items.isEmpty) {
+      return ErrorState(
+        message: _error!,
+        onRetry: _fetchItems,
+      );
+    }
+
+    if (_items.isEmpty) {
+      return const EmptyState(
+        title: 'No found items found',
+        body: 'Try clearing your search filters or check back later.',
+        icon: Icons.inventory_2_outlined,
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = constraints.maxWidth >= 600 ? 2 : 1;
+
+        return RefreshIndicator(
+          onRefresh: _fetchItems,
+          child: GridView.builder(
+            padding: const EdgeInsets.all(AppSpacing.s16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: AppSpacing.s12,
+              crossAxisSpacing: AppSpacing.s12,
+              mainAxisExtent: 140,
+            ),
+            itemCount: _items.length,
+            itemBuilder: (context, index) {
+              final item = _items[index];
+              return ItemCard(
+                report: item,
+                onTap: () => _showItemDetails(item),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: context.colors.muted,
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

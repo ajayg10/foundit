@@ -27,30 +27,33 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.s32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _EmptyIllustration(color: colors.line, icon: icon),
-            AppSpacing.gap24,
-            Text(
-              title,
-              style: AppText.h3(colors.ink),
-              textAlign: TextAlign.center,
-            ),
-            AppSpacing.gap8,
-            Text(
-              body,
-              style: AppText.body(colors.muted),
-              textAlign: TextAlign.center,
-            ),
-            if (actionLabel != null && onAction != null) ...[
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _EmptyIllustration(color: colors.line, icon: icon),
               AppSpacing.gap24,
-              FilledButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
+              Text(
+                title,
+                style: AppText.h3(colors.ink),
+                textAlign: TextAlign.center,
               ),
+              AppSpacing.gap8,
+              Text(
+                body,
+                style: AppText.body(colors.muted),
+                textAlign: TextAlign.center,
+              ),
+              if (actionLabel != null && onAction != null) ...[
+                AppSpacing.gap24,
+                FilledButton(
+                  onPressed: onAction,
+                  child: Text(actionLabel!),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -126,27 +129,30 @@ class ErrorState extends StatelessWidget {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.s32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.wifi_off_rounded,
-              color: colors.muted,
-              size: 48,
-            ),
-            AppSpacing.gap16,
-            Text(
-              message,
-              style: AppText.body(colors.muted),
-              textAlign: TextAlign.center,
-            ),
-            AppSpacing.gap20,
-            OutlinedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Try again'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.wifi_off_rounded,
+                color: colors.muted,
+                size: 48,
+              ),
+              AppSpacing.gap16,
+              Text(
+                message,
+                style: AppText.body(colors.muted),
+                textAlign: TextAlign.center,
+              ),
+              AppSpacing.gap20,
+              OutlinedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Try again'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -190,7 +196,6 @@ class _SkeletonListState extends State<SkeletonList>
     return AnimatedBuilder(
       animation: _opacity,
       builder: (_, __) => ListView.separated(
-        physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.s16),
         itemCount: widget.itemCount,
         separatorBuilder: (_, __) => AppSpacing.gap12,
