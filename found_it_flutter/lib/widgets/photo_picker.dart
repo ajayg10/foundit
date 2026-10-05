@@ -3,11 +3,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../client.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 /// A reusable photo picker widget that supports camera capture and gallery
 /// selection. Uploads the photo to Serverpod cloud storage and returns the URL.
@@ -99,7 +98,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Photo saved locally. Upload failed: $e'),
-              backgroundColor: AppTheme.warningAmber,
+              backgroundColor: context.colors.warning,
             ),
           );
         }
@@ -111,7 +110,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
             content: Text(
               'Could not access ${source == ImageSource.camera ? 'camera' : 'gallery'}: $e',
             ),
-            backgroundColor: AppTheme.lostRed,
+            backgroundColor: context.colors.error,
           ),
         );
       }
@@ -129,7 +128,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
   void _showPickerSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: context.colors.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -144,45 +143,43 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: context.colors.line,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
               Text(
                 'Add Photo',
-                style: GoogleFonts.outfit(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
-                ),
+                style: AppText.h3(context.colors.ink),
               ),
-              const SizedBox(height: 20),
+              AppSpacing.gap24,
               // Camera option
               if (!kIsWeb) ...[
                 _buildPickerOption(
+                  context,
                   icon: Icons.camera_alt_rounded,
                   label: 'Take a Photo',
                   subtitle: 'Open camera to capture the item',
-                  color: AppTheme.primaryBlue,
+                  color: context.colors.brand,
                   onTap: () {
                     Navigator.of(ctx).pop();
                     _pickImage(ImageSource.camera);
                   },
                 ),
-                const SizedBox(height: 12),
+                AppSpacing.gap12,
               ],
               // Gallery option
               _buildPickerOption(
+                context,
                 icon: Icons.photo_library_rounded,
                 label: 'Choose from Gallery',
                 subtitle: 'Select an existing photo from your device',
-                color: AppTheme.recoveryGreen,
+                color: context.colors.success,
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _pickImage(ImageSource.gallery);
                 },
               ),
-              const SizedBox(height: 12),
+              AppSpacing.gap12,
             ],
           ),
         ),
@@ -190,7 +187,8 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
     );
   }
 
-  Widget _buildPickerOption({
+  Widget _buildPickerOption(
+    BuildContext context, {
     required IconData icon,
     required String label,
     required String subtitle,
@@ -201,44 +199,40 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.panelBr,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s16,
+            vertical: AppSpacing.s12,
+          ),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.06),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.18)),
+            color: color.withAlpha(15),
+            borderRadius: AppRadius.panelBr,
+            border: Border.all(color: color.withAlpha(45)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.12),
+                  color: color.withAlpha(30),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              const SizedBox(width: 14),
+              AppSpacing.hGap16,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       label,
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textMain,
-                      ),
+                      style: AppText.label(context.colors.ink),
                     ),
-                    const SizedBox(height: 2),
+                    AppSpacing.gap4,
                     Text(
                       subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: AppTheme.textMuted,
-                      ),
+                      style: AppText.caption(context.colors.muted),
                     ),
                   ],
                 ),
@@ -251,7 +245,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
     );
   }
 
-  Widget _buildPreviewImage() {
+  Widget _buildPreviewImage(BuildContext context) {
     if (_localPreviewBytes != null) {
       return Image.memory(
         _localPreviewBytes!,
@@ -266,21 +260,21 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (_, __, ___) => _buildPlaceholderIcon(),
+        errorBuilder: (_, __, ___) => _buildPlaceholderIcon(context),
       );
     }
-    return _buildPlaceholderIcon();
+    return _buildPlaceholderIcon(context);
   }
 
-  Widget _buildPlaceholderIcon() {
+  Widget _buildPlaceholderIcon(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.photo_camera_rounded, size: 40, color: Colors.grey.shade400),
-        const SizedBox(height: 8),
+        Icon(Icons.photo_camera_rounded, size: 40, color: context.colors.muted),
+        AppSpacing.gap8,
         Text(
           'No photo yet',
-          style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
+          style: AppText.caption(context.colors.muted),
         ),
       ],
     );
@@ -289,15 +283,16 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
   @override
   Widget build(BuildContext context) {
     final hasImage = _imageUrl != null || _localPreviewBytes != null;
+    final colors = context.colors;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Photo (Optional)',
-          style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          style: AppText.label(colors.ink),
         ),
-        const SizedBox(height: 8),
+        AppSpacing.gap8,
         GestureDetector(
           onTap: _isUploading ? null : _showPickerSheet,
           child: AnimatedContainer(
@@ -305,14 +300,14 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
             height: hasImage ? 200 : 120,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(16),
+              color: colors.surface,
+              borderRadius: AppRadius.panelBr,
               border: Border.all(
                 color: _isUploading
-                    ? AppTheme.primaryBlue.withOpacity(0.4)
+                    ? colors.brand.withAlpha(100)
                     : hasImage
-                    ? AppTheme.recoveryGreen.withOpacity(0.4)
-                    : AppTheme.borderLight,
+                    ? colors.success.withAlpha(100)
+                    : colors.line,
                 width: _isUploading ? 2.0 : 1.0,
               ),
             ),
@@ -321,7 +316,7 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
               children: [
                 // Image preview or placeholder
                 if (hasImage)
-                  _buildPreviewImage()
+                  _buildPreviewImage(context)
                 else
                   Center(
                     child: Column(
@@ -330,24 +325,22 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBlue.withOpacity(0.08),
+                            color: colors.brand.withAlpha(20),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.add_a_photo_rounded,
                             size: 28,
-                            color: AppTheme.primaryBlue,
+                            color: colors.brand,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        AppSpacing.gap8,
                         Text(
                           kIsWeb
                               ? 'Tap to select a photo'
                               : 'Tap to take or select a photo',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppTheme.primaryBlue,
+                          style: AppText.caption(colors.brand).copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -357,26 +350,24 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                 // Upload progress overlay
                 if (_isUploading)
                   Container(
-                    color: Colors.black.withOpacity(0.45),
+                    color: colors.scrim,
                     child: Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 32,
                             height: 32,
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
-                              color: Colors.white,
+                              color: colors.onImage,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          AppSpacing.gap8,
                           Text(
                             'Uploading...',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
+                            style: AppText.caption(colors.surface).copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -395,11 +386,11 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.recoveryGreen,
-                        borderRadius: BorderRadius.circular(20),
+                        color: colors.success,
+                        borderRadius: AppRadius.pillBr,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: colors.scrim.withAlpha(50),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -408,18 +399,16 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.check_circle,
-                            color: Colors.white,
+                            color: colors.surface,
                             size: 14,
                           ),
-                          const SizedBox(width: 4),
+                          AppSpacing.hGap4,
                           Text(
                             'Photo Added',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
+                            style: AppText.caption(colors.surface).copyWith(
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -440,12 +429,12 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                         child: Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
+                            color: colors.scrim,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.close,
-                            color: Colors.white,
+                            color: colors.onImage,
                             size: 18,
                           ),
                         ),
@@ -462,31 +451,29 @@ class _PhotoPickerWidgetState extends State<PhotoPickerWidget>
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: _showPickerSheet,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.pillBr,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.55),
-                            borderRadius: BorderRadius.circular(20),
+                            color: colors.scrim,
+                            borderRadius: AppRadius.pillBr,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.refresh,
-                                color: Colors.white,
+                                color: colors.onImage,
                                 size: 16,
                               ),
-                              const SizedBox(width: 4),
+                              AppSpacing.hGap4,
                               Text(
                                 'Replace',
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
+                                style: AppText.caption(colors.onImage).copyWith(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.white,
                                 ),
                               ),
                             ],

@@ -1,11 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/match_card.dart';
 
-class MatchesScreen extends StatelessWidget {
+class MatchesScreen extends StatefulWidget {
   const MatchesScreen({super.key});
+
+  @override
+  State<MatchesScreen> createState() => _MatchesScreenState();
+}
+
+class _MatchesScreenState extends State<MatchesScreen> {
+  bool _isLoading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (AppState.instance.userMatches.isEmpty) {
+      _loadData();
+    }
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      await AppState.instance.fetchUserMatches();
+    } catch (e) {
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,86 +43,65 @@ class MatchesScreen extends StatelessWidget {
       builder: (context, _) {
         final matches = AppState.instance.userMatches;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              'Possible Matches',
-              style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
-            ),
+        return AppScaffold(
+          appBar: AppTopBar(
+            title: 'Possible Matches',
             actions: [
               IconButton(
-                icon: const Icon(Icons.refresh),
+                icon: Icon(Icons.refresh, color: context.colors.ink),
                 tooltip: 'Refresh Matches',
-                onPressed: () => AppState.instance.fetchUserMatches(),
+                onPressed: _loadData,
               ),
             ],
           ),
-          body: matches.isEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: AppTheme.matchIndigo.withOpacity(0.10),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.auto_awesome,
-                            size: 48,
-                            color: AppTheme.matchIndigo,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'No Matches Yet',
-                          style: GoogleFonts.outfit(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: AppTheme.textMain,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'When someone reports an item matching your lost or found posts, Serverpod will rank them and notify you automatically.',
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: AppTheme.textMuted,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        OutlinedButton.icon(
-                          onPressed: () => AppState.instance.resetDemoData(),
-                          icon: const Icon(
-                            Icons.flash_on,
-                            size: 18,
-                            color: AppTheme.warningAmber,
-                          ),
-                          label: const Text('Seed Hackathon Demo Data'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: matches.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final match = matches[index];
-                    return MatchCard(
-                      matchDetails: match,
-                      onVerified: () => AppState.instance.fetchUserMatches(),
-                    );
-                  },
-                ),
+          body: _buildBody(matches),
         );
       },
+    );
+  }
+
+  Widget _buildBody(List matches) {
+    if (_isLoading && matches.isEmpty) {
+      return const SkeletonList();
+    }
+
+    if (_error != null && matches.isEmpty) {
+      return ErrorState(
+        message: _error!,
+        onRetry: _loadData,
+      );
+    }
+
+    if (matches.isEmpty) {
+      return EmptyState(
+        title: 'No Matches Yet',
+        body:
+            'When someone reports an item matching your lost or found posts, Serverpod will rank them and notify you automatically.',
+        icon: Icons.auto_awesome,
+        actionLabel: 'Seed Hackathon Demo Data',
+        onAction: () async {
+          setState(() => _isLoading = true);
+          await AppState.instance.resetDemoData();
+          if (mounted) setState(() => _isLoading = false);
+        },
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(AppSpacing.s16),
+        itemCount: matches.length,
+        separatorBuilder: (_, __) => AppSpacing.gap16,
+        itemBuilder: (context, index) {
+          final match = matches[index];
+          return MatchCard(
+            matchDetails: match,
+            currentUserId: AppState.instance.currentUser.userId,
+            onVerified: _loadData,
+          );
+        },
+      ),
     );
   }
 }

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/location_picker.dart';
 import '../widgets/photo_picker.dart';
 
@@ -116,58 +115,50 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
 
       if (!mounted) return;
 
-      // Show success bottom sheet
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: AppTheme.recoveryGreen.withOpacity(0.12),
+                  color: context.colors.success.withAlpha(30),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.check_circle,
-                  color: AppTheme.recoveryGreen,
+                  color: context.colors.success,
                   size: 40,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               Text(
                 'Lost Report Submitted!',
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
-                ),
+                style: AppText.h2(context.colors.ink),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
               Text(
                 'Serverpod is now automatically analyzing and matching this item with reported found items.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.body(context.colors.muted),
               ),
-              const SizedBox(height: 24),
+              AppSpacing.gap24,
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('View Home & Matches'),
+                  label: 'View Home & Matches',
                 ),
               ),
             ],
@@ -185,272 +176,250 @@ class _ReportLostScreenState extends State<ReportLostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'I Lost Something',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
-        ),
+    final colors = context.colors;
+
+    return AppScaffold(
+      appBar: AppTopBar(
+        title: 'I Lost Something',
         actions: [
           TextButton.icon(
             onPressed: _fillSampleLostBackpack,
-            icon: const Icon(
+            icon: Icon(
               Icons.flash_on,
               size: 16,
-              color: AppTheme.warningAmber,
+              color: colors.warning,
             ),
             label: Text(
               'Fill Demo',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.warningAmber,
-              ),
+              style: AppText.label(colors.warning),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppTheme.lostRed.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.lostRed.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: AppTheme.lostRed,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppTheme.textMain,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Title
-                  Text(
-                    'Item Title *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. Black Wildcraft Backpack, Blue iPhone 13',
-                      prefixIcon: Icon(Icons.title, size: 18),
-                    ),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter item title'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
-                  Text(
-                    'Description & Distinguishing Features *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _descController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Describe color, brand, stickers, scratches, or attachments...',
-                    ),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter a description'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Category
-                  Text(
-                    'Category *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.category_outlined, size: 18),
-                    ),
-                    items: _categories.map((c) {
-                      return DropdownMenuItem(value: c, child: Text(c));
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _selectedCategory = v);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Location Picker
-                  LocationPickerWidget(
-                    selectedLabel: _locationLabel,
-                    selectedAreaId: _locationAreaId,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                    onLocationChanged: (areaId, label, lat, lon) {
-                      setState(() {
-                        _locationAreaId = areaId;
-                        _locationLabel = label;
-                        _latitude = lat;
-                        _longitude = lon;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Date and Time
-                  Text(
-                    'Approximate Date & Time Lost *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  InkWell(
-                    onTap: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _eventTime,
-                        firstDate: DateTime.now().subtract(
-                          const Duration(days: 365),
-                        ),
-                        lastDate: DateTime.now(),
-                      );
-                      if (pickedDate != null && mounted) {
-                        final pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(_eventTime),
-                        );
-                        if (pickedTime != null) {
-                          setState(() {
-                            _eventTime = DateTime(
-                              pickedDate.year,
-                              pickedDate.month,
-                              pickedDate.day,
-                              pickedTime.hour,
-                              pickedTime.minute,
-                            );
-                          });
-                        }
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.borderLight),
-                      ),
-                      child: Row(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.s20),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 18,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            DateFormat(
-                              'EEEE, MMM d, yyyy • h:mm a',
-                            ).format(_eventTime),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppTheme.textMain,
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.s16),
+                            decoration: BoxDecoration(
+                              color: colors.lostSoft,
+                              borderRadius: AppRadius.tileBr,
+                              border: Border.all(
+                                color: colors.lost.withAlpha(50),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  color: colors.lost,
+                                  size: 20,
+                                ),
+                                AppSpacing.hGap12,
+                                Expanded(
+                                  child: Text(
+                                    'Tell us what you lost. Found It will search found items in the background and notify you immediately.',
+                                    style: AppText.body(colors.ink),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: AppTheme.textMuted,
+                          AppSpacing.gap24,
+
+                          const SectionHeader(title: 'Item Title *'),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            label: 'Item Title',
+                            controller: _titleController,
+                            hint:
+                                'e.g. Black Wildcraft Backpack, Blue iPhone 13',
+                            prefixIcon: Icon(
+                              Icons.title,
+                              size: 18,
+                              color: colors.muted,
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter item title'
+                                : null,
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(
+                            title: 'Description & Features *',
+                          ),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            label: 'Description',
+                            controller: _descController,
+                            maxLines: 3,
+                            hint:
+                                'Describe color, brand, stickers, scratches...',
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter a description'
+                                : null,
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Category *'),
+                          AppSpacing.gap8,
+                          Wrap(
+                            spacing: AppSpacing.s8,
+                            runSpacing: AppSpacing.s8,
+                            children: _categories.map((c) {
+                              return AppChip(
+                                label: c,
+                                selected: _selectedCategory == c,
+                                onSelected: (val) {
+                                  if (val) {
+                                    setState(() => _selectedCategory = c);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Location *'),
+                          AppSpacing.gap8,
+                          LocationPickerWidget(
+                            selectedLabel: _locationLabel,
+                            selectedAreaId: _locationAreaId,
+                            latitude: _latitude,
+                            longitude: _longitude,
+                            onLocationChanged: (areaId, label, lat, lon) {
+                              setState(() {
+                                _locationAreaId = areaId;
+                                _locationLabel = label;
+                                _latitude = lat;
+                                _longitude = lon;
+                              });
+                            },
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(
+                            title: 'Approximate Date & Time Lost *',
+                          ),
+                          AppSpacing.gap8,
+                          InkWell(
+                            onTap: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: _eventTime,
+                                firstDate: DateTime.now().subtract(
+                                  const Duration(days: 365),
+                                ),
+                                lastDate: DateTime.now(),
+                              );
+                              if (pickedDate != null && mounted) {
+                                final pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(
+                                    _eventTime,
+                                  ),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _eventTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                  });
+                                }
+                              }
+                            },
+                            borderRadius: AppRadius.buttonBr,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.s16,
+                                vertical: AppSpacing.s12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius: AppRadius.buttonBr,
+                                border: Border.all(color: colors.line),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 18,
+                                    color: colors.brand,
+                                  ),
+                                  AppSpacing.hGap12,
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat(
+                                        'EEEE, MMM d, yyyy • h:mm a',
+                                      ).format(_eventTime),
+                                      style: AppText.body(colors.ink),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: colors.muted,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Photo (Optional)'),
+                          AppSpacing.gap8,
+                          PhotoPickerWidget(
+                            initialImageUrl: _imageUrl,
+                            onImageChanged: (url) {
+                              setState(() => _imageUrl = url);
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Photo Picker (Camera + Gallery)
-                  PhotoPickerWidget(
-                    initialImageUrl: _imageUrl,
-                    onImageChanged: (url) {
-                      setState(() => _imageUrl = url);
-                    },
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitReport,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryDark,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Submit Lost Report & Find Matches',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.s20),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                border: Border(top: BorderSide(color: colors.line)),
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: AppButton(
+                      onPressed: _isSubmitting ? null : _submitReport,
+                      label: 'Submit Lost Report & Find Matches',
+                      variant: AppButtonVariant.lost,
+                      loading: _isSubmitting,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

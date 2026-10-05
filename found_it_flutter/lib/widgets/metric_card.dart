@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 
 class MetricCard extends StatelessWidget {
   final String label;
@@ -22,34 +21,28 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     final content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: colors.surface,
+        borderRadius: AppRadius.tileBr,
         border: Border.all(
-          color: onTap != null ? color.withOpacity(0.25) : AppTheme.borderLight,
-          width: 1,
+          color: onTap != null ? color.withAlpha(60) : colors.line,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(AppSpacing.s12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(12),
+              color: color.withAlpha(30),
+              borderRadius: AppRadius.buttonBr,
             ),
             child: Icon(icon, color: color, size: 22),
           ),
-          const SizedBox(width: 14),
+          AppSpacing.hGap16,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,41 +50,35 @@ class MetricCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      value,
-                      style: GoogleFonts.outfit(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textMain,
+                    Flexible(
+                      child: Text(
+                        value,
+                        style: AppText.numeral(colors.ink),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (onTap != null) ...[
-                      const Spacer(),
+                      AppSpacing.hGap8,
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        size: 12,
-                        color: color.withOpacity(0.7),
+                        size: 14,
+                        color: colors.muted,
                       ),
                     ],
                   ],
                 ),
                 Text(
                   label,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.textMain,
-                  ),
+                  style: AppText.label(colors.ink),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 2),
+                  AppSpacing.gap4,
                   Text(
                     subtitle!,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textMuted,
-                    ),
+                    style: AppText.caption(colors.muted),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -106,10 +93,9 @@ class MetricCard extends StatelessWidget {
     if (onTap != null) {
       return Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.tileBr,
           child: content,
         ),
       );

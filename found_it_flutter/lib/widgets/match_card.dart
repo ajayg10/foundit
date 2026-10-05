@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import 'verification_dialog.dart';
 
 /// Displays a match between a lost and found report with:
@@ -42,10 +41,10 @@ class MatchCard extends StatelessWidget {
     }
   }
 
-  Color _confidenceColor(double score) {
-    if (score >= 0.85) return const Color(0xFF059669);
-    if (score >= 0.65) return const Color(0xFF2563EB);
-    return const Color(0xFFD97706);
+  Color _confidenceColor(double score, AppSemantic colors) {
+    if (score >= 0.85) return colors.success;
+    if (score >= 0.65) return colors.brand;
+    return colors.warning;
   }
 
   String _confidenceLabel(double score) {
@@ -56,30 +55,24 @@ class MatchCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final match = matchDetails.match;
     final lost = matchDetails.lostReport;
     final found = matchDetails.foundReport;
     final explanation = _parseExplanation(match.explanation);
     final percent = (match.confidenceScore * 100).round();
-    final color = _confidenceColor(match.confidenceScore);
+    final color = _confidenceColor(match.confidenceScore, colors);
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        color: colors.surface,
+        borderRadius: AppRadius.tileBr,
         border: Border.all(
           color: match.confidenceScore >= 0.80
-              ? color.withOpacity(0.35)
-              : AppTheme.borderLight,
+              ? color.withAlpha(90)
+              : colors.line,
           width: match.confidenceScore >= 0.80 ? 1.5 : 1,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.07),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +88,7 @@ class MatchCard extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.s16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -104,75 +97,73 @@ class MatchCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: _ReportMini(report: lost, isLost: true)),
-                    const SizedBox(width: 10),
+                    AppSpacing.hGap8,
                     Expanded(child: _ReportMini(report: found, isLost: false)),
                   ],
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.gap16,
 
                 // ── Section label ──────────────────────────────────────
                 Text(
                   'WHY THIS MATCH',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
+                  style: AppText.caption(colors.muted).copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.8,
-                    color: AppTheme.textMuted,
                   ),
                 ),
-                const SizedBox(height: 10),
+                AppSpacing.gap8,
 
                 // ── Signal bullets ────────────────────────────────────
                 _SignalBullet(
                   icon: Icons.description_outlined,
-                  color: AppTheme.primaryBlue,
+                  color: colors.brand,
                   title: 'Description Match',
                   detail:
                       explanation['textSummary'] as String? ??
                       'Similar item characteristics',
                   score: match.textScore,
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.gap8,
 
                 if ((match.locationScore) > 0) ...[
                   _SignalBullet(
                     icon: Icons.place_outlined,
-                    color: const Color(0xFF6366F1),
+                    color: colors.brand,
                     title: 'Location',
                     detail:
                         explanation['locationSummary'] as String? ??
                         'Same campus / location',
                     score: match.locationScore,
                   ),
-                  const SizedBox(height: 6),
+                  AppSpacing.gap8,
                 ],
 
                 _SignalBullet(
                   icon: Icons.near_me_outlined,
-                  color: const Color(0xFF0D9488),
+                  color: colors.brand,
                   title: 'Geographic Distance',
                   detail:
                       explanation['distanceSummary'] as String? ??
                       '${match.distanceKm.toStringAsFixed(1)} km apart',
                   score: match.distanceScore,
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.gap8,
 
                 _SignalBullet(
                   icon: Icons.schedule_outlined,
-                  color: const Color(0xFF8B5CF6),
+                  color: colors.brand,
                   title: 'Time Closeness',
                   detail:
                       explanation['timeSummary'] as String? ??
                       '${match.timeDiffHours.toStringAsFixed(1)} hours apart',
                   score: match.timeScore,
                 ),
-                const SizedBox(height: 6),
+                AppSpacing.gap8,
 
                 _SignalBullet(
                   icon: Icons.sell_outlined,
-                  color: AppTheme.warningAmber,
+                  color: colors.brand,
                   title: 'Category',
                   detail:
                       explanation['categorySummary'] as String? ??
@@ -180,7 +171,7 @@ class MatchCard extends StatelessWidget {
                   score: match.categoryScore,
                 ),
 
-                const SizedBox(height: 16),
+                AppSpacing.gap16,
 
                 // ── Action button ────────────────────────────────────────
                 _ActionBar(matchDetails: matchDetails, onVerified: onVerified),
@@ -243,11 +234,20 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.s16,
+        AppSpacing.s12,
+        AppSpacing.s16,
+        AppSpacing.s12,
+      ),
       decoration: BoxDecoration(
-        color: widget.color.withOpacity(0.06),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+        color: widget.color.withAlpha(15),
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.tile),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,52 +257,43 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
               // Score badge
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+                  horizontal: AppSpacing.s8,
+                  vertical: AppSpacing.s4,
                 ),
                 decoration: BoxDecoration(
                   color: widget.color,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadius.pillBr,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.auto_awesome,
-                      color: Colors.white,
+                      color: colors.onImage,
                       size: 13,
                     ),
-                    const SizedBox(width: 4),
+                    AppSpacing.hGap4,
                     Text(
                       '${widget.percent}%',
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
+                      style: AppText.caption(colors.onImage).copyWith(
                         fontWeight: FontWeight.w800,
-                        color: Colors.white,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
+              AppSpacing.hGap8,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       widget.label,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: widget.color,
-                      ),
+                      style: AppText.label(widget.color),
                     ),
                     Text(
                       widget.verdict,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: AppTheme.textMuted,
-                      ),
+                      style: AppText.caption(colors.muted),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -312,25 +303,23 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
               if (widget.isVerified)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+                    horizontal: AppSpacing.s8,
+                    vertical: AppSpacing.s4,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.recoveryGreen.withOpacity(0.15),
+                    color: colors.success.withAlpha(38),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     '✓ VERIFIED',
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
+                    style: AppText.caption(colors.success).copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppTheme.recoveryGreen,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 10),
+          AppSpacing.gap8,
           // Animated confidence bar
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -339,7 +328,7 @@ class _ConfidenceHeaderState extends State<_ConfidenceHeader>
               builder: (_, __) => LinearProgressIndicator(
                 value: widget.score * _anim.value,
                 minHeight: 5,
-                backgroundColor: widget.color.withOpacity(0.12),
+                backgroundColor: widget.color.withAlpha(30),
                 valueColor: AlwaysStoppedAnimation(widget.color),
               ),
             ),
@@ -360,16 +349,16 @@ class _ReportMini extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isLost ? AppTheme.lostRed : AppTheme.recoveryGreen;
-    final bg = isLost ? const Color(0xFFFFF1F2) : const Color(0xFFECFDF5);
-    final border = isLost ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0);
+    final colors = context.colors;
+    final color = isLost ? colors.lost : colors.found;
+    final bg = isLost ? colors.lostSoft : colors.foundSoft;
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(AppSpacing.s12),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: border),
+        border: Border.all(color: color.withAlpha(50)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,36 +367,34 @@ class _ReportMini extends StatelessWidget {
             children: [
               Icon(
                 isLost ? Icons.search_rounded : Icons.check_circle_outline,
-                size: 13,
+                size: 14,
                 color: color,
               ),
-              const SizedBox(width: 4),
-              Text(
-                isLost ? 'LOST' : 'FOUND',
-                style: GoogleFonts.inter(
-                  fontSize: 9,
-                  fontWeight: FontWeight.w800,
-                  color: color,
-                  letterSpacing: 0.5,
+              AppSpacing.hGap4,
+              Expanded(
+                child: Text(
+                  isLost ? 'LOST' : 'FOUND',
+                  style: AppText.caption(color).copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 5),
+          AppSpacing.gap4,
           Text(
             report.title,
-            style: GoogleFonts.outfit(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textMain,
-            ),
+            style: AppText.label(colors.ink),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 2),
+          AppSpacing.gap4,
           Text(
             report.locationLabel,
-            style: GoogleFonts.inter(fontSize: 10, color: AppTheme.textMuted),
+            style: AppText.caption(colors.muted),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -436,19 +423,20 @@ class _SignalBullet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final pct = (score * 100).round();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(AppSpacing.s4),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.10),
+            color: color.withAlpha(25),
             borderRadius: BorderRadius.circular(7),
           ),
-          child: Icon(icon, color: color, size: 14),
+          child: Icon(icon, color: color, size: 16),
         ),
-        const SizedBox(width: 8),
+        AppSpacing.hGap8,
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -458,37 +446,30 @@ class _SignalBullet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textMain,
-                      ),
+                      style: AppText.label(colors.ink),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
                     '$pct%',
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
+                    style: AppText.label(color),
                   ),
                 ],
               ),
               Text(
                 detail,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.caption(colors.muted),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 3),
+              AppSpacing.gap4,
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: LinearProgressIndicator(
                   value: score.clamp(0.0, 1.0),
                   minHeight: 3,
-                  backgroundColor: color.withOpacity(0.10),
+                  backgroundColor: color.withAlpha(25),
                   valueColor: AlwaysStoppedAnimation(color),
                 ),
               ),
@@ -510,32 +491,29 @@ class _ActionBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final found = matchDetails.foundReport;
 
     if (matchDetails.isVerified) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s12),
         decoration: BoxDecoration(
-          color: AppTheme.recoveryGreen.withOpacity(0.10),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.recoveryGreen.withOpacity(0.25)),
+          color: colors.success.withAlpha(25),
+          borderRadius: AppRadius.buttonBr,
+          border: Border.all(color: colors.success.withAlpha(60)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.check_circle_rounded,
-              color: AppTheme.recoveryGreen,
-              size: 17,
+              color: colors.success,
+              size: 18,
             ),
-            const SizedBox(width: 8),
+            AppSpacing.hGap8,
             Text(
               'Ownership Verified — Handover Unlocked',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.recoveryGreen,
-              ),
+              style: AppText.label(colors.success),
             ),
           ],
         ),
@@ -545,20 +523,9 @@ class _ActionBar extends StatelessWidget {
     if (matchDetails.verificationQuestion != null) {
       return SizedBox(
         width: double.infinity,
-        child: ElevatedButton.icon(
-          icon: const Icon(Icons.verified_user_outlined, size: 17),
-          label: Text(
-            'Verify Ownership to Claim',
-            style: GoogleFonts.inter(fontWeight: FontWeight.w700, fontSize: 13),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryDark,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
+        child: AppButton(
+          label: 'Verify Ownership to Claim',
+          icon: Icons.verified_user_outlined,
           onPressed: () {
             showDialog(
               context: context,
@@ -576,29 +543,16 @@ class _ActionBar extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton.icon(
-        icon: const Icon(Icons.contact_mail_outlined, size: 17),
-        label: Text(
-          'Contact via Campus Admin',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-        ),
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
+      child: AppButton(
+        label: 'Contact via Campus Admin',
+        icon: Icons.contact_mail_outlined,
+        variant: AppButtonVariant.secondary,
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
+            const SnackBar(
+              content: Text(
                 'No verification challenge set. Contact your campus admin.',
               ),
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              margin: const EdgeInsets.all(16),
             ),
           );
         },

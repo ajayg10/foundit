@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/item_card.dart';
 
 class MyReportsScreen extends StatefulWidget {
@@ -56,16 +55,18 @@ class _MyReportsScreenState extends State<MyReportsScreen>
         .toList();
 
     return Scaffold(
+      backgroundColor: context.colors.bg,
       appBar: AppBar(
+        backgroundColor: context.colors.surface,
         title: Text(
           'My Activity & Reports',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
+          style: AppText.h2(context.colors.ink),
         ),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppTheme.primaryDark,
-          unselectedLabelColor: AppTheme.textMuted,
-          indicatorColor: AppTheme.primaryDark,
+          labelColor: context.colors.brand,
+          unselectedLabelColor: context.colors.muted,
+          indicatorColor: context.colors.brand,
           indicatorWeight: 3,
           tabs: [
             Tab(text: 'Lost Items (${lostReports.length})'),
@@ -95,30 +96,27 @@ class _MyReportsScreenState extends State<MyReportsScreen>
     if (reports.isEmpty) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(AppSpacing.s32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
+                  color: context.colors.surface,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.folder_open,
                   size: 40,
-                  color: AppTheme.textMuted,
+                  color: context.colors.muted,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               Text(
                 emptyMessage,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.body(context.colors.muted),
               ),
             ],
           ),

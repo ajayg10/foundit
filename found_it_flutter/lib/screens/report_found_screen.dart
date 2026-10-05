@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:found_it_client/found_it_client.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../client.dart';
 import '../state/app_state.dart';
-import '../theme/app_theme.dart';
+import '../ui/ui.dart';
 import '../widgets/location_picker.dart';
 import '../widgets/photo_picker.dart';
 
@@ -130,58 +129,50 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
 
       if (!mounted) return;
 
-      // Show match discovery modal
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
+        backgroundColor: context.colors.surface,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         builder: (ctx) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.s24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.s16),
                 decoration: BoxDecoration(
-                  color: AppTheme.recoveryGreen.withOpacity(0.12),
+                  color: context.colors.success.withAlpha(30),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.auto_awesome,
-                  color: AppTheme.recoveryGreen,
+                  color: context.colors.success,
                   size: 40,
                 ),
               ),
-              const SizedBox(height: 16),
+              AppSpacing.gap16,
               Text(
                 'Found Item Listed & Matched!',
-                style: GoogleFonts.outfit(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textMain,
-                ),
+                style: AppText.h2(context.colors.ink),
               ),
-              const SizedBox(height: 8),
+              AppSpacing.gap8,
               Text(
                 'Serverpod processed your found report. Any potential owners who reported lost matching items have been notified with your verification challenge.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
-                ),
+                style: AppText.body(context.colors.muted),
               ),
-              const SizedBox(height: 24),
+              AppSpacing.gap24,
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: AppButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     Navigator.of(context).pop();
                   },
-                  child: const Text('View Matches & Alerts'),
+                  label: 'View Matches & Alerts',
                 ),
               ),
             ],
@@ -199,362 +190,323 @@ class _ReportFoundScreenState extends State<ReportFoundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'I Found Something',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.w700),
-        ),
+    final colors = context.colors;
+
+    return AppScaffold(
+      appBar: AppTopBar(
+        title: 'I Found Something',
         actions: [
           TextButton.icon(
             onPressed: _fillSampleFoundBackpack,
-            icon: const Icon(
+            icon: Icon(
               Icons.flash_on,
               size: 16,
-              color: AppTheme.warningAmber,
+              color: colors.warning,
             ),
             label: Text(
               'Fill Demo',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppTheme.warningAmber,
-              ),
+              style: AppText.label(colors.warning),
             ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: AppTheme.recoveryGreen.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.recoveryGreen.withOpacity(0.2),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.volunteer_activism_outlined,
-                          color: AppTheme.recoveryGreen,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Thank you for being a good Samaritan! Set a verification question so only the rightful owner can claim this item.',
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: AppTheme.textMain,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Title
-                  Text(
-                    'Item Title *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'e.g. Black Backpack, AirPods Pro Case, Set of Keys',
-                      prefixIcon: Icon(Icons.title, size: 18),
-                    ),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter item title'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Description
-                  Text(
-                    'Public Description *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  TextFormField(
-                    controller: _descController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Describe where you found it, general appearance (keep subtle details private for the verification question!)...',
-                    ),
-                    validator: (v) => v == null || v.trim().isEmpty
-                        ? 'Please enter a description'
-                        : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Category
-                  Text(
-                    'Category *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.category_outlined, size: 18),
-                    ),
-                    items: _categories.map((c) {
-                      return DropdownMenuItem(value: c, child: Text(c));
-                    }).toList(),
-                    onChanged: (v) {
-                      if (v != null) setState(() => _selectedCategory = v);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Location
-                  LocationPickerWidget(
-                    selectedLabel: _locationLabel,
-                    selectedAreaId: _locationAreaId,
-                    latitude: _latitude,
-                    longitude: _longitude,
-                    onLocationChanged: (areaId, label, lat, lon) {
-                      setState(() {
-                        _locationAreaId = areaId;
-                        _locationLabel = label;
-                        _latitude = lat;
-                        _longitude = lon;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Date and Time Found
-                  Text(
-                    'Approximate Date & Time Found *',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  InkWell(
-                    onTap: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _eventTime,
-                        firstDate: DateTime.now().subtract(
-                          const Duration(days: 365),
-                        ),
-                        lastDate: DateTime.now(),
-                      );
-                      if (pickedDate != null && mounted) {
-                        final pickedTime = await showTimePicker(
-                          context: context,
-                          initialTime: TimeOfDay.fromDateTime(_eventTime),
-                        );
-                        if (pickedTime != null) {
-                          setState(() {
-                            _eventTime = DateTime(
-                              pickedDate.year,
-                              pickedDate.month,
-                              pickedDate.day,
-                              pickedTime.hour,
-                              pickedTime.minute,
-                            );
-                          });
-                        }
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.borderLight),
-                      ),
-                      child: Row(
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.s20),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 18,
-                            color: AppTheme.primaryBlue,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            DateFormat(
-                              'EEEE, MMM d, yyyy • h:mm a',
-                            ).format(_eventTime),
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: AppTheme.textMain,
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.s16),
+                            decoration: BoxDecoration(
+                              color: colors.foundSoft,
+                              borderRadius: AppRadius.tileBr,
+                              border: Border.all(
+                                color: colors.found.withAlpha(50),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.volunteer_activism_outlined,
+                                  color: colors.found,
+                                  size: 20,
+                                ),
+                                AppSpacing.hGap12,
+                                Expanded(
+                                  child: Text(
+                                    'Thank you for being a good Samaritan! Set a verification question so only the rightful owner can claim this item.',
+                                    style: AppText.body(colors.ink),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: AppTheme.textMuted,
+                          AppSpacing.gap24,
+
+                          const SectionHeader(title: 'Item Title *'),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            controller: _titleController,
+                            hint: 'e.g. Black Backpack, AirPods Pro Case',
+                            prefixIcon: Icon(
+                              Icons.title,
+                              size: 18,
+                              color: colors.muted,
+                            ),
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter item title'
+                                : null,
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Public Description *'),
+                          AppSpacing.gap8,
+                          AppTextField(
+                            controller: _descController,
+                            maxLines: 3,
+                            hint:
+                                'Describe where you found it (keep details private!)...',
+                            validator: (v) => v == null || v.trim().isEmpty
+                                ? 'Please enter a description'
+                                : null,
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Category *'),
+                          AppSpacing.gap8,
+                          Wrap(
+                            spacing: AppSpacing.s8,
+                            runSpacing: AppSpacing.s8,
+                            children: _categories.map((c) {
+                              return AppChip(
+                                label: c,
+                                selected: _selectedCategory == c,
+                                onSelected: (val) {
+                                  if (val) {
+                                    setState(() => _selectedCategory = c);
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Location *'),
+                          AppSpacing.gap8,
+                          LocationPickerWidget(
+                            selectedLabel: _locationLabel,
+                            selectedAreaId: _locationAreaId,
+                            latitude: _latitude,
+                            longitude: _longitude,
+                            onLocationChanged: (areaId, label, lat, lon) {
+                              setState(() {
+                                _locationAreaId = areaId;
+                                _locationLabel = label;
+                                _latitude = lat;
+                                _longitude = lon;
+                              });
+                            },
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(
+                            title: 'Approximate Date & Time Found *',
+                          ),
+                          AppSpacing.gap8,
+                          InkWell(
+                            onTap: () async {
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: _eventTime,
+                                firstDate: DateTime.now().subtract(
+                                  const Duration(days: 365),
+                                ),
+                                lastDate: DateTime.now(),
+                              );
+                              if (pickedDate != null && mounted) {
+                                final pickedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.fromDateTime(
+                                    _eventTime,
+                                  ),
+                                );
+                                if (pickedTime != null) {
+                                  setState(() {
+                                    _eventTime = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      pickedTime.hour,
+                                      pickedTime.minute,
+                                    );
+                                  });
+                                }
+                              }
+                            },
+                            borderRadius: AppRadius.buttonBr,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.s16,
+                                vertical: AppSpacing.s12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.surface,
+                                borderRadius: AppRadius.buttonBr,
+                                border: Border.all(color: colors.line),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 18,
+                                    color: colors.brand,
+                                  ),
+                                  AppSpacing.hGap12,
+                                  Expanded(
+                                    child: Text(
+                                      DateFormat(
+                                        'EEEE, MMM d, yyyy • h:mm a',
+                                      ).format(_eventTime),
+                                      style: AppText.body(colors.ink),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 16,
+                                    color: colors.muted,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          AppSpacing.gap24,
+
+                          // Verification Question Box
+                          Container(
+                            padding: const EdgeInsets.all(AppSpacing.s16),
+                            decoration: BoxDecoration(
+                              color: colors.warningSoft,
+                              borderRadius: AppRadius.tileBr,
+                              border: Border.all(
+                                color: colors.warning.withAlpha(50),
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.verified_user,
+                                      color: colors.warning,
+                                      size: 20,
+                                    ),
+                                    AppSpacing.hGap8,
+                                    Expanded(
+                                      child: Text(
+                                        'Private Ownership Verification Challenge',
+                                        style: AppText.label(colors.warning)
+                                            .copyWith(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                AppSpacing.gap8,
+                                Text(
+                                  'To ensure only the real owner claims this item, ask a specific question that only they would know. The answer is NEVER shown publicly and is securely verified on the server.',
+                                  style: AppText.caption(colors.warning),
+                                ),
+                                AppSpacing.gap16,
+
+                                Text(
+                                  'Verification Question *',
+                                  style: AppText.label(colors.warning),
+                                ),
+                                AppSpacing.gap4,
+                                AppTextField(
+                                  controller: _questionController,
+                                  hint:
+                                      'e.g. What keychain/accessory is attached to it?',
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty
+                                      ? 'Please enter a verification question'
+                                      : null,
+                                ),
+                                AppSpacing.gap12,
+
+                                Text(
+                                  'Expected Answer (Kept Strictly Secret) *',
+                                  style: AppText.label(colors.warning),
+                                ),
+                                AppSpacing.gap4,
+                                AppTextField(
+                                  controller: _answerController,
+                                  hint: 'e.g. Red keychain',
+                                  prefixIcon: Icon(
+                                    Icons.lock,
+                                    size: 18,
+                                    color: colors.muted,
+                                  ),
+                                  validator: (v) =>
+                                      v == null || v.trim().isEmpty
+                                      ? 'Please enter the expected answer'
+                                      : null,
+                                ),
+                              ],
+                            ),
+                          ),
+                          AppSpacing.gap16,
+
+                          const SectionHeader(title: 'Photo (Optional)'),
+                          AppSpacing.gap8,
+                          PhotoPickerWidget(
+                            initialImageUrl: _imageUrl,
+                            onImageChanged: (url) {
+                              setState(() => _imageUrl = url);
+                            },
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Verification Question Box
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFDE68A)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.verified_user,
-                              color: AppTheme.warningAmber,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Private Ownership Verification Challenge',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: const Color(0xFF92400E),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'To ensure only the real owner claims this item, ask a specific question that only they would know. The answer is NEVER shown publicly and is securely verified on the server.',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: const Color(0xFF78350F),
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Question
-                        Text(
-                          'Verification Question *',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF78350F),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          controller: _questionController,
-                          decoration: const InputDecoration(
-                            fillColor: Colors.white,
-                            hintText:
-                                'e.g. What keychain/accessory is attached to it?',
-                          ),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? 'Please enter a verification question'
-                              : null,
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Answer
-                        Text(
-                          'Expected Answer (Kept Strictly Secret) *',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF78350F),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          controller: _answerController,
-                          decoration: const InputDecoration(
-                            fillColor: Colors.white,
-                            hintText: 'e.g. Red keychain',
-                            prefixIcon: Icon(Icons.lock, size: 18),
-                          ),
-                          validator: (v) => v == null || v.trim().isEmpty
-                              ? 'Please enter the expected answer'
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Photo Picker (Camera + Gallery)
-                  PhotoPickerWidget(
-                    initialImageUrl: _imageUrl,
-                    onImageChanged: (url) {
-                      setState(() => _imageUrl = url);
-                    },
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitReport,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.recoveryGreen,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(
-                              'Post Found Item & Notify Owners',
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.s20),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                border: Border(top: BorderSide(color: colors.line)),
+              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: AppButton(
+                      onPressed: _isSubmitting ? null : _submitReport,
+                      label: 'Post Found Item & Notify Owners',
+                      variant: AppButtonVariant.found,
+                      loading: _isSubmitting,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
