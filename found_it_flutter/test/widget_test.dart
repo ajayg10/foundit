@@ -8,6 +8,7 @@ import 'package:found_it_flutter/screens/report_lost_screen.dart';
 import 'package:found_it_flutter/screens/report_found_screen.dart';
 import 'package:found_it_flutter/screens/location_selector_screen.dart';
 import 'package:found_it_flutter/screens/notifications_screen.dart';
+import 'package:found_it_flutter/screens/home_screen.dart';
 import 'package:found_it_flutter/ui/ui.dart';
 
 void main() {
@@ -99,5 +100,41 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.byType(NotificationsScreen), findsOneWidget);
+  });
+
+  testWidgets('Bottom navigation bar stays pinned across all tabs', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: FoundItTheme.light,
+        home: const HomeScreen(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // 1. Initial state: on Home tab, bottom navigation bar is present
+    expect(find.byType(AppBottomNav), findsOneWidget);
+
+    // 2. Tap "Public Board" tab
+    await tester.tap(find.text('Public Board').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomNav), findsOneWidget);
+    expect(find.byType(PublicBoardScreen), findsOneWidget);
+
+    // 3. Tap "Matches" tab
+    await tester.tap(find.text('Matches').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomNav), findsOneWidget);
+    expect(find.byType(MatchesScreen), findsOneWidget);
+
+    // 4. Tap "My Activity" tab
+    await tester.tap(find.text('My Activity').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomNav), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsOneWidget);
+
+    // 5. Tap "Home" tab
+    await tester.tap(find.text('Home').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppBottomNav), findsOneWidget);
   });
 }

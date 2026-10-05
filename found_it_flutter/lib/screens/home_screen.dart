@@ -18,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _currentNavIndex = 0;
+  int _dashboardTab = 0;
   List<ItemReport> _recentFoundItems = [];
   bool _isLoadingRecent = true;
   int _areaFoundCount = 0;
@@ -277,23 +279,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ];
 
-        void handleNav(int index) {
-          if (index == 1) {
-            Navigator.of(context)
-                .push(
-                  MaterialPageRoute(builder: (_) => const PublicBoardScreen()),
-                )
-                .then((_) => _loadRecent());
-          } else if (index == 2) {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const MatchesScreen()))
-                .then((_) => _loadRecent());
-          } else if (index == 3) {
-            Navigator.of(context)
-                .push(
-                  MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                )
-                .then((_) => _loadRecent());
+        void handleNav(int index, {int dashboardTab = 0}) {
+          setState(() {
+            _currentNavIndex = index;
+            _dashboardTab = dashboardTab;
+          });
+          if (index == 0) {
+            _loadRecent();
           }
         }
 
@@ -352,13 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 // Live Match Discovery Banner (if matches exist)
                 if (matches.isNotEmpty) ...[
                   InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const MatchesScreen(),
-                        ),
-                      );
-                    },
+                    onTap: () => handleNav(2),
                     borderRadius: AppRadius.tileBr,
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.s16),
@@ -422,44 +408,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   returnedCount: _areaReturnedCount,
                   locationName:
                       AppState.instance.currentLocation?.name ?? "this area",
-                  onMatchesTap: () {
-                    Navigator.of(context)
-                        .push(
-                          MaterialPageRoute(
-                            builder: (_) => const MatchesScreen(),
-                          ),
-                        )
-                        .then((_) => _loadRecent());
-                  },
-                  onLostTap: () {
-                    Navigator.of(context)
-                        .push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const DashboardScreen(initialTab: 0),
-                          ),
-                        )
-                        .then((_) => _loadRecent());
-                  },
-                  onFoundTap: () {
-                    Navigator.of(context)
-                        .push(
-                          MaterialPageRoute(
-                            builder: (_) => const PublicBoardScreen(),
-                          ),
-                        )
-                        .then((_) => _loadRecent());
-                  },
-                  onReturnedTap: () {
-                    Navigator.of(context)
-                        .push(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                const DashboardScreen(initialTab: 4),
-                          ),
-                        )
-                        .then((_) => _loadRecent());
-                  },
+                  onMatchesTap: () => handleNav(2),
+                  onLostTap: () => handleNav(3, dashboardTab: 0),
+                  onFoundTap: () => handleNav(1),
+                  onReturnedTap: () => handleNav(3, dashboardTab: 4),
                 ),
                 AppSpacing.gap24,
 
@@ -484,15 +436,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 120),
                       child: TextButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                              .push(
-                                MaterialPageRoute(
-                                  builder: (_) => const PublicBoardScreen(),
-                                ),
-                              )
-                              .then((_) => _loadRecent());
-                        },
+                        onPressed: () => handleNav(1),
                         child: const Text(
                           'View All Board',
                           textAlign: TextAlign.center,
@@ -526,13 +470,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(bottom: 10),
                             child: ItemCard(
                               report: item,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => const PublicBoardScreen(),
-                                  ),
-                                );
-                              },
+                              onTap: () => handleNav(1),
                             ),
                           ),
                         )
@@ -543,28 +481,57 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
 
-        return AppScaffold(
-          appBar: null,
-          body: isDesktop
-              ? Row(
-                  children: [
-                    AppNavRail(
-                      selectedIndex: 0,
-                      onDestinationSelected: handleNav,
-                      destinations: navDestinations,
-                      extended: true,
-                    ),
-                    Expanded(child: content),
-                  ],
-                )
-              : content,
-          bottomNavigationBar: isDesktop
-              ? null
-              : AppBottomNav(
-                  selectedIndex: 0,
-                  onDestinationSelected: handleNav,
-                  destinations: navDestinations,
-                ),
+        Widget activeBody;
+        switch (_currentNavIndex) {
+          case 1:
+            activeBody = const PublicBoardScreen(isEmbedded: true);
+            break;
+          case 2:
+            activeBody = const MatchesScreen(isEmbedded: true);
+            break;
+          case 3:
+            activeBody = DashboardScreen(
+              key: ValueKey('dashboard_$_dashboardTab'),
+              initialTab: _dashboardTab,
+              isEmbedded: true,
+            );
+            break;
+          case 0:
+          default:
+            activeBody = content;
+            break;
+        }
+
+        return PopScope(
+          canPop: _currentNavIndex == 0,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && _currentNavIndex != 0) {
+              setState(() => _currentNavIndex = 0);
+            }
+          },
+          child: AppScaffold(
+            appBar: null,
+            body: isDesktop
+                ? Row(
+                    children: [
+                      AppNavRail(
+                        selectedIndex: _currentNavIndex,
+                        onDestinationSelected: handleNav,
+                        destinations: navDestinations,
+                        extended: true,
+                      ),
+                      Expanded(child: activeBody),
+                    ],
+                  )
+                : activeBody,
+            bottomNavigationBar: isDesktop
+                ? null
+                : AppBottomNav(
+                    selectedIndex: _currentNavIndex,
+                    onDestinationSelected: handleNav,
+                    destinations: navDestinations,
+                  ),
+          ),
         );
       },
     );

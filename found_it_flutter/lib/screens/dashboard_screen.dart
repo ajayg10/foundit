@@ -12,7 +12,12 @@ import 'report_found_screen.dart';
 /// Lost | Found | Matches | Claims | Returned
 class DashboardScreen extends StatefulWidget {
   final int initialTab;
-  const DashboardScreen({super.key, this.initialTab = 0});
+  final bool isEmbedded;
+  const DashboardScreen({
+    super.key,
+    this.initialTab = 0,
+    this.isEmbedded = false,
+  });
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -50,6 +55,14 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   @override
+  void didUpdateWidget(DashboardScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) {
+      _tabController.animateTo(widget.initialTab.clamp(0, 4));
+    }
+  }
+
+  @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
@@ -75,8 +88,9 @@ class _DashboardScreenState extends State<DashboardScreen>
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: const AppTopBar(
+      appBar: AppTopBar(
         title: 'My Dashboard',
+        showBackButton: !widget.isEmbedded,
       ),
       body: Column(
         children: [

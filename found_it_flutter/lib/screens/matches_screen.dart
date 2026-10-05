@@ -4,7 +4,8 @@ import '../ui/ui.dart';
 import '../widgets/match_card.dart';
 
 class MatchesScreen extends StatefulWidget {
-  const MatchesScreen({super.key});
+  final bool isEmbedded;
+  const MatchesScreen({super.key, this.isEmbedded = false});
 
   @override
   State<MatchesScreen> createState() => _MatchesScreenState();
@@ -46,6 +47,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
         return AppScaffold(
           appBar: AppTopBar(
             title: 'Possible Matches',
+            showBackButton: !widget.isEmbedded,
             actions: [
               IconButton(
                 icon: Icon(Icons.refresh, color: context.colors.ink),

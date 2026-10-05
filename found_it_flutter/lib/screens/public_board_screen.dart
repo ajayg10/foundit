@@ -9,7 +9,8 @@ import '../widgets/verification_dialog.dart';
 import 'location_selector_screen.dart';
 
 class PublicBoardScreen extends StatefulWidget {
-  const PublicBoardScreen({super.key});
+  final bool isEmbedded;
+  const PublicBoardScreen({super.key, this.isEmbedded = false});
 
   @override
   State<PublicBoardScreen> createState() => _PublicBoardScreenState();
@@ -231,6 +232,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
     return AppScaffold(
       appBar: AppTopBar(
         title: 'Public Found Items',
+        showBackButton: !widget.isEmbedded,
         actions: [
           InkWell(
             onTap: () async {
