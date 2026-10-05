@@ -431,7 +431,7 @@ class _PublicBoardScreenState extends State<PublicBoardScreen> {
               crossAxisCount: crossAxisCount,
               mainAxisSpacing: AppSpacing.s12,
               crossAxisSpacing: AppSpacing.s12,
-              mainAxisExtent: 140,
+              mainAxisExtent: 168,
             ),
             itemCount: _items.length,
             itemBuilder: (context, index) {
