@@ -62,33 +62,47 @@ class BrandHeader extends StatelessWidget {
               listenable: ThemeModeController.instance,
               builder: (context, _) {
                 final isDark = Theme.of(context).brightness == Brightness.dark;
-                return SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Semantics(
-                    label: isDark
-                        ? 'Switch to light appearance'
-                        : 'Switch to dark appearance',
-                    button: true,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      tooltip: isDark
-                          ? 'Switch to Light Theme'
-                          : 'Switch to Dark Theme',
-                      icon: Icon(
-                        isDark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        color: isDark ? colors.warning : colors.ink,
-                        size: 21,
-                      ),
-                      onPressed: () {
+                return Semantics(
+                  label: isDark
+                      ? 'Switch to light appearance'
+                      : 'Switch to dark appearance',
+                  button: true,
+                  child: Tooltip(
+                    message: isDark
+                        ? 'Switch to Light Theme'
+                        : 'Switch to Dark Theme',
+                    child: InkWell(
+                      onTap: () {
                         if (isDark) {
                           ThemeModeController.instance.setLight();
                         } else {
                           ThemeModeController.instance.setDark();
                         }
                       },
+                      borderRadius: BorderRadius.circular(20),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? colors.warning.withAlpha(30)
+                              : colors.brand.withAlpha(20),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isDark
+                                ? colors.warning.withAlpha(90)
+                                : colors.brand.withAlpha(50),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          isDark
+                              ? Icons.light_mode_rounded
+                              : Icons.dark_mode_rounded,
+                          color: isDark ? colors.warning : colors.brand,
+                          size: 19,
+                        ),
+                      ),
                     ),
                   ),
                 );
