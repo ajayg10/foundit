@@ -116,104 +116,110 @@ class ItemCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Left accent border
-              Container(
-                width: 4,
-                color: _typeColor(context),
-              ),
+        child: Stack(
+          children: [
+            // Left accent border spanning full card height
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 4,
+              child: ColoredBox(color: _typeColor(context)),
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(width: 4),
 
-              // ── Photo thumbnail ──────────────────────────────────────
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.s12),
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: _typeSoftColor(context),
-                    borderRadius: AppRadius.buttonBr,
+                // ── Photo thumbnail ──────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.s12),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      color: _typeSoftColor(context),
+                      borderRadius: AppRadius.buttonBr,
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: _photoWidget(context),
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: _photoWidget(context),
                 ),
-              ),
 
-              // ── Content ──────────────────────────────────────────────
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: AppSpacing.s12,
-                    right: AppSpacing.s16,
-                    bottom: AppSpacing.s12,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Badges row
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: AppSpacing.s8,
-                        runSpacing: AppSpacing.s4,
-                        children: [
-                          StatusBadge(status: isLost ? 'Lost' : 'Found'),
-                          if (report.status.toLowerCase() != 'open')
-                            StatusBadge(status: report.status),
-                          Text(
-                            _relativeTime(report.eventTime),
-                            style: AppText.caption(colors.muted),
-                          ),
-                        ],
-                      ),
-                      AppSpacing.gap8,
-
-                      // Title
-                      Text(
-                        report.title,
-                        style: AppText.h3(colors.ink),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      AppSpacing.gap4,
-
-                      // Description
-                      Text(
-                        report.description,
-                        style: AppText.body(colors.muted),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      AppSpacing.gap8,
-
-                      // Location row
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            size: 16,
-                            color: colors.brand,
-                          ),
-                          AppSpacing.hGap4,
-                          Expanded(
-                            child: Text(
-                              report.locationLabel,
-                              style: AppText.caption(colors.ink),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                // ── Content ──────────────────────────────────────────────
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: AppSpacing.s12,
+                      right: AppSpacing.s16,
+                      bottom: AppSpacing.s12,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Badges row
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: AppSpacing.s8,
+                          runSpacing: AppSpacing.s4,
+                          children: [
+                            StatusBadge(status: isLost ? 'Lost' : 'Found'),
+                            if (report.status.toLowerCase() != 'open')
+                              StatusBadge(status: report.status),
+                            Text(
+                              _relativeTime(report.eventTime),
+                              style: AppText.caption(colors.muted),
                             ),
-                          ),
-                          if (trailing != null) trailing!,
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        AppSpacing.gap4,
+
+                        // Title
+                        Text(
+                          report.title,
+                          style: AppText.h3(colors.ink),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        AppSpacing.gap4,
+
+                        // Description
+                        Text(
+                          report.description,
+                          style: AppText.body(colors.muted),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+
+                        // Location row
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_rounded,
+                              size: 16,
+                              color: colors.brand,
+                            ),
+                            AppSpacing.hGap4,
+                            Expanded(
+                              child: Text(
+                                report.locationLabel,
+                                style: AppText.caption(colors.ink),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (trailing != null) trailing!,
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
       ),
     );

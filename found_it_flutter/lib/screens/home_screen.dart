@@ -131,54 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
               Divider(color: colors.line),
               AppSpacing.gap8,
 
-              // Appearance toggle
-              Text(
-                'Appearance',
-                style: AppText.caption(colors.muted).copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              AppSpacing.gap8,
-              ListenableBuilder(
-                listenable: ThemeModeController.instance,
-                builder: (context, _) {
-                  final mode = ThemeModeController.instance.mode;
-                  return SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        label: Text('System'),
-                        icon: Icon(Icons.brightness_auto),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        label: Text('Light'),
-                        icon: Icon(Icons.light_mode),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.dark,
-                        label: Text('Dark'),
-                        icon: Icon(Icons.dark_mode),
-                      ),
-                    ],
-                    selected: {mode},
-                    onSelectionChanged: (set) =>
-                        ThemeModeController.instance.setMode(set.first),
-                    style: SegmentedButton.styleFrom(
-                      backgroundColor: colors.surface,
-                      selectedBackgroundColor: colors.brand.withAlpha(20),
-                      foregroundColor: colors.muted,
-                      selectedForegroundColor: colors.brand,
-                    ),
-                  );
-                },
-              ),
-
-              AppSpacing.gap16,
-              Divider(color: colors.line),
-              AppSpacing.gap8,
-
               Text(
                 'Demo Personas (Quick Switch)',
                 style: AppText.caption(colors.muted).copyWith(

@@ -57,10 +57,47 @@ class BrandHeader extends StatelessWidget {
                 ],
               ),
             ),
+            // Appearance Theme Toggle (Light / Dark)
+            ListenableBuilder(
+              listenable: ThemeModeController.instance,
+              builder: (context, _) {
+                final isDark = Theme.of(context).brightness == Brightness.dark;
+                return SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Semantics(
+                    label: isDark
+                        ? 'Switch to light appearance'
+                        : 'Switch to dark appearance',
+                    button: true,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      tooltip: isDark
+                          ? 'Switch to Light Theme'
+                          : 'Switch to Dark Theme',
+                      icon: Icon(
+                        isDark
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: isDark ? colors.warning : colors.ink,
+                        size: 21,
+                      ),
+                      onPressed: () {
+                        if (isDark) {
+                          ThemeModeController.instance.setLight();
+                        } else {
+                          ThemeModeController.instance.setDark();
+                        }
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
             // Notifications Bell (48×48 minimum tap target)
             SizedBox(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -113,8 +150,8 @@ class BrandHeader extends StatelessWidget {
             ),
             // Bolt (48×48 minimum tap target)
             SizedBox(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               child: Semantics(
                 label: 'Seed hackathon demo data',
                 button: true,
@@ -126,132 +163,107 @@ class BrandHeader extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 4),
+
+            // Profile Button beside Seed Data option
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: Semantics(
+                label:
+                    'Profile: ${currentUser.name}. Tap to switch user or sign out.',
+                button: true,
+                child: InkWell(
+                  onTap: onUserSwitch,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Center(
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: colors.brand,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colors.onBrand.withAlpha(80),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          currentUser.name.isNotEmpty
+                              ? currentUser.name[0].toUpperCase()
+                              : 'U',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colors.onBrand,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
         AppSpacing.gap12,
-        // Row 2: Location and Identity pills
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            // Active Campus / Location Pill
-            Semantics(
-              label: 'Current location: $locName. Tap to change.',
-              button: true,
-              child: InkWell(
-                onTap: () async {
-                  final changed = await Navigator.of(context).push<bool>(
-                    MaterialPageRoute(
-                      builder: (_) => const LocationSelectorScreen(),
+        // Row 2: Location pill
+        Semantics(
+          label: 'Current location: $locName. Tap to change.',
+          button: true,
+          child: InkWell(
+            onTap: () async {
+              final changed = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => const LocationSelectorScreen(),
+                ),
+              );
+              if (changed == true) {
+                onLocationChanged();
+              }
+            },
+            borderRadius: AppRadius.pillBr,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              constraints: const BoxConstraints(minHeight: 36),
+              decoration: BoxDecoration(
+                color: colors.brand.withAlpha(20),
+                borderRadius: AppRadius.pillBr,
+                border: Border.all(color: colors.brand.withAlpha(50)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.place_rounded,
+                    size: 15,
+                    color: colors.brand,
+                  ),
+                  AppSpacing.hGap4,
+                  Flexible(
+                    child: Text(
+                      locName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppText.caption(colors.brand).copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  );
-                  if (changed == true) {
-                    onLocationChanged();
-                  }
-                },
-                borderRadius: AppRadius.pillBr,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
                   ),
-                  constraints: const BoxConstraints(minHeight: 36),
-                  decoration: BoxDecoration(
-                    color: colors.brand.withAlpha(20),
-                    borderRadius: AppRadius.pillBr,
-                    border: Border.all(color: colors.brand.withAlpha(50)),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    size: 16,
+                    color: colors.brand,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.place_rounded,
-                        size: 15,
-                        color: colors.brand,
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: Text(
-                          locName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppText.caption(colors.brand).copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: colors.brand,
-                      ),
-                    ],
-                  ),
-                ),
+                ],
               ),
             ),
-
-            // Active Identity Pill
-            Semantics(
-              label: 'Current user: ${currentUser.name}. Tap to switch.',
-              button: true,
-              child: InkWell(
-                onTap: onUserSwitch,
-                borderRadius: AppRadius.pillBr,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  constraints: const BoxConstraints(minHeight: 36),
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: AppRadius.pillBr,
-                    border: Border.all(color: colors.line),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircleAvatar(
-                        radius: 10,
-                        backgroundColor: colors.brand,
-                        child: ExcludeSemantics(
-                          child: Text(
-                            currentUser.name.isNotEmpty
-                                ? currentUser.name[0].toUpperCase()
-                                : 'U',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: colors.onBrand,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: Text(
-                          currentUser.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppText.caption(colors.ink).copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Icon(
-                        Icons.arrow_drop_down,
-                        size: 16,
-                        color: colors.muted,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
